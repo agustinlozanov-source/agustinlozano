@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCALEx Portal — Rituales</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- ⚠️ AUTH GUARD primero -->
+  <script type="module" src="/assets/js/auth-guard.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal: #1aab99; --teal-light: rgba(26,171,153,0.12);
+      --indigo: #3533cd; --indigo-light: rgba(53,51,205,0.12);
+      --gradient: linear-gradient(135deg, #1aab99, #3533cd);
+      --gradient-soft: linear-gradient(135deg, rgba(26,171,153,0.15), rgba(53,51,205,0.15));
+      --green: #00c853; --green-light: rgba(0,200,83,0.12);
+      --amber: #ff9500; --amber-light: rgba(255,149,0,0.12);
+      --red: #ff3b30; --red-light: rgba(255,59,48,0.12);
+      --purple: #7c3aed; --purple-light: rgba(124,58,237,0.12);
+      --radius-xl: 28px; --radius-lg: 20px; --radius: 14px; --radius-sm: 9px;
+      --sidebar-w: 80px;
+      font-family: 'Inter', sans-serif; line-height: 1.6;
+    }
+    [data-theme="dark"] {
+      --bg-page: #0a0a0c; --bg-shell: #141416; --bg-card: #1c1c1e; --bg-card-2: #242426;
+      --bg-input: #0d0d10; --bg-paper: #1c1c1e;
+      --surface: rgba(255,255,255,0.04); --surface-hover: rgba(255,255,255,0.07);
+      --border: rgba(255,255,255,0.08); --border-strong: rgba(255,255,255,0.13);
+      --text: #fff; --text-2: #c7c7cc; --text-3: #8e8e93; --text-4: #48484a;
+      --sidebar-bg: #050506;
+    }
+    [data-theme="light"] {
+      --bg-page: #eef0f5; --bg-shell: #fff; --bg-card: #f5f5f7; --bg-card-2: #ebebef;
+      --bg-input: #fff; --bg-paper: #fbf9f4;
+      --surface: rgba(0,0,0,0.03); --surface-hover: rgba(0,0,0,0.055);
+      --border: rgba(0,0,0,0.08); --border-strong: rgba(0,0,0,0.14);
+      --text: #070708; --text-2: #3a3a3c; --text-3: #6e6e73; --text-4: #c7c7cc;
+      --sidebar-bg: #0a0a0c;
+    }
+
+    body { background: var(--bg-page); color: var(--text); min-height: 100vh; overflow: hidden; transition: background .3s, color .3s; }
+    .app-layout { display: flex; min-height: 100vh; padding: 16px; gap: 16px; }
+
+    /* SIDEBAR */
+    .sidebar {
+      width:var(--sidebar-w); background:var(--sidebar-bg);
+      border-radius:var(--radius-xl); padding:20px 0;
+      display:flex; flex-direction:column; align-items:center; gap:8px;
+      flex-shrink:0; position:sticky; top:16px; height:calc(100vh - 32px);
+    }
+    .sidebar-logo {
+      width:44px; height:44px; border-radius:12px; background:var(--gradient);
+      display:flex; align-items:center; justify-content:center;
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:900; font-size:18px; color:white;
+      margin-bottom:16px; letter-spacing:-0.5px; text-decoration:none;
+    }
+    .sidebar-divider { width:28px; height:1px; background:rgba(255,255,255,0.08); margin:4px 0; }
+    .sidebar-icon {
+      width:44px; height:44px; border-radius:12px;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:all .2s;
+      color:rgba(255,255,255,0.5); position:relative;
+      text-decoration:none; background:none; border:none;
+    }
+    .sidebar-icon:hover { background:rgba(255,255,255,0.06); color:white; }
+    .sidebar-icon.active { background:var(--gradient); color:white; }
+    .sidebar-icon.active::before {
+      content:''; position:absolute; left:-16px; top:50%; transform:translateY(-50%);
+      width:3px; height:24px; background:var(--teal); border-radius:0 3px 3px 0;
+    }
+    .sidebar-icon svg { width:20px; height:20px; }
+    .sidebar-bottom { margin-top:auto; display:flex; flex-direction:column; gap:8px; align-items:center; }
+
+    /* SHELL */
+    .shell {
+      flex:1; background:var(--bg-shell); border-radius:var(--radius-xl);
+      overflow:hidden; display:flex; flex-direction:column;
+      height:calc(100vh - 32px);
+    }
+
+    /* TOPBAR */
+    .topbar {
+      padding:18px 28px; display:flex; align-items:center; gap:16px;
+      border-bottom:1px solid var(--border); flex-shrink:0;
+    }
+    .topbar-back {
+      width:36px; height:36px; border-radius:10px;
+      background:var(--surface); border:1px solid var(--border);
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:all .2s; color:var(--text-2);
+      text-decoration:none;
+    }
+    .topbar-back:hover { background:var(--surface-hover); color:var(--text); }
+    .topbar-back svg { width:16px; height:16px; }
+    .topbar-back-hidden { visibility:hidden; }
+
+    .topbar-title-block { flex:1; min-width:0; }
+    .topbar-eyebrow {
+      font-size:11px; font-weight:700; letter-spacing:1.2px;
+      text-transform:uppercase; color:var(--teal);
+    }
+    .topbar-title {
+      font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:18px; font-weight:800; color:var(--text);
+      letter-spacing:-0.3px; margin-top:2px;
+    }
+    .topbar-actions { display:flex; align-items:center; gap:10px; }
+
+    .btn {
+      padding:10px 18px; border-radius:50px;
+      font-family:'Plus Jakarta Sans',sans-serif; font-size:13px; font-weight:700;
+      cursor:pointer; border:none;
+      display:inline-flex; align-items:center; gap:8px;
+      transition:all .2s; text-decoration:none;
+    }
+    .btn svg { width:14px; height:14px; }
+    .btn-primary { background:var(--gradient); color:white; }
+    .btn-primary:hover:not(:disabled) { transform:translateY(-1px); }
+    .btn-primary:disabled { opacity:0.5; cursor:not-allowed; }
+    .btn-ghost { background:var(--surface); border:1px solid var(--border); color:var(--text); }
+    .btn-ghost:hover { background:var(--surface-hover); }
+
+    .content { flex:1; overflow-y:auto; padding:28px 32px; }
+    .content::-webkit-scrollbar { width:8px; }
+    .content::-webkit-scrollbar-thumb { background:var(--border-strong); border-radius:50px; }
+
+    .page-header { margin-bottom:24px; }
+    .page-title {
+      font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:28px; font-weight:800; line-height:1.2;
+      letter-spacing:-0.6px; color:var(--text);
+      margin-bottom:6px;
+    }
+    .page-sub { font-size:14px; color:var(--text-3); }
+
+    .view { display:none; }
+    .view.active { display:block; animation:fadeIn .3s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+
+    /* RITUAL CARDS */
+    .ritual-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .ritual-card {
+      background:var(--bg-card); border:1px solid var(--border);
+      border-radius:var(--radius-lg); padding:24px;
+      cursor:pointer; transition:all .2s;
+      position:relative; overflow:hidden;
+    }
+    .ritual-card:hover {
+      transform:translateY(-2px); border-color:var(--border-strong);
+    }
+    .ritual-card.active::before {
+      content:''; position:absolute; top:0; right:0;
+      width:200px; height:200px;
+      background:radial-gradient(circle, rgba(26,171,153,0.10), transparent 70%);
+    }
+    .ritual-card-top {
+      display:flex; align-items:flex-start; gap:14px;
+      margin-bottom:18px; position:relative;
+    }
+    .ritual-card-icon {
+      width:48px; height:48px; border-radius:14px;
+      background:var(--gradient);
+      display:flex; align-items:center; justify-content:center;
+      color:white; flex-shrink:0;
+    }
+    .ritual-card-icon svg { width:22px; height:22px; }
+    .ritual-card-info { flex:1; min-width:0; }
+    .ritual-card-name {
+      font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:17px; font-weight:800; color:var(--text);
+      letter-spacing:-0.3px; line-height:1.2; margin-bottom:4px;
+    }
+    .ritual-card-pillar {
+      font-size:11px; font-weight:600; color:var(--text-3);
+      text-transform:uppercase; letter-spacing:0.5px;
+    }
+    .ritual-card-status {
+      font-size:10px; font-weight:700;
+      padding:4px 10px; border-radius:50px;
+      text-transform:uppercase; letter-spacing:0.5px;
+    }
+    .ritual-card-status.active { background:var(--green-light); color:var(--green); }
+    .ritual-card-status.pending { background:var(--amber-light); color:var(--amber); }
+    .ritual-card-status.inactive { background:var(--surface); color:var(--text-3); }
+    .ritual-card-desc {
+      font-size:13.5px; color:var(--text-2); line-height:1.6;
+      margin-bottom:18px; position:relative;
+    }
+    .ritual-card-meta {
+      display:flex; align-items:center; gap:16px;
+      padding-top:16px; border-top:1px solid var(--border);
+      position:relative;
+    }
+    .ritual-meta-item {
+      display:flex; align-items:center; gap:6px;
+      font-size:12px; color:var(--text-3);
+    }
+    .ritual-meta-item svg { width:13px; height:13px; }
+    .ritual-meta-item strong {
+      color:var(--text); font-weight:700;
+      font-family:'Plus Jakarta Sans',sans-serif;
+    }
+    .ritual-card-cta {
+      margin-left:auto;
+      font-size:12px; font-weight:700; color:var(--teal);
+      display:inline-flex; align-items:center; gap:4px;
+    }
+    .ritual-card-cta svg { width:13px; height:13px; }
+
+    /* CONTRATO */
+    .contract-layout {
+      display:grid; grid-template-columns:1fr 320px;
+      gap:16px; align-items:start;
+    }
+    .contract-paper {
+      background:var(--bg-paper); border:1px solid var(--border);
+      border-radius:var(--radius-lg); padding:48px 56px;
+      font-family:'Inter', serif; font-size:14px; line-height:1.75;
+      color:var(--text); position:relative;
+    }
+    .contract-watermark {
+      position:absolute; top:30px; right:30px;
+      font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:11px; font-weight:800; color:var(--text-3);
+      letter-spacing:1.5px; opacity:0.5;
+    }
+    .contract-header {
+      text-align:center; padding-bottom:24px; margin-bottom:28px;
+      border-bottom:2px solid var(--teal);
+    }
+    .contract-title-line {
+      font-size:11px; font-weight:700; letter-spacing:2px;
+      text-transform:uppercase;
+      background:var(--gradient);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+      background-clip:text; margin-bottom:12px;
+    }
+    .contract-title {
+      font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:26px; font-weight:900;
+      letter-spacing:-0.5px; color:var(--text);
+      margin-bottom:8px; line-height:1.2;
+    }
+    .contract-subtitle { font-size:13.5px; color:var(--text-3); font-style:italic; }
+
+    .contract-intro {
+      margin-bottom:28px; padding:20px;
+      background:var(--surface);
+      border-left:3px solid var(--teal);
+      border-radius:0 var(--radius) var(--radius) 0;
+    }
+    .contract-intro-line { font-size:14px; line-height:1.7; color:var(--text-2); }
+    .contract-intro-line strong { color:var(--text); font-weight:700; }
+    .contract-intro-input {
+      background:transparent; border:none;
+      border-bottom:1px dashed var(--text-3);
+      color:var(--text); font-family:inherit; font-size:inherit;
+      font-weight:700; padding:0 4px; outline:none; min-width:200px;
+    }
+    .contract-intro-input:focus { border-bottom-color:var(--teal); border-bottom-style:solid; }
+    .contract-intro-input:disabled { color:var(--text); border-bottom-color:transparent; opacity:1; }
+
+    .clause { margin-bottom:24px; }
+    .clause-title {
+      font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:12px; font-weight:800;
+      letter-spacing:1px; text-transform:uppercase;
+      color:var(--teal); margin-bottom:8px;
+      display:flex; align-items:center; gap:10px;
+    }
+    .clause-num {
+      width:24px; height:24px; border-radius:7px;
+      background:var(--gradient); color:white;
+      display:flex; align-items:center; justify-content:center;
+      font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:11px; font-weight:800;
+    }
+    .clause-body {
+      font-size:14px; color:var(--text-2);
+      line-height:1.75; padding-left:34px;
+    }
+    .clause-body ul { list-style:none; padding:0; margin-top:8px; }
+    .clause-body ul li { padding-left:20px; position:relative; margin-bottom:6px; }
+    .clause-body ul li::before {
+      content:'→'; position:absolute; left:0; color:var(--teal); font-weight:700;
+    }
+    .clause-body em {
+      font-style:italic; color:var(--text);
+      background:var(--gradient-soft);
+      padding:2px 6px; border-radius:4px;
+    }
+
+    /* SIGNATURE BLOCK */
+    .signature-block {
+      margin-top:44px; padding-top:28px;
+      border-top:2px dashed var(--border-strong);
+    }
+    .signature-grid { display:grid; grid-template-columns:1fr 1fr; gap:32px; }
+    .signature-info { display:flex; flex-direction:column; gap:14px; }
+    .signature-info-row { font-size:13px; }
+    .signature-info-label {
+      font-size:11px; font-weight:700;
+      text-transform:uppercase; letter-spacing:0.5px;
+      color:var(--text-3); margin-bottom:4px;
+    }
+    .signature-info-value {
+      color:var(--text); font-weight:600;
+      font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:14px;
+    }
+    .signature-canvas-area { display:flex; flex-direction:column; }
+    .signature-canvas-label {
+      font-size:11px; font-weight:700;
+      text-transform:uppercase; letter-spacing:0.5px;
+      color:var(--text-3); margin-bottom:8px;
+    }
+    .signature-canvas-wrap {
+      background:var(--bg-input);
+      border:2px dashed var(--border-strong);
+      border-radius:var(--radius);
+      position:relative; overflow:hidden;
+      cursor:crosshair; height:140px;
+    }
+    .signature-canvas-wrap.signed {
+      border-style:solid; border-color:var(--teal);
+    }
+    .signature-canvas-wrap canvas { width:100%; height:100%; display:block; }
+    .signature-placeholder {
+      position:absolute; inset:0;
+      display:flex; align-items:center; justify-content:center;
+      color:var(--text-4);
+      font-family:'Caveat', cursive;
+      font-size:22px; pointer-events:none;
+    }
+    .signature-placeholder.hidden { display:none; }
+
+    .signature-actions { display:flex; gap:8px; margin-top:8px; }
+    .sig-action {
+      flex:1; padding:7px 12px; border-radius:var(--radius-sm);
+      background:var(--surface); border:1px solid var(--border);
+      color:var(--text-2); font-size:12px; font-weight:600;
+      cursor:pointer; transition:all .2s;
+      display:inline-flex; align-items:center; justify-content:center; gap:6px;
+      font-family:inherit;
+    }
+    .sig-action:hover { background:var(--surface-hover); color:var(--text); }
+    .sig-action svg { width:12px; height:12px; }
+
+    .signed-stamp {
+      margin-top:24px; padding:20px;
+      background:var(--green-light);
+      border:1px solid var(--green);
+      border-radius:var(--radius);
+      display:flex; align-items:center; gap:14px;
+    }
+    .signed-stamp-icon {
+      width:44px; height:44px; border-radius:12px;
+      background:var(--green); color:white;
+      display:flex; align-items:center; justify-content:center;
+      flex-shrink:0;
+    }
+    .signed-stamp-icon svg { width:22px; height:22px; }
+    .signed-stamp-info { flex:1; }
+    .signed-stamp-title {
+      font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:14px; font-weight:800; color:var(--green);
+      margin-bottom:2px;
+    }
+    .signed-stamp-meta { font-size:12px; color:var(--text-2); }
+
+    /* SIDE PANEL CONTRATO */
+    .contract-side {
+      position:sticky; top:0;
+      display:flex; flex-direction:column; gap:14px;
+    }
+    .side-card {
+      background:var(--bg-card); border:1px solid var(--border);
+      border-radius:var(--radius-lg); padding:20px;
+    }
+    .side-card-title {
+      font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:13px; font-weight:800; color:var(--text);
+      margin-bottom:14px;
+      display:flex; align-items:center; gap:8px;
+    }
+    .side-card-title svg { width:14px; height:14px; color:var(--teal); }
+    .progress-bar {
+      width:100%; height:6px; background:var(--surface);
+      border-radius:3px; overflow:hidden; margin-bottom:14px;
+    }
+    .progress-bar-fill {
+      height:100%; background:var(--gradient);
+      border-radius:3px; transition:width .6s ease;
+    }
+    .checklist { display:flex; flex-direction:column; gap:10px; }
+    .check-item {
+      display:flex; align-items:center; gap:10px; font-size:13px;
+    }
+    .check-icon {
+      width:18px; height:18px; border-radius:5px;
+      display:flex; align-items:center; justify-content:center;
+      flex-shrink:0;
+    }
+    .check-icon.done { background:var(--green); color:white; }
+    .check-icon.pending { background:var(--surface); border:1px solid var(--border); }
+    .check-icon svg { width:11px; height:11px; }
+    .check-text { color:var(--text-2); }
+    .check-item.done .check-text {
+      color:var(--text-3);
+      text-decoration:line-through;
+      text-decoration-color:var(--text-4);
+    }
+
+    .meta-list { display:flex; flex-direction:column; gap:8px; }
+    .meta-row { display:flex; justify-content:space-between; font-size:12.5px; }
+    .meta-row span:first-child { color:var(--text-3); }
+    .meta-row span:last-child {
+      color:var(--text); font-weight:600;
+      font-family:'Plus Jakarta Sans',sans-serif;
+    }
+
+    .sign-cta-card {
+      background:var(--gradient); color:white;
+      padding:22px; border-radius:var(--radius-lg);
+      position:relative; overflow:hidden;
+    }
+    .sign-cta-card::before {
+      content:''; position:absolute; top:-40px; right:-40px;
+      width:160px; height:160px;
+      background:radial-gradient(circle, rgba(255,255,255,0.15), transparent 70%);
+      border-radius:50%;
+    }
+    .sign-cta-title {
+      font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:16px; font-weight:800;
+      margin-bottom:6px; position:relative;
+    }
+    .sign-cta-text {
+      font-size:12.5px; line-height:1.5;
+      opacity:0.95; margin-bottom:14px; position:relative;
+    }
+    .sign-cta-btn {
+      width:100%; padding:11px 16px;
+      background:white; color:var(--indigo); border:none;
+      border-radius:50px;
+      font-family:'Plus Jakarta Sans',sans-serif;
+      font-weight:800; font-size:13px;
+      cursor:pointer;
+      display:inline-flex; align-items:center; justify-content:center; gap:6px;
+      position:relative; transition:all .2s;
+    }
+    .sign-cta-btn:hover:not(:disabled) { transform:translateY(-1px); }
+    .sign-cta-btn:disabled { opacity:0.6; cursor:not-allowed; }
+    .sign-cta-btn svg { width:14px; height:14px; }
+
+    .spinner {
+      width:14px; height:14px;
+      border:2px solid rgba(255,255,255,0.4);
+      border-top-color:var(--indigo);
+      border-radius:50%;
+      animation:spin .7s linear infinite;
+      display:inline-block;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* CONSEJO */
+    .consejo-grid {
+      display:grid; grid-template-columns:1fr 360px;
+      gap:16px; align-items:start;
+    }
+    .miembros-card, .calendar-card {
+      background:var(--bg-card); border:1px solid var(--border);
+      border-radius:var(--radius-lg); padding:24px;
+    }
+    .miembros-grid {
+      display:grid; grid-template-columns:1fr 1fr 1fr;
+      gap:14px; margin-top:16px;
+    }
+    .miembro-card {
+      background:var(--bg-input); border:1px solid var(--border);
+      border-radius:var(--radius); padding:18px;
+      text-align:center; position:relative; transition:all .2s;
+    }
+    .miembro-card:hover { border-color:var(--border-strong); }
+    .miembro-card.empty { border-style:dashed; cursor:pointer; }
+    .miembro-card.empty:hover { border-color:var(--teal); background:var(--teal-light); }
+    .miembro-avatar {
+      width:56px; height:56px; border-radius:50%;
+      margin:0 auto 12px;
+      display:flex; align-items:center; justify-content:center;
+      font-family:'Plus Jakarta Sans',sans-serif;
+      font-weight:800; font-size:18px; color:white;
+    }
+    .miembro-avatar.gradient-1 { background:linear-gradient(135deg, #1aab99, #3533cd); }
+    .miembro-avatar.gradient-2 { background:linear-gradient(135deg, #ff9500, #ff3b30); }
+    .miembro-avatar.gradient-3 { background:linear-gradient(135deg, #7c3aed, #3533cd); }
+    .miembro-avatar.empty { background:var(--surface); color:var(--text-3); }
+    .miembro-nombre {
+      font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:14px; font-weight:700; color:var(--text);
+      margin-bottom:2px;
+    }
+    .miembro-area {
+      font-size:11px; color:var(--text-3);
+      text-transform:uppercase; letter-spacing:0.5px;
+      font-weight:600; margin-bottom:10px;
+    }
+    .miembro-tag {
+      display:inline-block;
+      padding:3px 10px; border-radius:50px;
+      background:var(--teal-light); color:var(--teal);
+      font-size:11px; font-weight:700;
+    }
+    .miembro-card.empty .miembro-nombre { color:var(--text-3); }
+
+    .calendar-list {
+      display:flex; flex-direction:column; gap:10px; margin-top:16px;
+    }
+    .calendar-item {
+      display:flex; align-items:center; gap:14px;
+      padding:14px;
+      background:var(--bg-input); border:1px solid var(--border);
+      border-radius:var(--radius); transition:all .2s;
+    }
+    .calendar-item:hover { border-color:var(--border-strong); }
+    .calendar-date {
+      width:56px; height:56px;
+      border-radius:var(--radius-sm);
+      background:var(--gradient); color:white;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      flex-shrink:0;
+    }
+    .calendar-date.past { background:var(--surface); color:var(--text-3); }
+    .calendar-date-day {
+      font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:18px; font-weight:800; line-height:1;
+    }
+    .calendar-date-month {
+      font-size:9px; font-weight:700;
+      text-transform:uppercase; letter-spacing:0.5px;
+      margin-top:2px;
+    }
+    .calendar-info { flex:1; min-width:0; }
+    .calendar-title {
+      font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:14px; font-weight:700; color:var(--text);
+      margin-bottom:3px;
+    }
+    .calendar-meta {
+      font-size:12px; color:var(--text-3);
+      display:flex; align-items:center; gap:12px;
+    }
+    .calendar-meta svg { width:12px; height:12px; }
+    .calendar-status {
+      font-size:10px; font-weight:700;
+      padding:4px 10px; border-radius:50px;
+      text-transform:uppercase; letter-spacing:0.5px;
+    }
+    .calendar-status.upcoming { background:var(--teal-light); color:var(--teal); }
+    .calendar-status.completed { background:var(--green-light); color:var(--green); }
+    .calendar-status.scheduled { background:var(--indigo-light); color:var(--indigo); }
+
+    .payment-card {
+      background:var(--bg-card); border:1px solid var(--border);
+      border-radius:var(--radius-lg); padding:22px;
+    }
+    .payment-amount {
+      font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:36px; font-weight:900;
+      background:var(--gradient);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+      background-clip:text;
+      letter-spacing:-1px; margin-bottom:4px; line-height:1;
+    }
+    .payment-period { font-size:12px; color:var(--text-3); margin-bottom:18px; }
+    .payment-status {
+      padding:12px 14px;
+      background:var(--amber-light);
+      border-radius:var(--radius);
+      display:flex; align-items:center; gap:10px;
+      margin-bottom:14px;
+    }
+    .payment-status-icon {
+      width:32px; height:32px; border-radius:9px;
+      background:var(--amber); color:white;
+      display:flex; align-items:center; justify-content:center;
+      flex-shrink:0;
+    }
+    .payment-status-icon svg { width:14px; height:14px; }
+    .payment-status-info { flex:1; }
+    .payment-status-label {
+      font-size:11px; font-weight:700;
+      text-transform:uppercase; letter-spacing:0.5px;
+      color:var(--amber);
+    }
+    .payment-status-text { font-size:12.5px; color:var(--text); font-weight:600; }
+    .payment-history {
+      font-size:12px; color:var(--text-3);
+      padding-top:12px; border-top:1px solid var(--border);
+    }
+    .payment-history-title { font-weight:700; color:var(--text-2); margin-bottom:8px; }
+    .payment-history-item { display:flex; justify-content:space-between; padding:4px 0; }
+
+    @media (max-width: 1100px) {
+      .contract-layout, .consejo-grid, .ritual-grid { grid-template-columns:1fr; }
+      .contract-side { position:static; }
+      .miembros-grid { grid-template-columns:1fr; }
+    }
+    @media (max-width: 700px) {
+      .app-layout { padding:8px; gap:8px; }
+      .topbar { padding:14px 18px; flex-wrap:wrap; gap:10px; }
+      .content { padding:20px 18px; }
+      .contract-paper { padding:28px 20px; }
+      .signature-grid { grid-template-columns:1fr; gap:24px; }
+      .clause-body { padding-left:0; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <a href="/portal/dashboard.html" class="sidebar-logo">Sx</a>
+
+      <a href="/portal/dashboard.html" class="sidebar-icon" title="Dashboard">
+        <i data-lucide="layout-dashboard"></i>
+      </a>
+      <a href="/portal/opsp.html" class="sidebar-icon" title="OPSP">
+        <i data-lucide="map"></i>
+      </a>
+      <a href="/portal/rituales.html" class="sidebar-icon active" title="Rituales">
+        <i data-lucide="repeat"></i>
+      </a>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="sidebar-icon" title="Pilar 1: REFLEJO"><i data-lucide="user-circle"></i></div>
+      <div class="sidebar-icon" title="Pilar 2: ADN"><i data-lucide="dna"></i></div>
+      <div class="sidebar-icon" title="Pilar 3: VECTOR"><i data-lucide="target"></i></div>
+      <div class="sidebar-icon" title="Pilar 4: RITMO"><i data-lucide="activity"></i></div>
+      <div class="sidebar-icon" title="Pilar 5: FLUJO"><i data-lucide="trending-up"></i></div>
+
+      <div class="sidebar-bottom">
+        <button class="sidebar-icon" title="Cambiar tema" onclick="toggleTheme()">
+          <i data-lucide="sun" id="theme-icon"></i>
+        </button>
+        <button class="sidebar-icon" title="Cerrar sesión" onclick="logout()">
+          <i data-lucide="log-out"></i>
+        </button>
+      </div>
+    </aside>
+
+    <!-- SHELL -->
+    <main class="shell">
+
+      <!-- TOPBAR -->
+      <div class="topbar">
+        <a href="#" class="topbar-back topbar-back-hidden" id="back-btn" onclick="showView('list'); return false;">
+          <i data-lucide="arrow-left"></i>
+        </a>
+        <div class="topbar-title-block">
+          <div class="topbar-eyebrow" id="topbar-eyebrow">Pilar 4 · Ritmo</div>
+          <div class="topbar-title" id="topbar-title">Rituales de Efectividad</div>
+        </div>
+      </div>
+
+      <!-- CONTENT -->
+      <div class="content">
+
+        <!-- ════════════ VIEW 1: LISTA ════════════ -->
+        <div class="view active" id="view-list">
+
+          <div class="page-header">
+            <h1 class="page-title">Tus Rituales Activos</h1>
+            <p class="page-sub">Disciplinas que sostienen la escalabilidad de tu empresa.</p>
+          </div>
+
+          <div class="ritual-grid">
+
+            <!-- CARD: Contrato del Dueño -->
+            <div class="ritual-card active" id="card-contrato" onclick="showView('contrato')">
+              <div class="ritual-card-top">
+                <div class="ritual-card-icon"><i data-lucide="file-signature"></i></div>
+                <div class="ritual-card-info">
+                  <div class="ritual-card-name">Contrato del Dueño</div>
+                  <div class="ritual-card-pillar">Compromiso fundacional</div>
+                </div>
+                <span class="ritual-card-status pending">Por firmar</span>
+              </div>
+              <div class="ritual-card-desc">
+                Tu manifiesto personal con la escalabilidad. Antes de pedir compromiso al equipo,
+                el líder se compromete consigo mismo. Es el primer paso del Pilar 1: REFLEJO.
+              </div>
+              <div class="ritual-card-meta">
+                <div class="ritual-meta-item">
+                  <i data-lucide="file-text"></i>
+                  <span><strong>6</strong> cláusulas</span>
+                </div>
+                <div class="ritual-meta-item">
+                  <i data-lucide="user"></i>
+                  <span>Solo dueño</span>
+                </div>
+                <span class="ritual-card-cta">Firmar ahora <i data-lucide="arrow-right"></i></span>
+              </div>
+            </div>
+
+            <!-- CARD: Consejo -->
+            <div class="ritual-card active" id="card-consejo" onclick="showView('consejo')">
+              <div class="ritual-card-top">
+                <div class="ritual-card-icon"><i data-lucide="users"></i></div>
+                <div class="ritual-card-info">
+                  <div class="ritual-card-name">Consejo de Escalabilidad</div>
+                  <div class="ritual-card-pillar">Rendición trimestral</div>
+                </div>
+                <span class="ritual-card-status active">Activo</span>
+              </div>
+              <div class="ritual-card-desc">
+                2-3 personas con expertise multidisciplinario que están "arriba" del dueño.
+                Reciben rendición de cuentas trimestral y entregan valor estratégico al negocio.
+              </div>
+              <div class="ritual-card-meta">
+                <div class="ritual-meta-item ritual-meta-miembros">
+                  <i data-lucide="users"></i>
+                  <span><strong>0/3</strong> miembros</span>
+                </div>
+                <div class="ritual-meta-item ritual-meta-fecha">
+                  <i data-lucide="calendar"></i>
+                  <span>Próx. —</span>
+                </div>
+                <span class="ritual-card-cta">Ver detalles <i data-lucide="arrow-right"></i></span>
+              </div>
+            </div>
+
+            <!-- CARD: Kick-off (próximo) -->
+            <div class="ritual-card" style="opacity:0.6;">
+              <div class="ritual-card-top">
+                <div class="ritual-card-icon" style="background:var(--surface); color:var(--text-3);">
+                  <i data-lucide="rocket"></i>
+                </div>
+                <div class="ritual-card-info">
+                  <div class="ritual-card-name">Kick-off de Trimestre</div>
+                  <div class="ritual-card-pillar">Patada de salida</div>
+                </div>
+                <span class="ritual-card-status inactive">Próximamente</span>
+              </div>
+              <div class="ritual-card-desc">
+                La patada de salida del trimestre. Disponible al firmar el Contrato del Dueño.
+              </div>
+              <div class="ritual-card-meta">
+                <div class="ritual-meta-item">
+                  <i data-lucide="lock"></i>
+                  <span>Bloqueado</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- ════════════ VIEW 2: CONTRATO ════════════ -->
+        <div class="view" id="view-contrato">
+
+          <div class="contract-layout">
+
+            <div class="contract-paper">
+              <div class="contract-watermark">SCALEx · LATAM</div>
+
+              <div class="contract-header">
+                <div class="contract-title-line">RITUAL DE EFECTIVIDAD #1</div>
+                <h1 class="contract-title">Contrato de Compromiso<br/>con la Escalabilidad</h1>
+                <div class="contract-subtitle">El líder se compromete consigo mismo antes de pedir compromiso al equipo</div>
+              </div>
+
+              <div class="contract-intro">
+                <p class="contract-intro-line">
+                  Yo, <input type="text" id="contrato-nombre-input" class="contract-intro-input" placeholder="Tu nombre"/>,
+                  en mi calidad de dueño y líder de
+                  <input type="text" id="contrato-empresa-input" class="contract-intro-input" placeholder="Tu empresa" style="min-width:280px"/>,
+                  declaro lo siguiente y lo asumo como guía no negociable de mi conducta empresarial:
+                </p>
+              </div>
+
+              <div class="clause">
+                <div class="clause-title"><span class="clause-num">P</span>Preámbulo · Considerandos</div>
+                <div class="clause-body">
+                  <ul>
+                    <li>Reconozco que <em>escalar mi empresa requiere disciplina, no inspiración</em>.</li>
+                    <li>Acepto que la metodología <strong>SCALEx</strong> es el marco que voy a seguir, en sus 5 pilares: Reflejo, ADN, Vector, Ritmo y Flujo.</li>
+                    <li>Entiendo que los resultados dependen primero de mi compromiso, no del de otros.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="clause">
+                <div class="clause-title"><span class="clause-num">1</span>Del compromiso con la Visión</div>
+                <div class="clause-body">
+                  Me comprometo a sostener el Vector Audaz de mi empresa
+                  —tal como queda registrado en mi OPSP— y a no abandonarlo por presiones de corto plazo,
+                  ruido del mercado, o desánimo personal. La visión es el norte; las tácticas se ajustan,
+                  el rumbo no.
+                </div>
+              </div>
+
+              <div class="clause">
+                <div class="clause-title"><span class="clause-num">2</span>Del compromiso con el Método</div>
+                <div class="clause-body">
+                  Me comprometo a:
+                  <ul>
+                    <li>Llenar y mantener actualizado mi <strong>OPSP</strong> cada trimestre.</li>
+                    <li>Activar y respetar los <strong>Rituales de Efectividad</strong> que correspondan a cada etapa.</li>
+                    <li>Rendir cuentas al <strong>Consejo de Escalabilidad</strong> cuando exista, con transparencia y sin maquillaje.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="clause">
+                <div class="clause-title"><span class="clause-num">3</span>Del compromiso con el Equipo</div>
+                <div class="clause-body">
+                  Reconozco que no puedo escalar solo. Me comprometo a:
+                  <ul>
+                    <li>Construir un equipo que pueda decirme <em>"no"</em> sin miedo a represalias.</li>
+                    <li>Pagar lo justo por talento que vale, sin regatear la pieza clave del crecimiento.</li>
+                    <li>Soltar el control donde otros pueden hacerlo mejor que yo.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="clause">
+                <div class="clause-title"><span class="clause-num">4</span>Del compromiso Financiero</div>
+                <div class="clause-body">
+                  Me comprometo a:
+                  <ul>
+                    <li>Conocer mis números cada semana, no solo cuando hay crisis.</li>
+                    <li>No mezclar finanzas personales con las de la empresa, en ningún caso.</li>
+                    <li>Mantener reservas operativas mínimas como disciplina, no como excepción.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="clause">
+                <div class="clause-title"><span class="clause-num">5</span>Del compromiso conmigo mismo</div>
+                <div class="clause-body">
+                  Me comprometo a:
+                  <ul>
+                    <li>Trabajar <em>EN</em> el negocio, no solo <em>EN</em> él.</li>
+                    <li>Cuidar mi energía y mi salud como cuido el flujo de caja.</li>
+                    <li>No confundir actividad con productividad ni cantidad de horas con resultados.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="clause">
+                <div class="clause-title"><span class="clause-num">6</span>De las consecuencias</div>
+                <div class="clause-body">
+                  Si rompo este contrato, acepto que:
+                  <ul>
+                    <li>El Consejo de Escalabilidad me lo señalará sin titubear.</li>
+                    <li>Recalibraré mi OPSP y mis Rituales antes de seguir adelante.</li>
+                    <li>Volveré a firmar este contrato como acto consciente de reinicio.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- SIGNATURE BLOCK -->
+              <div class="signature-block">
+                <div class="signature-grid">
+
+                  <div class="signature-info">
+                    <div class="signature-info-row">
+                      <div class="signature-info-label">Firmante</div>
+                      <div class="signature-info-value" id="sig-info-firmante">—</div>
+                    </div>
+                    <div class="signature-info-row">
+                      <div class="signature-info-label">Cargo</div>
+                      <div class="signature-info-value" id="sig-info-cargo">—</div>
+                    </div>
+                    <div class="signature-info-row">
+                      <div class="signature-info-label">Fecha</div>
+                      <div class="signature-info-value" id="sig-info-fecha">—</div>
+                    </div>
+                    <div class="signature-info-row">
+                      <div class="signature-info-label">Lugar</div>
+                      <div class="signature-info-value" id="sig-info-lugar">—</div>
+                    </div>
+                  </div>
+
+                  <div class="signature-canvas-area">
+                    <div class="signature-canvas-label">Tu firma manuscrita</div>
+                    <div class="signature-canvas-wrap" id="canvas-wrap">
+                      <canvas id="signature-canvas"></canvas>
+                      <div class="signature-placeholder" id="sig-placeholder">Firma aquí</div>
+                    </div>
+                    <div class="signature-actions">
+                      <button class="sig-action" onclick="clearSignature()">
+                        <i data-lucide="eraser"></i> Limpiar
+                      </button>
+                      <button class="sig-action" onclick="useTypedSignature()">
+                        <i data-lucide="type"></i> Escribir
+                      </button>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- SIGNED STATE -->
+              <div id="signed-state" style="display:none;">
+                <div class="signed-stamp">
+                  <div class="signed-stamp-icon"><i data-lucide="check"></i></div>
+                  <div class="signed-stamp-info">
+                    <div class="signed-stamp-title">Contrato firmado</div>
+                    <div class="signed-stamp-meta">
+                      Firmado · <span id="signed-timestamp"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- COLUMNA DERECHA -->
+            <div class="contract-side">
+
+              <div class="sign-cta-card" id="sign-cta">
+                <div class="sign-cta-title">Listo para firmar</div>
+                <div class="sign-cta-text">
+                  Al firmar este contrato confirmas tu compromiso con la metodología
+                  SCALEx y con la escalabilidad de tu empresa.
+                </div>
+                <button class="sign-cta-btn" id="sign-btn" disabled onclick="signContract()">
+                  <i data-lucide="pen-tool"></i>
+                  Firmar Contrato
+                </button>
+              </div>
+
+              <div class="side-card">
+                <div class="side-card-title">
+                  <i data-lucide="check-circle"></i>
+                  Progreso de firma
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-bar-fill" id="progress-fill" style="width:33%"></div>
+                </div>
+                <div class="checklist">
+                  <div class="check-item done" id="check-1">
+                    <div class="check-icon done"><i data-lucide="check"></i></div>
+                    <div class="check-text">Lectura del contrato</div>
+                  </div>
+                  <div class="check-item" id="check-2">
+                    <div class="check-icon pending"></div>
+                    <div class="check-text">Firma manuscrita</div>
+                  </div>
+                  <div class="check-item" id="check-3">
+                    <div class="check-icon pending"></div>
+                    <div class="check-text">Confirmación final</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="side-card">
+                <div class="side-card-title">
+                  <i data-lucide="info"></i>
+                  Información del documento
+                </div>
+                <div class="meta-list">
+                  <div class="meta-row"><span>Versión</span><span>v1.0</span></div>
+                  <div class="meta-row"><span>Cláusulas</span><span>6 + Preámbulo</span></div>
+                  <div class="meta-row"><span>Firmantes</span><span>Solo dueño</span></div>
+                  <div class="meta-row"><span>Validez</span><span>12 meses</span></div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- ════════════ VIEW 3: CONSEJO ════════════ -->
+        <div class="view" id="view-consejo">
+
+          <div id="consejo-content">
+
+            <div class="consejo-grid">
+
+              <div style="display:flex; flex-direction:column; gap:16px;">
+
+                <div class="miembros-card">
+                  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
+                    <h2 style="font-family:'Plus Jakarta Sans',sans-serif; font-size:18px; font-weight:800; color:var(--text); letter-spacing:-0.3px;">
+                      Miembros del Consejo
+                    </h2>
+                  </div>
+                  <p style="font-size:13px; color:var(--text-3); margin-bottom:4px;">
+                    2 a 3 personas con expertise multidisciplinario.
+                  </p>
+                  <div class="miembros-grid" id="miembros-grid"></div>
+                </div>
+
+                <div class="calendar-card">
+                  <div style="display:flex; align-items:center; justify-content:space-between;">
+                    <h2 style="font-family:'Plus Jakarta Sans',sans-serif; font-size:18px; font-weight:800; color:var(--text); letter-spacing:-0.3px;">
+                      Sesiones del Consejo
+                    </h2>
+                  </div>
+                  <p style="font-size:13px; color:var(--text-3); margin-top:4px;">
+                    Una sesión por trimestre. Rendición de cuentas + entrega de valor.
+                  </p>
+                  <div class="calendar-list" id="sesiones-list"></div>
+                </div>
+
+              </div>
+
+              <div style="display:flex; flex-direction:column; gap:14px;">
+
+                <div class="payment-card" id="pago-card">
+                  <div style="font-size:11px; font-weight:700; color:var(--text-3); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">
+                    Cuota trimestral
+                  </div>
+                  <div class="payment-amount" id="pago-amount">—</div>
+                  <div class="payment-period" id="pago-period">—</div>
+
+                  <div class="payment-status">
+                    <div class="payment-status-icon"><i data-lucide="alert-circle"></i></div>
+                    <div class="payment-status-info">
+                      <div class="payment-status-label">Pendiente</div>
+                      <div class="payment-status-text" id="pago-vence">—</div>
+                    </div>
+                  </div>
+
+                  <button class="btn btn-primary" style="width:100%; justify-content:center;">
+                    <i data-lucide="credit-card"></i>
+                    Pagar trimestre
+                  </button>
+
+                  <div class="payment-history">
+                    <div class="payment-history-title">Historial</div>
+                    <div id="pago-historial"></div>
+                  </div>
+                </div>
+
+                <div class="side-card">
+                  <div class="side-card-title">
+                    <i data-lucide="lightbulb"></i>
+                    Cuota base
+                  </div>
+                  <div style="font-family:'Plus Jakarta Sans',sans-serif; font-size:22px; font-weight:800; color:var(--text); margin-bottom:4px;" id="cuota-base">—</div>
+                  <p style="font-size:12px; color:var(--text-3); line-height:1.5;">
+                    Cuota acordada con el Consejo. Pagada cada inicio de trimestre.
+                  </p>
+                </div>
+
+                <div class="side-card">
+                  <div class="side-card-title">
+                    <i data-lucide="info"></i>
+                    ¿Por qué se paga?
+                  </div>
+                  <p style="font-size:13px; color:var(--text-2); line-height:1.6;">
+                    Los miembros del Consejo dedican tiempo, expertise y reputación al éxito de tu empresa.
+                    La cuota trimestral honra ese compromiso y mantiene la relación profesional.
+                  </p>
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <script>lucide.createIcons();</script>
+  <script type="module" src="/assets/js/rituales.js"></script>
+
+</body>
+</html>
