@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCALEx Portal — Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- ⚠️ AUTH GUARD — debe ir ANTES de cualquier otro script del portal -->
+  <script type="module" src="/assets/js/auth-guard.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #070708;
+      --white: #ffffff;
+      --teal: #1aab99;
+      --teal-light: rgba(26,171,153,0.12);
+      --indigo: #3533cd;
+      --indigo-light: rgba(53,51,205,0.12);
+      --gradient: linear-gradient(135deg, #1aab99, #3533cd);
+      --gradient-soft: linear-gradient(135deg, rgba(26,171,153,0.15), rgba(53,51,205,0.15));
+
+      --green: #00c853; --green-light: rgba(0,200,83,0.12);
+      --amber: #ff9500; --amber-light: rgba(255,149,0,0.12);
+      --red: #ff3b30; --red-light: rgba(255,59,48,0.12);
+      --purple: #7c3aed; --purple-light: rgba(124,58,237,0.12);
+
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius: 14px;
+      --radius-sm: 9px;
+      --sidebar-w: 80px;
+
+      font-family: 'Inter', sans-serif;
+      line-height: 1.6;
+    }
+
+    [data-theme="dark"] {
+      --bg-page: #0a0a0c;
+      --bg-shell: #141416;
+      --bg-card: #1c1c1e;
+      --bg-card-2: #242426;
+      --surface: rgba(255,255,255,0.04);
+      --surface-hover: rgba(255,255,255,0.07);
+      --border: rgba(255,255,255,0.08);
+      --border-strong: rgba(255,255,255,0.13);
+      --text: #ffffff;
+      --text-2: #c7c7cc;
+      --text-3: #8e8e93;
+      --text-4: #48484a;
+      --sidebar-bg: #050506;
+    }
+
+    [data-theme="light"] {
+      --bg-page: #eef0f5;
+      --bg-shell: #ffffff;
+      --bg-card: #f5f5f7;
+      --bg-card-2: #ebebef;
+      --surface: rgba(0,0,0,0.03);
+      --surface-hover: rgba(0,0,0,0.055);
+      --border: rgba(0,0,0,0.08);
+      --border-strong: rgba(0,0,0,0.14);
+      --text: #070708;
+      --text-2: #3a3a3c;
+      --text-3: #6e6e73;
+      --text-4: #c7c7cc;
+      --sidebar-bg: #0a0a0c;
+    }
+
+    body {
+      background: var(--bg-page);
+      color: var(--text);
+      min-height: 100vh;
+      overflow: hidden;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .app-layout { display: flex; min-height: 100vh; padding: 16px; gap: 16px; }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--sidebar-bg);
+      border-radius: var(--radius-xl);
+      padding: 20px 0;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      flex-shrink: 0;
+      position: sticky; top: 16px; height: calc(100vh - 32px);
+    }
+    .sidebar-logo {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: var(--gradient);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 900; font-size: 18px; color: white;
+      margin-bottom: 16px; letter-spacing: -0.5px;
+    }
+    .sidebar-divider {
+      width: 28px; height: 1px;
+      background: rgba(255,255,255,0.08); margin: 4px 0;
+    }
+    .sidebar-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.2s;
+      color: rgba(255,255,255,0.5); position: relative;
+      text-decoration: none;
+      background: none; border: none;
+    }
+    .sidebar-icon:hover { background: rgba(255,255,255,0.06); color: white; }
+    .sidebar-icon.active { background: var(--gradient); color: white; }
+    .sidebar-icon.active::before {
+      content: ''; position: absolute;
+      left: -16px; top: 50%; transform: translateY(-50%);
+      width: 3px; height: 24px;
+      background: var(--teal); border-radius: 0 3px 3px 0;
+    }
+    .sidebar-icon svg { width: 20px; height: 20px; }
+    .sidebar-bottom {
+      margin-top: auto;
+      display: flex; flex-direction: column; gap: 8px; align-items: center;
+    }
+
+    .shell {
+      flex: 1; background: var(--bg-shell);
+      border-radius: var(--radius-xl); overflow: hidden;
+      display: flex; flex-direction: column;
+      height: calc(100vh - 32px);
+    }
+
+    /* TOPBAR */
+    .topbar {
+      padding: 20px 32px;
+      display: flex; align-items: center; gap: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .topbar-greeting { display: flex; align-items: center; gap: 14px; }
+    .topbar-avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--gradient);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800; font-size: 16px; color: white;
+      flex-shrink: 0;
+    }
+    .topbar-greeting-text { line-height: 1.3; }
+    .topbar-greeting-hi {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 15px; font-weight: 700; color: var(--text);
+    }
+    .topbar-greeting-sub { font-size: 12px; color: var(--text-3); font-weight: 500; }
+
+    .topbar-search {
+      flex: 1; max-width: 420px; margin: 0 auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 10px 18px;
+      display: flex; align-items: center; gap: 10px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .topbar-search:focus-within {
+      border-color: var(--teal); background: var(--surface-hover);
+    }
+    .topbar-search svg { width: 16px; height: 16px; color: var(--text-3); }
+    .topbar-search input {
+      flex: 1; background: transparent; border: none; outline: none;
+      color: var(--text); font-size: 13.5px; font-family: inherit;
+    }
+    .topbar-search input::placeholder { color: var(--text-3); }
+
+    .topbar-actions { display: flex; align-items: center; gap: 10px; }
+    .topbar-icon-btn {
+      width: 40px; height: 40px; border-radius: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.2s;
+      color: var(--text-2); position: relative;
+    }
+    .topbar-icon-btn:hover { background: var(--surface-hover); color: var(--text); }
+    .topbar-icon-btn svg { width: 16px; height: 16px; }
+    .topbar-icon-btn .notif-dot {
+      position: absolute;
+      top: 8px; right: 8px;
+      width: 8px; height: 8px;
+      background: var(--red);
+      border: 2px solid var(--bg-shell);
+      border-radius: 50%;
+    }
+
+    .topbar-account {
+      padding: 8px 16px 8px 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      display: flex; align-items: center; gap: 10px;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .topbar-account:hover { background: var(--surface-hover); }
+    .topbar-account-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--gradient);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800; font-size: 11px; color: white;
+    }
+    .topbar-account-name { font-size: 12.5px; font-weight: 700; color: var(--text); }
+
+    /* CONTENT */
+    .content { flex: 1; overflow-y: auto; padding: 28px 32px 32px; }
+    .content::-webkit-scrollbar { width: 8px; }
+    .content::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 50px; }
+
+    .page-header { margin-bottom: 28px; }
+    .page-eyebrow {
+      font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--teal); margin-bottom: 8px;
+    }
+    .page-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 28px; font-weight: 800; line-height: 1.2;
+      letter-spacing: -0.6px; color: var(--text); margin-bottom: 6px;
+    }
+    .page-sub { font-size: 14px; color: var(--text-3); }
+
+    /* KPI CARDS */
+    .kpi-grid {
+      display: grid; grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 14px; margin-bottom: 28px;
+    }
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      transition: transform 0.2s, border-color 0.2s;
+      cursor: pointer; text-decoration: none; color: inherit;
+      display: block;
+    }
+    .kpi-card:hover {
+      transform: translateY(-2px); border-color: var(--border-strong);
+    }
+    .kpi-card.featured {
+      background: var(--gradient); border: none; color: white;
+    }
+    .kpi-top {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .kpi-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--surface);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--teal);
+    }
+    .kpi-card.featured .kpi-icon {
+      background: rgba(255,255,255,0.18); color: white;
+    }
+    .kpi-icon svg { width: 16px; height: 16px; }
+    .kpi-trend {
+      font-size: 11px; font-weight: 700;
+      padding: 3px 8px; border-radius: 50px;
+      background: var(--green-light); color: var(--green);
+      display: inline-flex; align-items: center; gap: 3px;
+    }
+    .kpi-card.featured .kpi-trend {
+      background: rgba(255,255,255,0.2); color: white;
+    }
+    .kpi-label {
+      font-size: 12px; font-weight: 600; color: var(--text-3);
+      margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.4px;
+    }
+    .kpi-card.featured .kpi-label { color: rgba(255,255,255,0.85); }
+    .kpi-value {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 26px; font-weight: 800; color: var(--text);
+      letter-spacing: -0.5px; line-height: 1.1;
+    }
+    .kpi-card.featured .kpi-value { color: white; }
+    .kpi-sub { font-size: 12px; color: var(--text-3); margin-top: 4px; }
+    .kpi-card.featured .kpi-sub { color: rgba(255,255,255,0.75); }
+
+    /* MAIN GRID */
+    .main-grid {
+      display: grid; grid-template-columns: 2fr 1fr;
+      gap: 16px; margin-bottom: 28px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+    }
+
+    .card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 18px;
+    }
+    .card-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 16px; font-weight: 700; color: var(--text);
+      letter-spacing: -0.2px;
+    }
+    .card-link {
+      font-size: 12px; font-weight: 600; color: var(--teal);
+      cursor: pointer; text-decoration: none;
+    }
+    .card-link:hover { opacity: 0.85; }
+
+    /* VECTOR AUDAZ CARD */
+    .vector-card {
+      background: var(--gradient); border: none; color: white;
+      position: relative; overflow: hidden;
+    }
+    .vector-card::before {
+      content: ''; position: absolute;
+      top: -40px; right: -40px;
+      width: 180px; height: 180px;
+      background: radial-gradient(circle, rgba(255,255,255,0.15), transparent 70%);
+      border-radius: 50%;
+    }
+    .vector-eyebrow {
+      font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; opacity: 0.85; margin-bottom: 10px;
+    }
+    .vector-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 18px; font-weight: 800; letter-spacing: -0.3px;
+      margin-bottom: 12px;
+    }
+    .vector-text {
+      font-size: 14px; line-height: 1.6; opacity: 0.95;
+      position: relative; z-index: 1;
+    }
+    .vector-meta {
+      display: flex; gap: 16px; margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.18);
+    }
+    .vector-meta-item { font-size: 12px; opacity: 0.85; }
+    .vector-meta-item strong {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800; opacity: 1; display: block; font-size: 14px;
+    }
+
+    /* ROCAS */
+    .rocas-list { display: flex; flex-direction: column; gap: 14px; }
+    .roca-item { display: flex; align-items: center; gap: 14px; }
+    .roca-icon {
+      width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13px; font-weight: 800;
+    }
+    .roca-icon.green { background: var(--green-light); color: var(--green); }
+    .roca-icon.amber { background: var(--amber-light); color: var(--amber); }
+    .roca-icon.red { background: var(--red-light); color: var(--red); }
+    .roca-content { flex: 1; min-width: 0; }
+    .roca-title {
+      font-size: 13.5px; font-weight: 600; color: var(--text);
+      margin-bottom: 6px; line-height: 1.4;
+    }
+    .roca-meta { display: flex; align-items: center; gap: 10px; }
+    .roca-progress {
+      flex: 1; height: 5px; background: var(--surface);
+      border-radius: 3px; overflow: hidden;
+    }
+    .roca-progress-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+    .roca-progress-fill.green { background: var(--green); }
+    .roca-progress-fill.amber { background: var(--amber); }
+    .roca-progress-fill.red { background: var(--red); }
+    .roca-percent {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 12px; font-weight: 700; color: var(--text-2);
+      min-width: 32px; text-align: right;
+    }
+
+    /* OPSP RING */
+    .opsp-progress {
+      display: flex; align-items: center; gap: 18px; padding: 4px 0;
+    }
+    .opsp-ring { width: 88px; height: 88px; flex-shrink: 0; position: relative; }
+    .opsp-ring svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+    .opsp-ring-bg { stroke: var(--surface); stroke-width: 8; fill: none; }
+    .opsp-ring-fill {
+      stroke: url(#gradient-ring);
+      stroke-width: 8; fill: none; stroke-linecap: round;
+      transition: stroke-dashoffset 0.8s ease;
+    }
+    .opsp-ring-text {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column;
+    }
+    .opsp-ring-percent {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 22px; font-weight: 800; color: var(--text);
+      letter-spacing: -0.5px;
+    }
+    .opsp-ring-label {
+      font-size: 9px; color: var(--text-3);
+      text-transform: uppercase; letter-spacing: 0.5px;
+      font-weight: 600; margin-top: -2px;
+    }
+    .opsp-info { flex: 1; }
+    .opsp-info-rows { display: flex; flex-direction: column; gap: 6px; }
+    .opsp-info-row { display: flex; justify-content: space-between; font-size: 12.5px; }
+    .opsp-info-row span:first-child { color: var(--text-3); }
+    .opsp-info-row span:last-child {
+      color: var(--text); font-weight: 600;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    /* RITUALES */
+    .ritual-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .ritual-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .ritual-item:first-child { padding-top: 0; }
+    .ritual-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--teal-light); color: var(--teal);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .ritual-icon svg { width: 16px; height: 16px; }
+    .ritual-content { flex: 1; min-width: 0; }
+    .ritual-name {
+      font-size: 13.5px; font-weight: 600; color: var(--text);
+      margin-bottom: 2px;
+    }
+    .ritual-status { font-size: 11.5px; color: var(--text-3); }
+    .ritual-badge {
+      font-size: 10px; font-weight: 700; padding: 3px 8px;
+      border-radius: 50px;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .ritual-badge.green { background: var(--green-light); color: var(--green); }
+    .ritual-badge.amber { background: var(--amber-light); color: var(--amber); }
+    .ritual-badge.gray { background: var(--surface); color: var(--text-3); }
+
+    /* PROXIMA SESION */
+    .session-card {
+      background: var(--bg-card-2);
+      border-radius: var(--radius);
+      padding: 18px;
+    }
+    .session-date {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 11px; font-weight: 700; color: var(--teal);
+      letter-spacing: 0.5px; text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .session-title {
+      font-size: 14px; font-weight: 700; color: var(--text);
+      margin-bottom: 4px;
+    }
+    .session-time {
+      font-size: 12px; color: var(--text-3);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .session-time svg { width: 12px; height: 12px; }
+
+    /* BOTTOM ROW */
+    .bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    .promesa-list { display: flex; flex-direction: column; gap: 10px; }
+    .promesa-item { display: flex; gap: 12px; align-items: flex-start; }
+    .promesa-num {
+      width: 24px; height: 24px; border-radius: 7px;
+      background: var(--gradient); color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 11px; font-weight: 800; flex-shrink: 0;
+    }
+    .promesa-text {
+      font-size: 13px; color: var(--text-2); line-height: 1.5;
+      padding-top: 2px;
+    }
+
+    .factor-x { text-align: center; padding: 8px 0; }
+    .factor-x-value {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 36px; font-weight: 900;
+      background: var(--gradient);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -1px; margin-bottom: 6px;
+    }
+    .factor-x-label { font-size: 13px; color: var(--text-2); margin-bottom: 12px; }
+    .factor-x-trend {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px;
+      background: var(--green-light); color: var(--green);
+      border-radius: 50px; font-size: 12px; font-weight: 700;
+    }
+    .factor-x-trend svg { width: 12px; height: 12px; }
+
+    /* Loading state */
+    .skeleton {
+      background: linear-gradient(90deg, var(--surface), var(--surface-hover), var(--surface));
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: var(--radius-sm);
+    }
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    @media (max-width: 1100px) {
+      .kpi-grid { grid-template-columns: 1fr 1fr; }
+      .main-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 700px) {
+      .app-layout { padding: 8px; gap: 8px; }
+      .kpi-grid { grid-template-columns: 1fr; }
+      .topbar { padding: 16px 18px; flex-wrap: wrap; gap: 12px; }
+      .topbar-search { order: 3; max-width: 100%; flex: 1 1 100%; }
+      .content { padding: 20px 18px; }
+      .bottom-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SVG GRADIENT DEFS -->
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <linearGradient id="gradient-ring" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#1aab99"/>
+        <stop offset="100%" stop-color="#3533cd"/>
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <a href="/portal/dashboard.html" class="sidebar-logo" style="text-decoration:none">Sx</a>
+
+      <a href="/portal/dashboard.html" class="sidebar-icon active" title="Dashboard">
+        <i data-lucide="layout-dashboard"></i>
+      </a>
+      <a href="/portal/opsp.html" class="sidebar-icon" title="OPSP — One Page Strategic Plan">
+        <i data-lucide="map"></i>
+      </a>
+      <a href="/portal/rituales.html" class="sidebar-icon" title="Rituales">
+        <i data-lucide="repeat"></i>
+      </a>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="sidebar-icon" title="Pilar 1: REFLEJO"><i data-lucide="user-circle"></i></div>
+      <div class="sidebar-icon" title="Pilar 2: ADN"><i data-lucide="dna"></i></div>
+      <div class="sidebar-icon" title="Pilar 3: VECTOR"><i data-lucide="target"></i></div>
+      <div class="sidebar-icon" title="Pilar 4: RITMO"><i data-lucide="activity"></i></div>
+      <div class="sidebar-icon" title="Pilar 5: FLUJO"><i data-lucide="trending-up"></i></div>
+
+      <div class="sidebar-bottom">
+        <button class="sidebar-icon" title="Cambiar tema" onclick="toggleTheme()">
+          <i data-lucide="sun" id="theme-icon"></i>
+        </button>
+        <button class="sidebar-icon" title="Configuración">
+          <i data-lucide="settings"></i>
+        </button>
+        <button class="sidebar-icon" title="Cerrar sesión" onclick="logout()">
+          <i data-lucide="log-out"></i>
+        </button>
+      </div>
+    </aside>
+
+    <!-- SHELL -->
+    <main class="shell">
+
+      <!-- TOPBAR -->
+      <div class="topbar">
+        <div class="topbar-greeting">
+          <div class="topbar-avatar user-avatar">··</div>
+          <div class="topbar-greeting-text">
+            <div class="topbar-greeting-hi" id="topbar-greeting">Cargando...</div>
+            <div class="topbar-greeting-sub" id="topbar-empresa">—</div>
+          </div>
+        </div>
+
+        <div class="topbar-search">
+          <i data-lucide="search"></i>
+          <input type="text" placeholder="Buscar en tu proceso SCALEx..."/>
+        </div>
+
+        <div class="topbar-actions">
+          <div class="topbar-icon-btn">
+            <i data-lucide="bell"></i>
+            <span class="notif-dot"></span>
+          </div>
+          <div class="topbar-account" onclick="logout()" title="Cerrar sesión">
+            <div class="topbar-account-avatar user-avatar">··</div>
+            <span class="topbar-account-name">Mi cuenta</span>
+            <i data-lucide="chevron-down" style="width:14px;height:14px;color:var(--text-3)"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONTENT -->
+      <div class="content">
+
+        <div class="page-header">
+          <div class="page-eyebrow" id="page-eyebrow">Dashboard</div>
+          <h1 class="page-title">Tu proceso de escalabilidad</h1>
+          <p class="page-sub">Resumen de tu OPSP, rituales activos y próximas acciones.</p>
+        </div>
+
+        <!-- KPI CARDS -->
+        <div class="kpi-grid">
+
+          <a href="/portal/opsp.html" class="kpi-card featured">
+            <div class="kpi-top">
+              <div class="kpi-icon"><i data-lucide="map"></i></div>
+              <div class="kpi-trend">
+                <i data-lucide="arrow-up" style="width:10px;height:10px"></i>
+                Activo
+              </div>
+            </div>
+            <div class="kpi-label">OPSP Completado</div>
+            <div class="kpi-value" id="kpi-opsp-percent">—</div>
+            <div class="kpi-sub" id="kpi-opsp-sub">Cargando...</div>
+          </a>
+
+          <a href="/portal/opsp.html" class="kpi-card">
+            <div class="kpi-top">
+              <div class="kpi-icon" style="color:var(--amber); background: var(--amber-light)">
+                <i data-lucide="flag"></i>
+              </div>
+              <div class="kpi-trend" style="background:var(--amber-light); color:var(--amber)">Trimestre</div>
+            </div>
+            <div class="kpi-label">Rocas del Trimestre</div>
+            <div class="kpi-value" id="kpi-rocas-count">—</div>
+            <div class="kpi-sub" id="kpi-rocas-sub">Cargando...</div>
+          </a>
+
+          <a href="/portal/rituales.html" class="kpi-card">
+            <div class="kpi-top">
+              <div class="kpi-icon" style="color:var(--purple); background: var(--purple-light)">
+                <i data-lucide="repeat"></i>
+              </div>
+              <div class="kpi-trend">Activos</div>
+            </div>
+            <div class="kpi-label">Rituales Activos</div>
+            <div class="kpi-value" id="kpi-rituales-count">—</div>
+            <div class="kpi-sub" id="kpi-rituales-sub">Cargando...</div>
+          </a>
+
+          <a href="/portal/rituales.html" class="kpi-card">
+            <div class="kpi-top">
+              <div class="kpi-icon" style="color:var(--indigo); background: var(--indigo-light)">
+                <i data-lucide="calendar"></i>
+              </div>
+              <div class="kpi-trend">Próxima</div>
+            </div>
+            <div class="kpi-label">Próxima Sesión</div>
+            <div class="kpi-value" id="kpi-sesion-fecha">—</div>
+            <div class="kpi-sub" id="kpi-sesion-sub">Cargando...</div>
+          </a>
+
+        </div>
+
+        <!-- MAIN GRID -->
+        <div class="main-grid">
+
+          <div style="display:flex; flex-direction:column; gap:16px;">
+
+            <!-- VECTOR AUDAZ -->
+            <div class="card vector-card">
+              <div class="vector-eyebrow">🎯 Vector Audaz · BHAG</div>
+              <div class="vector-title">Tu propósito audaz</div>
+              <div class="vector-text" id="vector-audaz-text">Cargando...</div>
+              <div class="vector-meta">
+                <div class="vector-meta-item">
+                  Horizonte
+                  <strong id="vector-horizonte">—</strong>
+                </div>
+                <div class="vector-meta-item">
+                  Ingresos meta
+                  <strong id="vector-ingresos">—</strong>
+                </div>
+                <div class="vector-meta-item">
+                  Ganancias
+                  <strong id="vector-ganancias">—</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- ROCAS -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Rocas del Trimestre</div>
+                <a class="card-link" href="/portal/opsp.html">Editar →</a>
+              </div>
+              <div class="rocas-list" id="rocas-list">
+                <div class="skeleton" style="height:48px;"></div>
+                <div class="skeleton" style="height:48px;"></div>
+                <div class="skeleton" style="height:48px;"></div>
+              </div>
+            </div>
+
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:16px;">
+
+            <!-- OPSP RING -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">OPSP</div>
+                <a class="card-link" href="/portal/opsp.html">Editar →</a>
+              </div>
+              <div class="opsp-progress">
+                <div class="opsp-ring">
+                  <svg viewBox="0 0 100 100">
+                    <circle class="opsp-ring-bg" cx="50" cy="50" r="42"/>
+                    <circle id="opsp-ring-fill" class="opsp-ring-fill" cx="50" cy="50" r="42"
+                      stroke-dasharray="263.9" stroke-dashoffset="263.9"/>
+                  </svg>
+                  <div class="opsp-ring-text">
+                    <div class="opsp-ring-percent" id="opsp-ring-percent">0%</div>
+                    <div class="opsp-ring-label">Completo</div>
+                  </div>
+                </div>
+                <div class="opsp-info">
+                  <div class="opsp-info-rows">
+                    <div class="opsp-info-row"><span>Estrategia</span><span id="opsp-info-estrategia">0%</span></div>
+                    <div class="opsp-info-row"><span>Año</span><span id="opsp-info-anual">0%</span></div>
+                    <div class="opsp-info-row"><span>Trimestre</span><span id="opsp-info-trimestral">0%</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- RITUALES ACTIVOS -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Rituales Activos</div>
+                <a class="card-link" href="/portal/rituales.html">Ver →</a>
+              </div>
+              <div id="rituales-list">
+                <div class="skeleton" style="height:60px; margin-bottom:8px;"></div>
+                <div class="skeleton" style="height:60px;"></div>
+              </div>
+            </div>
+
+            <!-- PROXIMA SESION -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Próxima Sesión</div>
+                <a class="card-link" href="/portal/rituales.html">Agenda →</a>
+              </div>
+              <div id="proxima-sesion-card">
+                <div class="skeleton" style="height:80px;"></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- BOTTOM ROW -->
+        <div class="bottom-grid">
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Promesa de Marca</div>
+              <span style="font-size:11px;color:var(--text-3)" id="promesa-count">— compromisos</span>
+            </div>
+            <div class="promesa-list" id="promesa-list">
+              <div class="skeleton" style="height:24px; margin-bottom:8px;"></div>
+              <div class="skeleton" style="height:24px; margin-bottom:8px;"></div>
+              <div class="skeleton" style="height:24px;"></div>
+            </div>
+            <div id="promesa-quote" style="margin-top:16px; padding-top:14px; border-top:1px solid var(--border); font-size:12px; color:var(--text-3); font-style:italic; display:none;"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Factor X</div>
+              <span style="font-size:11px;color:var(--text-3)">Tu motor de rentabilidad</span>
+            </div>
+            <div class="factor-x">
+              <div class="factor-x-value" id="factor-x-value">—</div>
+              <div class="factor-x-label" id="factor-x-label">Cargando...</div>
+              <div class="factor-x-trend">
+                <i data-lucide="arrow-up"></i>
+                Vector Audaz
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <script>lucide.createIcons();</script>
+  <script type="module" src="/assets/js/dashboard.js"></script>
+
+</body>
+</html>
