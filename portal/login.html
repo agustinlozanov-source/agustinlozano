@@ -17,6 +17,7 @@
       --gradient: linear-gradient(135deg, #1aab99, #3533cd);
       --green: #00c853; --green-light: rgba(0,200,83,0.12);
       --red: #ff3b30; --red-light: rgba(255,59,48,0.12);
+      --amber: #ff9500; --amber-light: rgba(255,149,0,0.12);
       --radius-xl: 28px;
       --radius-lg: 20px;
       --radius: 14px;
@@ -48,10 +49,9 @@
       justify-content: center;
       padding: 24px;
       position: relative;
-      overflow: hidden;
+      overflow-x: hidden;
     }
 
-    /* Fondo con gradientes radiales */
     body::before {
       content: '';
       position: absolute;
@@ -114,26 +114,25 @@
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: var(--radius-xl);
-      padding: 40px 36px;
+      padding: 36px 32px;
     }
 
     .login-title {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 26px;
+      font-size: 24px;
       font-weight: 800;
       letter-spacing: -0.5px;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     .login-sub {
-      font-size: 14px;
+      font-size: 13.5px;
       color: var(--text-3);
-      margin-bottom: 28px;
-      line-height: 1.6;
+      margin-bottom: 24px;
     }
 
     .field {
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
     .field-label {
       font-size: 12px;
@@ -142,10 +141,18 @@
       margin-bottom: 6px;
       text-transform: uppercase;
       letter-spacing: 0.4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .field-label svg { width: 12px; height: 12px; }
+
+    .field-wrap {
+      position: relative;
     }
     .field-input {
       width: 100%;
-      padding: 13px 16px;
+      padding: 12px 16px;
       background: var(--bg-input);
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
@@ -161,6 +168,34 @@
     }
     .field-input::placeholder { color: var(--text-4); }
 
+    .field-toggle {
+      position: absolute;
+      right: 8px; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none;
+      color: var(--text-3);
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .field-toggle:hover { color: var(--text); background: var(--surface); }
+    .field-toggle svg { width: 16px; height: 16px; }
+
+    .field-link {
+      text-align: right;
+      margin-top: 6px;
+    }
+    .field-link a {
+      font-size: 12px;
+      color: var(--text-3);
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .field-link a:hover { color: var(--teal); }
+
     .btn {
       width: 100%;
       padding: 13px 20px;
@@ -175,6 +210,7 @@
       justify-content: center;
       gap: 10px;
       transition: all 0.2s;
+      margin-top: 8px;
     }
     .btn-primary {
       background: var(--gradient);
@@ -188,7 +224,31 @@
       opacity: 0.5;
       cursor: not-allowed;
     }
+    .btn-ghost {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn-ghost:hover:not(:disabled) { background: var(--surface-hover); }
     .btn svg { width: 16px; height: 16px; }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 20px 0;
+      color: var(--text-4);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
 
     /* Estados de feedback */
     .alert {
@@ -212,8 +272,12 @@
       color: var(--red);
       border: 1px solid var(--red);
     }
+    .alert-info {
+      background: var(--teal-light);
+      color: var(--teal);
+      border: 1px solid var(--teal);
+    }
 
-    /* Estado loading */
     .spinner {
       width: 14px; height: 14px;
       border: 2px solid rgba(255,255,255,0.3);
@@ -223,7 +287,7 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Estado posterior al envío exitoso */
+    /* Pantallas alternativas */
     .check-email-state {
       text-align: center;
       padding: 8px 0;
@@ -267,7 +331,6 @@
     }
     .footer-link a:hover { text-decoration: underline; }
 
-    /* Términos */
     .legal-note {
       font-size: 11px;
       color: var(--text-4);
@@ -276,8 +339,21 @@
       line-height: 1.5;
     }
 
+    .back-link {
+      font-size: 12.5px;
+      color: var(--text-3);
+      text-decoration: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 16px;
+    }
+    .back-link:hover { color: var(--text); }
+    .back-link svg { width: 12px; height: 12px; }
+
     @media (max-width: 480px) {
-      .login-card { padding: 32px 24px; }
+      .login-card { padding: 28px 22px; }
       .login-title { font-size: 22px; }
     }
   </style>
@@ -293,16 +369,19 @@
 
     <div class="login-card">
 
-      <!-- ESTADO 1: Formulario de email -->
-      <div id="state-form">
+      <!-- ═══════════════ ESTADO 1: LOGIN PRINCIPAL ═══════════════ -->
+      <div id="state-login">
         <h1 class="login-title">Accede a tu portal</h1>
         <p class="login-sub">
-          Te enviamos un link mágico a tu correo. Sin contraseñas, sin complicaciones.
+          Bienvenido. Ingresa tus credenciales para entrar.
         </p>
 
         <form id="login-form">
           <div class="field">
-            <label class="field-label" for="email">Tu correo</label>
+            <label class="field-label" for="email">
+              <i data-lucide="mail"></i>
+              Tu correo
+            </label>
             <input
               type="email"
               id="email"
@@ -314,23 +393,130 @@
             />
           </div>
 
-          <button type="submit" class="btn btn-primary" id="submit-btn">
-            <i data-lucide="mail"></i>
-            <span id="submit-text">Enviar link mágico</span>
+          <div class="field">
+            <label class="field-label" for="password">
+              <i data-lucide="lock"></i>
+              Contraseña
+            </label>
+            <div class="field-wrap">
+              <input
+                type="password"
+                id="password"
+                class="field-input"
+                placeholder="••••••••"
+                required
+                autocomplete="current-password"
+                style="padding-right:44px;"
+              />
+              <button type="button" class="field-toggle" onclick="togglePassword()" tabindex="-1">
+                <i data-lucide="eye" id="pwd-eye"></i>
+              </button>
+            </div>
+            <div class="field-link">
+              <a onclick="goReset()">¿Olvidaste tu contraseña?</a>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="login-btn">
+            <i data-lucide="log-in"></i>
+            <span id="login-text">Entrar</span>
           </button>
 
-          <div id="alert-error" class="alert alert-error" style="display:none;">
+          <div id="login-error" class="alert alert-error" style="display:none;">
             <i data-lucide="alert-circle"></i>
-            <span id="error-text"></span>
+            <span id="login-error-text"></span>
           </div>
         </form>
+
+        <div class="divider">o</div>
+
+        <button class="btn btn-ghost" onclick="goMagicLink()">
+          <i data-lucide="mail"></i>
+          Recibir link mágico al correo
+        </button>
 
         <div class="legal-note">
           Al continuar aceptas que SCALEx procese tu correo para autenticarte.
         </div>
       </div>
 
-      <!-- ESTADO 2: Email enviado -->
+      <!-- ═══════════════ ESTADO 2: MAGIC LINK FORM ═══════════════ -->
+      <div id="state-magic" style="display:none;">
+        <a class="back-link" onclick="goLogin()">
+          <i data-lucide="arrow-left"></i> Volver al login con contraseña
+        </a>
+        <h1 class="login-title">Link mágico</h1>
+        <p class="login-sub">
+          Te enviamos un link a tu correo. Sin contraseña, sin complicaciones.
+        </p>
+
+        <form id="magic-form">
+          <div class="field">
+            <label class="field-label" for="magic-email">
+              <i data-lucide="mail"></i>
+              Tu correo
+            </label>
+            <input
+              type="email"
+              id="magic-email"
+              class="field-input"
+              placeholder="tucorreo@empresa.com"
+              required
+              autocomplete="email"
+            />
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="magic-btn">
+            <i data-lucide="send"></i>
+            <span id="magic-text">Enviar link mágico</span>
+          </button>
+
+          <div id="magic-error" class="alert alert-error" style="display:none;">
+            <i data-lucide="alert-circle"></i>
+            <span id="magic-error-text"></span>
+          </div>
+        </form>
+      </div>
+
+      <!-- ═══════════════ ESTADO 3: RESET PASSWORD ═══════════════ -->
+      <div id="state-reset" style="display:none;">
+        <a class="back-link" onclick="goLogin()">
+          <i data-lucide="arrow-left"></i> Volver al login
+        </a>
+        <h1 class="login-title">Recuperar contraseña</h1>
+        <p class="login-sub">
+          Te enviamos un link para que definas una nueva contraseña.
+        </p>
+
+        <form id="reset-form">
+          <div class="field">
+            <label class="field-label" for="reset-email">
+              <i data-lucide="mail"></i>
+              Tu correo
+            </label>
+            <input
+              type="email"
+              id="reset-email"
+              class="field-input"
+              placeholder="tucorreo@empresa.com"
+              required
+              autocomplete="email"
+            />
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="reset-btn">
+            <i data-lucide="key"></i>
+            <span id="reset-text">Enviar link de recuperación</span>
+          </button>
+
+          <div id="reset-error" class="alert alert-error" style="display:none;">
+            <i data-lucide="alert-circle"></i>
+            <span id="reset-error-text"></span>
+          </div>
+        </form>
+      </div>
+
+      <!-- ═══════════════ ESTADO 4: EMAIL ENVIADO ═══════════════ -->
       <div id="state-sent" style="display:none;">
         <div class="check-email-state">
           <div class="check-email-icon">
@@ -338,11 +524,11 @@
           </div>
           <div class="check-email-title">Revisa tu correo</div>
           <p class="check-email-text">
-            Te mandamos un link a <strong id="sent-email">—</strong>.<br/>
-            Ábrelo desde el mismo navegador para entrar.
+            Te mandamos un email a <strong id="sent-email">—</strong>.<br/>
+            Ábrelo desde el mismo navegador para continuar.
           </p>
-          <a class="footer-link" onclick="resetForm()" style="cursor:pointer;">
-            Usar otro correo →
+          <a class="footer-link" onclick="goLogin()" style="cursor:pointer;">
+            Volver al login →
           </a>
         </div>
       </div>
@@ -363,7 +549,7 @@
 
     lucide.createIcons()
 
-    // Si ya hay sesión activa, redirige directo al dashboard
+    // Si ya hay sesión, redirige al dashboard (o al next)
     const session = await getSession()
     if (session) {
       const params = new URLSearchParams(window.location.search)
@@ -371,70 +557,163 @@
       window.location.replace(next)
     }
 
-    // Manejo del form
-    const form = document.getElementById('login-form')
-    const submitBtn = document.getElementById('submit-btn')
-    const submitText = document.getElementById('submit-text')
-    const errorAlert = document.getElementById('alert-error')
-    const errorText = document.getElementById('error-text')
+    // ──────────────────────────────────────────────────────────────────
+    // Helpers
+    // ──────────────────────────────────────────────────────────────────
+    const showState = (state) => {
+      ['state-login', 'state-magic', 'state-reset', 'state-sent']
+        .forEach(s => document.getElementById(s).style.display = 'none')
+      document.getElementById('state-' + state).style.display = 'block'
+      lucide.createIcons()
+    }
 
-    form.addEventListener('submit', async (e) => {
+    const setBtnLoading = (btnId, textId, loading, defaultText) => {
+      const btn = document.getElementById(btnId)
+      const txt = document.getElementById(textId)
+      btn.disabled = loading
+      if (loading) {
+        txt.textContent = 'Procesando...'
+        const icon = btn.querySelector('svg')
+        if (icon) {
+          const spinner = document.createElement('span')
+          spinner.className = 'spinner'
+          icon.replaceWith(spinner)
+        }
+      } else {
+        txt.textContent = defaultText
+        const sp = btn.querySelector('.spinner')
+        if (sp) {
+          const icon = document.createElement('i')
+          icon.setAttribute('data-lucide', defaultText.includes('Entrar') ? 'log-in' :
+                                            defaultText.includes('mágico') ? 'send' : 'key')
+          sp.replaceWith(icon)
+          lucide.createIcons()
+        }
+      }
+    }
+
+    const showError = (alertId, textId, msg) => {
+      document.getElementById(textId).textContent = msg
+      document.getElementById(alertId).style.display = 'flex'
+    }
+    const hideError = (alertId) => {
+      document.getElementById(alertId).style.display = 'none'
+    }
+
+    // ──────────────────────────────────────────────────────────────────
+    // Navegación entre estados
+    // ──────────────────────────────────────────────────────────────────
+    window.goLogin     = () => showState('login')
+    window.goMagicLink = () => showState('magic')
+    window.goReset     = () => showState('reset')
+
+    window.togglePassword = () => {
+      const input = document.getElementById('password')
+      const eye = document.getElementById('pwd-eye')
+      if (input.type === 'password') {
+        input.type = 'text'
+        eye.setAttribute('data-lucide', 'eye-off')
+      } else {
+        input.type = 'password'
+        eye.setAttribute('data-lucide', 'eye')
+      }
+      lucide.createIcons()
+    }
+
+    // ──────────────────────────────────────────────────────────────────
+    // Login con email + contraseña
+    // ──────────────────────────────────────────────────────────────────
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault()
+      hideError('login-error')
 
       const email = document.getElementById('email').value.trim().toLowerCase()
+      const password = document.getElementById('password').value
+
+      if (!email || !password) return
+
+      setBtnLoading('login-btn', 'login-text', true)
+
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+
+      if (error) {
+        setBtnLoading('login-btn', 'login-text', false, 'Entrar')
+        const msg = error.message?.toLowerCase().includes('invalid')
+          ? 'Email o contraseña incorrectos.'
+          : (error.message || 'No pudimos iniciar sesión.')
+        showError('login-error', 'login-error-text', msg)
+        return
+      }
+
+      // Sesión OK → redirigir
+      const params = new URLSearchParams(window.location.search)
+      const next = params.get('next') || '/portal/dashboard.html'
+      window.location.replace(next)
+    })
+
+    // ──────────────────────────────────────────────────────────────────
+    // Magic link
+    // ──────────────────────────────────────────────────────────────────
+    document.getElementById('magic-form').addEventListener('submit', async (e) => {
+      e.preventDefault()
+      hideError('magic-error')
+
+      const email = document.getElementById('magic-email').value.trim().toLowerCase()
       if (!email) return
 
-      // UI: loading
-      submitBtn.disabled = true
-      submitText.textContent = 'Enviando...'
-      submitBtn.querySelector('svg').outerHTML = '<span class="spinner"></span>'
-      errorAlert.style.display = 'none'
+      setBtnLoading('magic-btn', 'magic-text', true)
 
-      // Determinar a dónde redirigir después de hacer click en el magic link
       const params = new URLSearchParams(window.location.search)
       const nextPath = params.get('next') || '/portal/dashboard.html'
       const redirectTo = window.location.origin + nextPath
 
       const { error } = await supabase.auth.signInWithOtp({
         email,
-        options: {
-          emailRedirectTo: redirectTo,
-          shouldCreateUser: false   // ← solo permitir login, NO registro automático
-        }
+        options: { emailRedirectTo: redirectTo, shouldCreateUser: false }
       })
 
       if (error) {
-        // Reset UI
-        submitBtn.disabled = false
-        submitText.textContent = 'Enviar link mágico'
-        submitBtn.querySelector('.spinner')?.remove()
-        const icon = document.createElement('i')
-        icon.setAttribute('data-lucide', 'mail')
-        submitBtn.insertBefore(icon, submitText)
-        lucide.createIcons()
-
-        // Mensaje claro
-        errorText.textContent = error.message.includes('Signups not allowed')
-          ? 'Este correo no tiene acceso al portal. Contacta a Agustín si necesitas registrarte.'
-          : (error.message || 'No pudimos enviar el link. Inténtalo de nuevo.')
-        errorAlert.style.display = 'flex'
+        setBtnLoading('magic-btn', 'magic-text', false, 'Enviar link mágico')
+        const msg = error.message?.includes('Signups not allowed')
+          ? 'Este correo no tiene acceso. Contacta a Agustín.'
+          : (error.message || 'No pudimos enviar el link.')
+        showError('magic-error', 'magic-error-text', msg)
         return
       }
 
-      // Éxito: mostrar pantalla "Revisa tu correo"
+      // Éxito
       document.getElementById('sent-email').textContent = email
-      document.getElementById('state-form').style.display = 'none'
-      document.getElementById('state-sent').style.display = 'block'
-      lucide.createIcons()
+      showState('sent')
     })
 
-    // Volver al formulario
-    window.resetForm = () => {
-      document.getElementById('state-sent').style.display = 'none'
-      document.getElementById('state-form').style.display = 'block'
-      document.getElementById('email').value = ''
-      document.getElementById('email').focus()
-    }
+    // ──────────────────────────────────────────────────────────────────
+    // Reset password
+    // ──────────────────────────────────────────────────────────────────
+    document.getElementById('reset-form').addEventListener('submit', async (e) => {
+      e.preventDefault()
+      hideError('reset-error')
+
+      const email = document.getElementById('reset-email').value.trim().toLowerCase()
+      if (!email) return
+
+      setBtnLoading('reset-btn', 'reset-text', true)
+
+      const redirectTo = window.location.origin + '/portal/cuenta.html?action=reset'
+
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo
+      })
+
+      if (error) {
+        setBtnLoading('reset-btn', 'reset-text', false, 'Enviar link de recuperación')
+        showError('reset-error', 'reset-error-text', error.message || 'No pudimos enviar el link.')
+        return
+      }
+
+      // Éxito
+      document.getElementById('sent-email').textContent = email
+      showState('sent')
+    })
   </script>
 
 </body>
