@@ -597,6 +597,7 @@
         </div>
 
         <div class="topbar-actions">
+          <div id="topbar-org-slot"></div>
           <div class="topbar-icon-btn">
             <i data-lucide="bell"></i>
             <span class="notif-dot"></span>
@@ -808,6 +809,10 @@
   </div>
 
   <script>lucide.createIcons();</script>
+  <script type="module">
+    import { mountOrgSwitcher } from '/assets/js/org-switcher.js'
+    mountOrgSwitcher('#topbar-org-slot')
+  </script>
   <script type="module" src="/assets/js/dashboard.js"></script>
 
 </body>

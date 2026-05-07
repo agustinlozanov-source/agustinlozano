@@ -524,6 +524,7 @@
           <div class="topbar-title" id="topbar-title">OPSP — Cargando...</div>
         </div>
         <div class="topbar-actions">
+          <div id="topbar-org-slot"></div>
           <div class="save-indicator" id="save-indicator">
             <span class="dot"></span>
             <span id="save-text">Cargando...</span>
@@ -952,6 +953,10 @@
   </div>
 
   <script>lucide.createIcons();</script>
+  <script type="module">
+    import { mountOrgSwitcher } from '/assets/js/org-switcher.js'
+    mountOrgSwitcher('#topbar-org-slot')
+  </script>
   <script type="module" src="/assets/js/opsp.js"></script>
 
 </body>

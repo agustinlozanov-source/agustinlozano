@@ -670,6 +670,7 @@
           <div class="topbar-eyebrow" id="topbar-eyebrow">Pilar 4 · Ritmo</div>
           <div class="topbar-title" id="topbar-title">Rituales de Efectividad</div>
         </div>
+        <div id="topbar-org-slot" style="margin-left:auto"></div>
       </div>
 
       <!-- CONTENT -->
@@ -1084,6 +1085,10 @@
   </div>
 
   <script>lucide.createIcons();</script>
+  <script type="module">
+    import { mountOrgSwitcher } from '/assets/js/org-switcher.js'
+    mountOrgSwitcher('#topbar-org-slot')
+  </script>
   <script type="module" src="/assets/js/rituales.js"></script>
 
 </body>
