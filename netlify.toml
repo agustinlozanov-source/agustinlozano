@@ -1,0 +1,51 @@
+# ============================================================================
+# SCALEx PORTAL — Configuración Netlify
+# ============================================================================
+# Coloca este archivo en la RAÍZ del repo (al lado del index.html).
+# Si ya tienes un netlify.toml, MERGEA estas reglas con las tuyas.
+# ============================================================================
+
+# ────────────────────────────────────────────────────────────────────────────
+# REDIRECTS
+# ────────────────────────────────────────────────────────────────────────────
+
+# Si alguien va a /portal/ (sin archivo) → redirige al dashboard
+[[redirects]]
+  from = "/portal"
+  to = "/portal/dashboard.html"
+  status = 302
+  force = false
+
+[[redirects]]
+  from = "/portal/"
+  to = "/portal/dashboard.html"
+  status = 302
+  force = false
+
+# Magic link de Supabase llega como /portal/dashboard.html#access_token=...
+# Netlify ya sirve el archivo correctamente, no requiere redirect extra.
+
+# ────────────────────────────────────────────────────────────────────────────
+# HEADERS DE SEGURIDAD
+# ────────────────────────────────────────────────────────────────────────────
+
+# Headers para todo el portal
+[[headers]]
+  for = "/portal/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+
+# Cache para JS estático (que cambia poco)
+[[headers]]
+  for = "/assets/js/*"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+# Las páginas HTML del portal NO se cachean (data dinámica)
+[[headers]]
+  for = "/portal/*.html"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
