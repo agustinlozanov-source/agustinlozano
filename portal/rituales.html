@@ -54,11 +54,11 @@
       flex-shrink:0; position:sticky; top:16px; height:calc(100vh - 32px);
     }
     .sidebar-logo {
-      width:44px; height:44px; border-radius:12px; background:var(--gradient);
+      width:44px; height:auto;
       display:flex; align-items:center; justify-content:center;
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:900; font-size:18px; color:white;
-      margin-bottom:16px; letter-spacing:-0.5px; text-decoration:none;
+      margin-bottom:16px; text-decoration:none;
     }
+    .sidebar-logo img { width:100%; height:auto; display:block; }
     .sidebar-divider { width:28px; height:1px; background:rgba(255,255,255,0.08); margin:4px 0; }
     .sidebar-icon {
       width:44px; height:44px; border-radius:12px;
@@ -628,7 +628,9 @@
 
     <!-- SIDEBAR -->
     <aside class="sidebar">
-      <a href="/portal/dashboard.html" class="sidebar-logo">Sx</a>
+      <a href="/portal/dashboard.html" class="sidebar-logo">
+        <img src="/logos/Logo SCALEx blanco.png" alt="SCALEx">
+      </a>
 
       <a href="/portal/dashboard.html" class="sidebar-icon" title="Dashboard">
         <i data-lucide="layout-dashboard"></i>
