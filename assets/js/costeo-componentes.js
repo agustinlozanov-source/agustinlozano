@@ -272,7 +272,6 @@ function renderList() {
         (c.categoria ? '<div class="comp-card-meta">' + escapeHtml(c.categoria) + '</div>' : '') +
         '<div class="comp-card-meta">' +
           '<span class="meta-item"><i data-lucide="package"></i> Rinde ' + fmtNum(c.rendimiento_cantidad) + ' ' + escapeHtml(c.rendimiento_unidad) + '</span>' +
-          (c.minutos_produccion ? ' <span class="meta-item"><i data-lucide="clock"></i> ' + c.minutos_produccion + ' min</span>' : '') +
         '</div>' +
       '</div>' +
       '<div class="comp-card-cost">' +
@@ -362,7 +361,6 @@ function openCreateModal() {
   $('#input-categoria').value = ''
   $('#input-rendimiento-cantidad').value = '1'
   $('#input-rendimiento-unidad').innerHTML = renderUnidadesOptions('unidad')
-  $('#input-minutos').value = '0'
   $('#input-notas').value = ''
 
   renderBuilder()
@@ -383,7 +381,6 @@ async function openEditModal(id) {
   $('#input-categoria').value = c.categoria || ''
   $('#input-rendimiento-cantidad').value = c.rendimiento_cantidad || 1
   $('#input-rendimiento-unidad').innerHTML = renderUnidadesOptions(c.rendimiento_unidad)
-  $('#input-minutos').value = c.minutos_produccion || 0
   $('#input-notas').value = c.notas || ''
 
   // Cargar relaciones existentes
@@ -417,6 +414,26 @@ function renderBuilder() {
   renderBuilderTotal()
 }
 
+function hintTiempo(cantidad, unidad) {
+  if (!cantidad || isNaN(cantidad)) return ''
+  if (unidad === 'hora') {
+    if (cantidad < 1) {
+      const mins = Math.round(cantidad * 60)
+      return '= ' + mins + ' minuto' + (mins !== 1 ? 's' : '')
+    }
+    const horas = Math.floor(cantidad)
+    const mins = Math.round((cantidad - horas) * 60)
+    if (mins === 0) return ''
+    return '= ' + horas + 'h ' + mins + 'min'
+  }
+  if (unidad === 'min' && cantidad >= 60) {
+    const h = Math.floor(cantidad / 60)
+    const m = Math.round(cantidad % 60)
+    return '= ' + h + 'h' + (m > 0 ? ' ' + m + 'min' : '')
+  }
+  return ''
+}
+
 function renderBuilderRecursos() {
   const wrap = $('#builder-recursos')
   if (!wrap) return
@@ -429,12 +446,14 @@ function renderBuilderRecursos() {
       const costoUnit = recurso && recurso.cantidad_compra > 0
         ? recurso.costo_compra / recurso.cantidad_compra : 0
       const costoTotal = costoUnit * (r.cantidad || 0)
+      const hint = hintTiempo(r.cantidad, r.unidad)
       return '<div class="builder-row">' +
         '<select class="form-select sm" data-idx="' + idx + '" data-field="recurso_id">' + renderRecursoOptions(r.recurso_id) + '</select>' +
-        '<input type="text" class="form-input sm right" inputmode="decimal" value="' + (r.cantidad || '') + '" placeholder="0" data-idx="' + idx + '" data-field="cantidad" />' +
+        '<input type="text" class="form-input sm right" inputmode="decimal" step="any" value="' + (r.cantidad || '') + '" placeholder="0" data-idx="' + idx + '" data-field="cantidad" />' +
         '<select class="form-select sm" data-idx="' + idx + '" data-field="unidad">' + renderUnidadesOptions(r.unidad) + '</select>' +
         '<div class="builder-cost">' + fmtMoney(costoTotal) + '</div>' +
         '<button class="icon-btn" data-action="rm-recurso" data-idx="' + idx + '"><i data-lucide="x"></i></button>' +
+        (hint ? '<div class="hint-conversion">' + hint + '</div>' : '') +
       '</div>'
     }).join('')
   }
@@ -468,12 +487,14 @@ function renderBuilderComponentes() {
       const costoUnitHijo = compHijo && compHijo.rendimiento_cantidad > 0
         ? costoHijo / compHijo.rendimiento_cantidad : 0
       const costoTotal = costoUnitHijo * (s.cantidad || 0)
+      const hint = hintTiempo(s.cantidad, s.unidad)
       return '<div class="builder-row">' +
         '<select class="form-select sm" data-idx="' + idx + '" data-field="componente_hijo_id">' + renderComponenteOptions(s.componente_hijo_id, state.editingId) + '</select>' +
-        '<input type="text" class="form-input sm right" inputmode="decimal" value="' + (s.cantidad || '') + '" placeholder="0" data-idx="' + idx + '" data-field="cantidad" />' +
+        '<input type="text" class="form-input sm right" inputmode="decimal" step="any" value="' + (s.cantidad || '') + '" placeholder="0" data-idx="' + idx + '" data-field="cantidad" />' +
         '<select class="form-select sm" data-idx="' + idx + '" data-field="unidad">' + renderUnidadesOptions(s.unidad) + '</select>' +
         '<div class="builder-cost">' + fmtMoney(costoTotal) + '</div>' +
         '<button class="icon-btn" data-action="rm-comp" data-idx="' + idx + '"><i data-lucide="x"></i></button>' +
+        (hint ? '<div class="hint-conversion">' + hint + '</div>' : '') +
       '</div>'
     }).join('')
   }
@@ -730,7 +751,6 @@ async function saveComponente(e) {
     categoria: $('#input-categoria').value.trim() || null,
     rendimiento_cantidad: rendimientoCant,
     rendimiento_unidad: rendimientoUnit,
-    minutos_produccion: parseInt($('#input-minutos').value) || 0,
     notas: $('#input-notas').value.trim() || null
   }
 
