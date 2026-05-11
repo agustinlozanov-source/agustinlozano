@@ -477,8 +477,8 @@ function renderBuilderRecursos() {
   }
 
   wrap.querySelectorAll('select, input').forEach(el => {
-    el.addEventListener('change', (e) => onBuilderInput(e, 'recurso'))
-    if (el.tagName === 'INPUT') el.addEventListener('input', (e) => onBuilderInput(e, 'recurso'))
+    el.addEventListener('change', (e) => onBuilderInput(e, 'recurso', true))
+    if (el.tagName === 'INPUT') el.addEventListener('input', (e) => onBuilderInput(e, 'recurso', false))
   })
   wrap.querySelectorAll('[data-action="rm-recurso"]').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -518,8 +518,8 @@ function renderBuilderComponentes() {
   }
 
   wrap.querySelectorAll('select, input').forEach(el => {
-    el.addEventListener('change', (e) => onBuilderInput(e, 'componente'))
-    if (el.tagName === 'INPUT') el.addEventListener('input', (e) => onBuilderInput(e, 'componente'))
+    el.addEventListener('change', (e) => onBuilderInput(e, 'componente', true))
+    if (el.tagName === 'INPUT') el.addEventListener('input', (e) => onBuilderInput(e, 'componente', false))
   })
   wrap.querySelectorAll('[data-action="rm-comp"]').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -532,7 +532,7 @@ function renderBuilderComponentes() {
   if (window.lucide) lucide.createIcons()
 }
 
-function onBuilderInput(e, tipo) {
+function onBuilderInput(e, tipo, fullRender = true) {
   const idx = parseInt(e.target.dataset.idx)
   const field = e.target.dataset.field
   const arr = tipo === 'recurso' ? state.builderRecursos : state.builderComponentes
@@ -552,6 +552,11 @@ function onBuilderInput(e, tipo) {
 
   if (field === 'cantidad') {
     arr[idx][field] = parseAmount(e.target.value)
+    // Mientras escribe: solo actualizar el total, no re-renderizar las filas
+    if (!fullRender) {
+      renderBuilderTotal()
+      return
+    }
   } else {
     arr[idx][field] = e.target.value
   }
