@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCALEx Portal - Gastos Fijos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script type="module" src="/assets/js/auth-guard.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal: #1aab99; --teal-light: rgba(26,171,153,0.12);
+      --indigo: #3533cd; --indigo-light: rgba(53,51,205,0.12);
+      --gradient: linear-gradient(135deg, #1aab99, #3533cd);
+      --gradient-soft: linear-gradient(135deg, rgba(26,171,153,0.15), rgba(53,51,205,0.15));
+      --green: #00c853; --green-light: rgba(0,200,83,0.12);
+      --amber: #ff9500; --amber-light: rgba(255,149,0,0.12);
+      --red: #ff3b30; --red-light: rgba(255,59,48,0.12);
+      --purple: #7c3aed; --purple-light: rgba(124,58,237,0.12);
+      --radius-xl: 28px; --radius-lg: 20px; --radius: 14px; --radius-sm: 9px;
+      --sidebar-w: 80px;
+      font-family: 'Inter', sans-serif; line-height: 1.6;
+    }
+    [data-theme="dark"] {
+      --bg-page: #0a0a0c; --bg-shell: #141416; --bg-card: #1c1c1e; --bg-card-2: #242426;
+      --bg-input: #0d0d10;
+      --surface: rgba(255,255,255,0.04); --surface-hover: rgba(255,255,255,0.07);
+      --border: rgba(255,255,255,0.08); --border-strong: rgba(255,255,255,0.13);
+      --text: #fff; --text-2: #c7c7cc; --text-3: #8e8e93; --text-4: #48484a;
+      --sidebar-bg: #050506;
+    }
+    [data-theme="light"] {
+      --bg-page: #eef0f5; --bg-shell: #fff; --bg-card: #f5f5f7; --bg-card-2: #ebebef;
+      --bg-input: #fff;
+      --surface: rgba(0,0,0,0.03); --surface-hover: rgba(0,0,0,0.055);
+      --border: rgba(0,0,0,0.08); --border-strong: rgba(0,0,0,0.14);
+      --text: #070708; --text-2: #3a3a3c; --text-3: #6e6e73; --text-4: #c7c7cc;
+      --sidebar-bg: #0a0a0c;
+    }
+
+    body { background: var(--bg-page); color: var(--text); min-height: 100vh; overflow: hidden; transition: background .3s, color .3s; }
+    .app-layout { display: flex; min-height: 100vh; padding: 16px; gap: 16px; }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: var(--sidebar-w); background: var(--sidebar-bg);
+      border-radius: var(--radius-xl); padding: 20px 0;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      flex-shrink: 0; position: sticky; top: 16px; height: calc(100vh - 32px);
+    }
+    .sidebar-logo {
+      width: 44px; height: 44px; border-radius: 12px; background: var(--gradient);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 900; font-size: 18px; color: white;
+      margin-bottom: 16px; letter-spacing: -0.5px; text-decoration: none;
+    }
+    .sidebar-divider { width: 28px; height: 1px; background: rgba(255,255,255,0.08); margin: 4px 0; }
+    .sidebar-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all .2s;
+      color: rgba(255,255,255,0.5); position: relative;
+      text-decoration: none; background: none; border: none;
+    }
+    .sidebar-icon:hover { background: rgba(255,255,255,0.06); color: white; }
+    .sidebar-icon.active { background: var(--gradient); color: white; }
+    .sidebar-icon.active::before {
+      content: ''; position: absolute; left: -16px; top: 50%; transform: translateY(-50%);
+      width: 3px; height: 24px; background: var(--teal); border-radius: 0 3px 3px 0;
+    }
+    .sidebar-icon svg { width: 20px; height: 20px; }
+    .sidebar-bottom { margin-top: auto; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+
+    /* SHELL */
+    .shell {
+      flex: 1; background: var(--bg-shell); border-radius: var(--radius-xl);
+      overflow: hidden; display: flex; flex-direction: column;
+      height: calc(100vh - 32px);
+    }
+
+    /* TOPBAR */
+    .topbar {
+      padding: 18px 28px; display: flex; align-items: center; gap: 16px;
+      border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .topbar-back {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--surface); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all .2s; color: var(--text-2);
+      text-decoration: none;
+    }
+    .topbar-back:hover { background: var(--surface-hover); color: var(--text); }
+    .topbar-back svg { width: 16px; height: 16px; }
+
+    .topbar-title-block { flex: 1; min-width: 0; }
+    .topbar-eyebrow {
+      font-size: 11px; font-weight: 700; letter-spacing: 1.2px;
+      text-transform: uppercase; color: var(--teal);
+    }
+    .topbar-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 18px; font-weight: 800; color: var(--text);
+      letter-spacing: -0.3px; margin-top: 2px;
+    }
+    .topbar-actions { display: flex; align-items: center; gap: 10px; }
+
+    .save-indicator {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 12px; border-radius: 50px;
+      font-size: 12px; font-weight: 600;
+      transition: all .2s;
+    }
+    .save-indicator svg { width: 12px; height: 12px; }
+    .save-indicator.editing { background: var(--amber-light); color: var(--amber); }
+    .save-indicator.saving { background: var(--indigo-light); color: var(--indigo); }
+    .save-indicator.saving svg { animation: spin 1s linear infinite; }
+    .save-indicator.saved { background: var(--green-light); color: var(--green); }
+    .save-indicator.error { background: var(--red-light); color: var(--red); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .content { flex: 1; overflow-y: auto; padding: 28px 32px; }
+    .content::-webkit-scrollbar { width: 8px; }
+    .content::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 50px; }
+
+    .page-header { margin-bottom: 24px; max-width: 720px; }
+    .page-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 28px; font-weight: 800; line-height: 1.2;
+      letter-spacing: -0.6px; color: var(--text); margin-bottom: 8px;
+    }
+    .page-sub { font-size: 14px; color: var(--text-3); line-height: 1.6; }
+
+    .layout {
+      display: grid; grid-template-columns: 1fr 320px;
+      gap: 16px; align-items: start;
+    }
+
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 22px;
+      margin-bottom: 16px;
+    }
+    .card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 18px;
+    }
+    .card-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 16px; font-weight: 700; color: var(--text);
+      letter-spacing: -0.2px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .card-title svg { width: 16px; height: 16px; color: var(--teal); }
+
+    .btn {
+      padding: 8px 14px; border-radius: 50px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 12.5px; font-weight: 700;
+      cursor: pointer; border: none;
+      display: inline-flex; align-items: center; gap: 6px;
+      transition: all .2s; text-decoration: none;
+    }
+    .btn svg { width: 13px; height: 13px; }
+    .btn-primary { background: var(--gradient); color: white; }
+    .btn-primary:hover { transform: translateY(-1px); }
+    .btn-ghost { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
+    .btn-ghost:hover { background: var(--surface-hover); }
+
+    /* INPUT ROW */
+    .input-list { display: flex; flex-direction: column; gap: 8px; }
+    .input-row {
+      display: grid; grid-template-columns: 1fr 140px 80px 32px;
+      gap: 10px; align-items: center;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 6px 10px;
+      transition: border-color .15s;
+    }
+    .input-row:hover { border-color: var(--border-strong); }
+    .input-row:focus-within { border-color: var(--teal); }
+
+    .input-label-wrap {
+      display: flex; align-items: center; gap: 10px;
+      min-width: 0;
+    }
+    .input-label-wrap svg {
+      width: 14px; height: 14px;
+      color: var(--text-3); flex-shrink: 0;
+    }
+    .input-nombre {
+      flex: 1; background: transparent; border: none; outline: none;
+      color: var(--text); font-size: 13.5px; font-family: inherit;
+      min-width: 0;
+      padding: 6px 0;
+    }
+    .input-nombre::placeholder { color: var(--text-4); }
+    .input-monto {
+      background: transparent; border: none; outline: none;
+      color: var(--text); font-size: 14px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700; text-align: right;
+      padding: 6px 0;
+    }
+    .input-monto::placeholder { color: var(--text-4); font-weight: 400; }
+    .unit { font-size: 11px; color: var(--text-3); text-align: right; }
+    .row-delete {
+      width: 28px; height: 28px; border-radius: 7px;
+      background: var(--surface); border: 1px solid var(--border);
+      display: inline-flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--text-3); transition: all .2s;
+    }
+    .row-delete:hover { background: var(--red-light); color: var(--red); border-color: var(--red); }
+    .row-delete svg { width: 12px; height: 12px; }
+
+    .empty-state {
+      text-align: center; padding: 40px 20px;
+      color: var(--text-3); font-size: 13px;
+    }
+    .empty-state-big { text-align: center; padding: 60px 20px; }
+    .empty-state-big h2 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 22px; margin-bottom: 12px;
+    }
+    .empty-state-big p { color: var(--text-3); }
+
+    /* RIGHT SIDE */
+    .side {
+      position: sticky; top: 0;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+
+    .side-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 22px;
+    }
+    .side-card-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 12px; font-weight: 800; color: var(--text);
+      text-transform: uppercase; letter-spacing: 0.6px;
+      margin-bottom: 14px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .side-card-title svg { width: 14px; height: 14px; color: var(--teal); }
+
+    .big-number {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 32px; font-weight: 900;
+      letter-spacing: -1px; color: var(--text);
+      line-height: 1.1; margin-bottom: 6px;
+    }
+    .big-number-sub {
+      font-size: 12px; color: var(--text-3);
+    }
+
+    .gradient-card {
+      background: var(--gradient); color: white;
+      border-radius: var(--radius-lg); padding: 22px;
+      position: relative; overflow: hidden;
+    }
+    .gradient-card::before {
+      content: ''; position: absolute;
+      top: -40px; right: -40px; width: 180px; height: 180px;
+      background: radial-gradient(circle, rgba(255,255,255,0.15), transparent 70%);
+      border-radius: 50%;
+    }
+    .gradient-card .side-card-title { color: white; }
+    .gradient-card .side-card-title svg { color: white; }
+    .gradient-card .big-number { color: white; }
+    .gradient-card .big-number-sub { color: rgba(255,255,255,0.85); }
+
+    .units-input-wrap {
+      background: var(--bg-input); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px 16px;
+    }
+    .units-label {
+      font-size: 11px; font-weight: 700; color: var(--text-3);
+      text-transform: uppercase; letter-spacing: 0.4px;
+      margin-bottom: 6px;
+    }
+    .units-input {
+      background: transparent; border: none; outline: none;
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 22px; font-weight: 900;
+      letter-spacing: -0.3px; width: 100%;
+    }
+
+    .hint-card {
+      background: var(--teal-light);
+      border: 1px solid var(--teal);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      font-size: 12.5px; color: var(--text-2);
+      line-height: 1.55;
+    }
+    .hint-card strong { color: var(--text); }
+    .hint-card-title {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 11px; font-weight: 700; color: var(--teal);
+      text-transform: uppercase; letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .hint-card-title svg { width: 12px; height: 12px; }
+
+    @media (max-width: 1100px) {
+      .layout { grid-template-columns: 1fr; }
+      .side { position: static; }
+    }
+    @media (max-width: 700px) {
+      .app-layout { padding: 8px; gap: 8px; }
+      .topbar { padding: 14px 18px; flex-wrap: wrap; gap: 10px; }
+      .content { padding: 20px 18px; }
+      .input-row { grid-template-columns: 1fr 100px 28px; }
+      .input-row .unit { display: none; }
+      .page-title { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <a href="/portal/dashboard.html" class="sidebar-logo">Sx</a>
+
+    <a href="/portal/dashboard.html" class="sidebar-icon" title="Dashboard">
+      <i data-lucide="layout-dashboard"></i>
+    </a>
+    <a href="/portal/opsp.html" class="sidebar-icon" title="OPSP">
+      <i data-lucide="map"></i>
+    </a>
+    <a href="/portal/rituales.html" class="sidebar-icon" title="Rituales">
+      <i data-lucide="repeat"></i>
+    </a>
+
+    <div class="sidebar-divider"></div>
+
+    <a href="/portal/costeo-gastos.html" class="sidebar-icon active" title="Costeo - Flujo">
+      <i data-lucide="calculator"></i>
+    </a>
+
+    <div class="sidebar-bottom">
+      <button class="sidebar-icon" title="Cambiar tema" onclick="toggleTheme()">
+        <i data-lucide="sun" id="theme-icon"></i>
+      </button>
+      <button class="sidebar-icon" title="Cerrar sesion" onclick="logout()">
+        <i data-lucide="log-out"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- SHELL -->
+  <main class="shell">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <a href="/portal/dashboard.html" class="topbar-back">
+        <i data-lucide="arrow-left"></i>
+      </a>
+      <div class="topbar-title-block">
+        <div class="topbar-eyebrow">Pilar 5 - Flujo - Costeo</div>
+        <div class="topbar-title">Gastos fijos mensuales</div>
+      </div>
+      <div class="topbar-actions">
+        <div class="save-indicator saved" id="save-indicator">
+          <i data-lucide="check-circle"></i>
+          <span>Guardado</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <div class="page-header">
+        <h1 class="page-title">Lo que pagas pase lo que pase</h1>
+        <p class="page-sub">
+          Tu nomina, renta, luz, gas, software... estos son los gastos que tienes que cubrir cada mes,
+          vendas mucho o vendas poco. Cuanto mas detallado, mas preciso sera el costeo de cada producto.
+        </p>
+      </div>
+
+      <div class="layout">
+
+        <!-- COLUMNA IZQUIERDA -->
+        <div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <i data-lucide="home"></i>
+                Estructura fija
+              </div>
+              <button class="btn btn-ghost" onclick="addConcepto()">
+                <i data-lucide="plus"></i>
+                Agregar concepto
+              </button>
+            </div>
+
+            <div class="input-list" id="conceptos-list">
+              <!-- Renderizado por JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- COLUMNA DERECHA -->
+        <div class="side">
+
+          <div class="gradient-card">
+            <div class="side-card-title">
+              <i data-lucide="wallet"></i>
+              Total mensual
+            </div>
+            <div class="big-number" id="total-gastos-display">$ 0</div>
+            <div class="big-number-sub">
+              <span id="count-conceptos">0</span> conceptos fijos
+            </div>
+          </div>
+
+          <div class="side-card">
+            <div class="side-card-title">
+              <i data-lucide="package"></i>
+              Unidades estimadas / mes
+            </div>
+            <div class="units-input-wrap">
+              <div class="units-label">Cuantos productos vendes en total</div>
+              <input type="number" id="unidades-estimadas" class="units-input" value="100" min="1" />
+            </div>
+            <p style="font-size:12px; color:var(--text-3); margin-top:10px; line-height:1.5;">
+              Suma de todas las unidades (de todos los productos) que estimas vender este mes.
+              Sirve para repartir los gastos fijos entre productos.
+            </p>
+          </div>
+
+          <div class="side-card">
+            <div class="side-card-title">
+              <i data-lucide="trending-up"></i>
+              Costo fijo por unidad
+            </div>
+            <div class="big-number" id="prorrateo-display">$ 0</div>
+            <div class="big-number-sub">Lo que cada unidad debe absorber</div>
+          </div>
+
+          <div class="hint-card">
+            <div class="hint-card-title">
+              <i data-lucide="lightbulb"></i>
+              Por que esto importa
+            </div>
+            Si vendes menos de lo estimado, tu costo real por unidad sube.
+            Es la base para entender tu <strong>punto de equilibrio</strong>:
+            cuanto necesitas vender para no perder dinero.
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>lucide.createIcons();</script>
+<script type="module" src="/assets/js/costeo-gastos.js"></script>
+
+</body>
+</html>
