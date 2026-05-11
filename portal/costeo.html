@@ -282,8 +282,12 @@
           <i data-lucide="layers"></i> 3. Componentes
         </a>
         <span class="flow-arrow">→</span>
-        <a href="/portal/costeo-productos.html" class="flow-step active">
+        <a href="/portal/costeo-productos.html" class="flow-step">
           <i data-lucide="shopping-bag"></i> 4. Productos
+        </a>
+        <span class="flow-arrow">→</span>
+        <a href="/portal/costeo-resumen.html" class="flow-step active">
+          <i data-lucide="trending-up"></i> 5. Resumen
         </a>
       </div>
 
@@ -398,6 +402,27 @@
           </div>
         </a>
 
+        <!-- RESUMEN Y PUNTO DE EQUILIBRIO -->
+        <a href="/portal/costeo-resumen.html" class="hub-card hub-card-final" style="--card-accent: var(--gradient); grid-column: 1 / -1; background: linear-gradient(135deg, rgba(26,171,153,0.08), rgba(53,51,205,0.08)); border-color: var(--teal);">
+          <div class="hub-card-top">
+            <div class="hub-card-icon" style="background:var(--gradient); color:white;">
+              <i data-lucide="trending-up"></i>
+            </div>
+            <div>
+              <div class="hub-card-badge" id="badge-margen">—</div>
+              <div class="hub-card-badge-label">margen promedio</div>
+            </div>
+          </div>
+          <div>
+            <div class="hub-card-title">Resumen y Punto de Equilibrio</div>
+            <div class="hub-card-desc">La foto financiera completa. Margen promedio, ranking de rentabilidad, punto de equilibrio y simulador de escenarios "¿qué pasaría si...?" para anticipar el impacto de subir precios o reducir costos.</div>
+          </div>
+          <div class="hub-card-footer">
+            <div class="hub-card-cta"><i data-lucide="arrow-right"></i> Ver resumen</div>
+            <div class="hub-card-stat">Paso 5 · Análisis final</div>
+          </div>
+        </a>
+
       </div>
 
     </div><!-- /content -->
@@ -476,9 +501,13 @@
       document.getElementById('kpi-margen').textContent = avgMargen.toFixed(1) + '%';
       document.getElementById('kpi-productos-sub').textContent = 'en ' + nProd + ' producto' + (nProd !== 1 ? 's' : '');
       document.getElementById('stat-productos').textContent = nProd + ' producto' + (nProd !== 1 ? 's' : '') + ' activos';
+      const badgeMargen = document.getElementById('badge-margen');
+      if (badgeMargen) badgeMargen.textContent = avgMargen.toFixed(1) + '%';
     } else {
       document.getElementById('kpi-margen').textContent = nProd > 0 ? nProd + (nProd !== 1 ? ' productos' : ' producto') : '—';
       document.getElementById('kpi-productos-sub').textContent = nProd > 0 ? 'sin precio definido' : 'sin productos';
+      const badgeMargen = document.getElementById('badge-margen');
+      if (badgeMargen) badgeMargen.textContent = '—';
     }
   }
 
