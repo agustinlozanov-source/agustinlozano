@@ -354,17 +354,35 @@ function openCreateModal() {
   state.builderRecursos = []
   state.builderComponentes = []
 
-  $('#modal-title').textContent = 'Nuevo componente'
-  $('#modal-save-btn').innerHTML = '<i data-lucide="check"></i><span>Crear componente</span>'
+  const modalTitle = $('#modal-title')
+  const modalSaveBtn = $('#modal-save-btn')
+  const inputNombre = $('#input-nombre')
+  const inputCategoria = $('#input-categoria')
+  const inputRendCant = $('#input-rendimiento-cantidad')
+  const inputRendUnidad = $('#input-rendimiento-unidad')
+  const inputNotas = $('#input-notas')
+  const modalBackdrop = $('#modal-backdrop')
 
-  $('#input-nombre').value = ''
-  $('#input-categoria').value = ''
-  $('#input-rendimiento-cantidad').value = '1'
-  $('#input-rendimiento-unidad').innerHTML = renderUnidadesOptions('unidad')
-  $('#input-notas').value = ''
+  if (!modalTitle || !inputNombre || !inputRendCant || !inputRendUnidad || !modalBackdrop) {
+    console.error('[openCreateModal] Faltan elementos del DOM', {
+      modalTitle: !!modalTitle, inputNombre: !!inputNombre,
+      inputRendCant: !!inputRendCant, inputRendUnidad: !!inputRendUnidad,
+      modalBackdrop: !!modalBackdrop
+    })
+    return
+  }
+
+  modalTitle.textContent = 'Nuevo componente'
+  if (modalSaveBtn) modalSaveBtn.innerHTML = '<i data-lucide="check"></i><span>Crear componente</span>'
+
+  inputNombre.value = ''
+  if (inputCategoria) inputCategoria.value = ''
+  inputRendCant.value = '1'
+  inputRendUnidad.innerHTML = renderUnidadesOptions('unidad')
+  if (inputNotas) inputNotas.value = ''
 
   renderBuilder()
-  $('#modal-backdrop').classList.add('active')
+  modalBackdrop.classList.add('active')
   if (window.lucide) lucide.createIcons()
   setTimeout(() => $('#input-nombre').focus(), 100)
 }
