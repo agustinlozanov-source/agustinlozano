@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCALEx Portal - Recursos</title>
+  <link rel="icon" type="image/png" href="/logos/SX Icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script type="module" src="/assets/js/auth-guard.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal: #1aab99; --teal-light: rgba(26,171,153,0.12);
+      --indigo: #3533cd; --indigo-light: rgba(53,51,205,0.12);
+      --gradient: linear-gradient(135deg, #1aab99, #3533cd);
+      --green: #00c853; --green-light: rgba(0,200,83,0.12);
+      --amber: #ff9500; --amber-light: rgba(255,149,0,0.12);
+      --red: #ff3b30; --red-light: rgba(255,59,48,0.12);
+      --purple: #7c3aed; --purple-light: rgba(124,58,237,0.12);
+      --radius-xl: 28px; --radius-lg: 20px; --radius: 14px; --radius-sm: 9px;
+      --sidebar-w: 80px;
+      font-family: 'Inter', sans-serif; line-height: 1.6;
+    }
+    [data-theme="dark"] {
+      --bg-page: #0a0a0c; --bg-shell: #141416; --bg-card: #1c1c1e; --bg-card-2: #242426;
+      --bg-input: #0d0d10; --bg-modal: rgba(0,0,0,0.7);
+      --surface: rgba(255,255,255,0.04); --surface-hover: rgba(255,255,255,0.07);
+      --border: rgba(255,255,255,0.08); --border-strong: rgba(255,255,255,0.13);
+      --text: #fff; --text-2: #c7c7cc; --text-3: #8e8e93; --text-4: #48484a;
+      --sidebar-bg: #050506;
+    }
+    [data-theme="light"] {
+      --bg-page: #eef0f5; --bg-shell: #fff; --bg-card: #f5f5f7; --bg-card-2: #ebebef;
+      --bg-input: #fff; --bg-modal: rgba(0,0,0,0.4);
+      --surface: rgba(0,0,0,0.03); --surface-hover: rgba(0,0,0,0.055);
+      --border: rgba(0,0,0,0.08); --border-strong: rgba(0,0,0,0.14);
+      --text: #070708; --text-2: #3a3a3c; --text-3: #6e6e73; --text-4: #c7c7cc;
+      --sidebar-bg: #0a0a0c;
+    }
+
+    body { background: var(--bg-page); color: var(--text); min-height: 100vh; overflow: hidden; transition: background .3s, color .3s; }
+    .app-layout { display: flex; min-height: 100vh; padding: 16px; gap: 16px; }
+
+    .sidebar {
+      width: var(--sidebar-w); background: var(--sidebar-bg);
+      border-radius: var(--radius-xl); padding: 20px 0;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      flex-shrink: 0; position: sticky; top: 16px; height: calc(100vh - 32px);
+    }
+    .sidebar-logo {
+      width: 44px; height: auto;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 16px; text-decoration: none;
+    }
+    .sidebar-logo img { width: 100%; height: auto; display: block; }
+    .sidebar-divider { width: 28px; height: 1px; background: rgba(255,255,255,0.08); margin: 4px 0; }
+    .sidebar-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all .2s;
+      color: rgba(255,255,255,0.5); position: relative;
+      text-decoration: none; background: none; border: none;
+    }
+    .sidebar-icon:hover { background: rgba(255,255,255,0.06); color: white; }
+    .sidebar-icon.active { background: var(--gradient); color: white; }
+    .sidebar-icon.active::before {
+      content: ''; position: absolute; left: -16px; top: 50%; transform: translateY(-50%);
+      width: 3px; height: 24px; background: var(--teal); border-radius: 0 3px 3px 0;
+    }
+    .sidebar-icon svg { width: 20px; height: 20px; }
+    .sidebar-bottom { margin-top: auto; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+
+    .shell {
+      flex: 1; background: var(--bg-shell); border-radius: var(--radius-xl);
+      overflow: hidden; display: flex; flex-direction: column;
+      height: calc(100vh - 32px);
+    }
+
+    .topbar {
+      padding: 18px 28px; display: flex; align-items: center; gap: 16px;
+      border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .topbar-back {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--surface); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all .2s; color: var(--text-2);
+      text-decoration: none;
+    }
+    .topbar-back:hover { background: var(--surface-hover); color: var(--text); }
+    .topbar-back svg { width: 16px; height: 16px; }
+    .topbar-title-block { flex: 1; min-width: 0; }
+    .topbar-eyebrow {
+      font-size: 11px; font-weight: 700; letter-spacing: 1.2px;
+      text-transform: uppercase; color: var(--teal);
+    }
+    .topbar-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 18px; font-weight: 800; color: var(--text);
+      letter-spacing: -0.3px; margin-top: 2px;
+    }
+
+    .content { flex: 1; overflow-y: auto; padding: 28px 32px; }
+    .content::-webkit-scrollbar { width: 8px; }
+    .content::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 50px; }
+
+    .page-header {
+      margin-bottom: 22px;
+      display: flex; align-items: flex-end; justify-content: space-between;
+      gap: 16px; flex-wrap: wrap;
+    }
+    .page-header-left { flex: 1; min-width: 240px; }
+    .page-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 24px; font-weight: 800; line-height: 1.2;
+      letter-spacing: -0.5px; color: var(--text); margin-bottom: 4px;
+    }
+    .page-sub { font-size: 13.5px; color: var(--text-3); }
+    .count-badge {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 12px; font-weight: 700;
+      background: var(--teal-light); color: var(--teal);
+      padding: 4px 10px; border-radius: 50px;
+      display: inline-block; margin-top: 6px;
+    }
+
+    .btn {
+      padding: 10px 16px; border-radius: 50px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13px; font-weight: 700;
+      cursor: pointer; border: none;
+      display: inline-flex; align-items: center; gap: 8px;
+      transition: all .2s; text-decoration: none;
+      white-space: nowrap;
+    }
+    .btn svg { width: 14px; height: 14px; }
+    .btn-primary { background: var(--gradient); color: white; }
+    .btn-primary:hover:not(:disabled) { transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-ghost { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
+    .btn-ghost:hover { background: var(--surface-hover); }
+
+    /* TOOLBAR */
+    .toolbar {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 16px; flex-wrap: wrap;
+    }
+    .search-box {
+      flex: 1; min-width: 240px; max-width: 360px;
+      background: var(--bg-input); border: 1px solid var(--border);
+      border-radius: 50px; padding: 9px 16px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .search-box svg { width: 14px; height: 14px; color: var(--text-3); flex-shrink: 0; }
+    .search-box input {
+      flex: 1; background: transparent; border: none; outline: none;
+      color: var(--text); font-size: 13px; font-family: inherit;
+    }
+    .filter-chips {
+      display: flex; gap: 6px; flex-wrap: wrap;
+    }
+    .filter-chip {
+      padding: 6px 12px; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 50px;
+      font-size: 12px; font-weight: 600; color: var(--text-2);
+      cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+      font-family: inherit; transition: all .15s;
+    }
+    .filter-chip:hover { background: var(--surface-hover); }
+    .filter-chip.active { background: var(--teal-light); color: var(--teal); border-color: var(--teal); }
+    .chip-count {
+      font-size: 10px; font-weight: 700;
+      padding: 1px 6px; border-radius: 50px;
+      background: rgba(0,0,0,0.15);
+    }
+    .filter-chip.active .chip-count { background: rgba(26,171,153,0.25); }
+
+    /* TABLE */
+    .table-wrap {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); overflow: hidden;
+    }
+    .table-scroll { overflow-x: auto; }
+    .table {
+      width: 100%; border-collapse: separate; border-spacing: 0;
+    }
+    .table thead th {
+      text-align: left; padding: 14px 18px;
+      font-size: 11px; font-weight: 700; color: var(--text-3);
+      text-transform: uppercase; letter-spacing: 0.6px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-card-2);
+      white-space: nowrap;
+    }
+    .table thead th.num, .table thead th.money { text-align: right; }
+    .table tbody td {
+      padding: 14px 18px; font-size: 13.5px; color: var(--text-2);
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .table tbody tr:last-child td { border-bottom: none; }
+    .table tbody tr.inactive { opacity: 0.45; }
+    .table tbody tr:hover { background: var(--surface); }
+
+    .cell-main {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700; color: var(--text);
+    }
+    .cell-sub {
+      font-size: 11.5px; color: var(--text-3);
+      margin-top: 2px;
+    }
+    td.money, td.num {
+      text-align: right;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    td.money.strong { color: var(--teal); font-weight: 800; }
+    .unit-small {
+      font-size: 10px; color: var(--text-3); font-weight: 400;
+      margin-left: 4px;
+    }
+
+    .cat-pill {
+      display: inline-block; padding: 3px 10px; border-radius: 50px;
+      font-size: 10.5px; font-weight: 700;
+      letter-spacing: 0.2px;
+      background: var(--surface);
+      color: var(--text-2);
+    }
+    .cat-pill.cat-materias-primas { background: var(--amber-light); color: var(--amber); }
+    .cat-pill.cat-personal { background: var(--indigo-light); color: var(--indigo); }
+    .cat-pill.cat-servicios-externos { background: var(--purple-light); color: var(--purple); }
+    .cat-pill.cat-suministros { background: var(--green-light); color: var(--green); }
+
+    .row-actions { display: flex; gap: 4px; justify-content: flex-end; }
+    .icon-btn {
+      width: 28px; height: 28px; border-radius: 7px;
+      background: var(--surface); border: 1px solid var(--border);
+      display: inline-flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--text-3); transition: all .15s;
+    }
+    .icon-btn:hover { background: var(--surface-hover); color: var(--text); }
+    .icon-btn[data-action="delete"]:hover { background: var(--red-light); color: var(--red); border-color: var(--red); }
+    .icon-btn svg { width: 12px; height: 12px; }
+
+    .empty-state-table {
+      padding: 60px 20px; text-align: center;
+    }
+    .empty-state-table svg {
+      width: 32px; height: 32px;
+      color: var(--text-4); margin-bottom: 14px;
+    }
+    .empty-state-table h3 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 15px; font-weight: 700; color: var(--text);
+      margin-bottom: 6px;
+    }
+    .empty-state-table p {
+      font-size: 13px; color: var(--text-3);
+    }
+    .empty-state-big { text-align: center; padding: 60px 20px; }
+    .empty-state-big h2 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 22px; margin-bottom: 12px;
+    }
+
+    /* MODAL */
+    .modal-backdrop {
+      position: fixed; inset: 0;
+      background: var(--bg-modal);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center; justify-content: center;
+      z-index: 100;
+      padding: 16px;
+    }
+    .modal-backdrop.active { display: flex; }
+
+    .modal {
+      background: var(--bg-shell);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      width: 100%; max-width: 540px;
+      max-height: 90vh; overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+    .modal-header {
+      padding: 22px 26px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .modal-header h2 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 18px; font-weight: 800;
+      letter-spacing: -0.3px;
+    }
+    .modal-close {
+      width: 32px; height: 32px; border-radius: 9px;
+      background: var(--surface); border: 1px solid var(--border);
+      display: inline-flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--text-3);
+    }
+    .modal-close:hover { background: var(--surface-hover); color: var(--text); }
+    .modal-close svg { width: 14px; height: 14px; }
+
+    .modal-body { padding: 22px 26px; }
+
+    .form-group { margin-bottom: 14px; }
+    .form-row {
+      display: grid; gap: 12px; margin-bottom: 14px;
+    }
+    .form-row.cols-2 { grid-template-columns: 1fr 1fr; }
+    .form-row.cols-3 { grid-template-columns: 1fr 1fr 1.2fr; }
+
+    .form-label {
+      display: block;
+      font-size: 11.5px; font-weight: 700; color: var(--text-2);
+      text-transform: uppercase; letter-spacing: 0.4px;
+      margin-bottom: 6px;
+    }
+    .form-label .required { color: var(--red); }
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      color: var(--text);
+      font-size: 14px; font-family: inherit;
+      transition: border-color .15s;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      outline: none; border-color: var(--teal);
+    }
+    .form-textarea { resize: vertical; min-height: 70px; }
+    .form-hint {
+      font-size: 11px; color: var(--text-3);
+      margin-top: 4px;
+    }
+
+    .preview-box {
+      background: var(--teal-light);
+      border: 1px solid var(--teal);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      margin: 14px 0 4px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .preview-label {
+      font-size: 11px; font-weight: 700; color: var(--teal);
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .preview-value {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 16px; font-weight: 800; color: var(--text);
+    }
+
+    .modal-footer {
+      padding: 16px 26px 22px;
+      border-top: 1px solid var(--border);
+      display: flex; gap: 10px; justify-content: flex-end;
+    }
+
+    .spinner {
+      width: 13px; height: 13px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* TOAST */
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 50px; padding: 12px 22px;
+      font-size: 13.5px; font-weight: 600; color: var(--text);
+      opacity: 0; pointer-events: none;
+      transition: all .25s ease;
+      z-index: 200;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.success { border-color: var(--green); color: var(--green); }
+    .toast.error { border-color: var(--red); color: var(--red); }
+
+    @media (max-width: 700px) {
+      .app-layout { padding: 8px; gap: 8px; }
+      .topbar { padding: 14px 18px; flex-wrap: wrap; gap: 10px; }
+      .content { padding: 20px 18px; }
+      .table thead th, .table tbody td { padding: 10px 12px; font-size: 12px; }
+      .form-row.cols-3 { grid-template-columns: 1fr; }
+      .form-row.cols-2 { grid-template-columns: 1fr; }
+      .modal { max-height: 96vh; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-layout">
+
+  <aside class="sidebar">
+    <a href="/portal/dashboard.html" class="sidebar-logo">
+        <img src="/logos/SX Isp.png" alt="SCALEx">
+      </a>
+
+    <a href="/portal/dashboard.html" class="sidebar-icon" title="Dashboard">
+      <i data-lucide="layout-dashboard"></i>
+    </a>
+    <a href="/portal/opsp.html" class="sidebar-icon" title="OPSP">
+      <i data-lucide="map"></i>
+    </a>
+    <a href="/portal/rituales.html" class="sidebar-icon" title="Rituales">
+      <i data-lucide="repeat"></i>
+    </a>
+
+    <div class="sidebar-divider"></div>
+
+    <a href="/portal/costeo-gastos.html" class="sidebar-icon" title="Gastos fijos">
+      <i data-lucide="wallet"></i>
+    </a>
+    <a href="/portal/costeo-recursos.html" class="sidebar-icon active" title="Recursos">
+      <i data-lucide="package"></i>
+    </a>
+
+    <div class="sidebar-bottom">
+      <button class="sidebar-icon" title="Cambiar tema" onclick="toggleTheme()">
+        <i data-lucide="sun" id="theme-icon"></i>
+      </button>
+      <button class="sidebar-icon" title="Cerrar sesion" onclick="logout()">
+        <i data-lucide="log-out"></i>
+      </button>
+    </div>
+  </aside>
+
+  <main class="shell">
+
+    <div class="topbar">
+      <a href="/portal/dashboard.html" class="topbar-back">
+        <i data-lucide="arrow-left"></i>
+      </a>
+      <div class="topbar-title-block">
+        <div class="topbar-eyebrow">Pilar 5 - Flujo - Costeo</div>
+        <div class="topbar-title">Catalogo de recursos</div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1 class="page-title">Lo que compras para producir</h1>
+          <p class="page-sub">Materias primas, horas-persona, servicios externos, suministros. Todo lo que consumes para hacer tus productos.</p>
+          <div class="count-badge" id="count-display">0 recursos</div>
+        </div>
+        <button class="btn btn-primary" onclick="openCreateModal()">
+          <i data-lucide="plus"></i>
+          Nuevo recurso
+        </button>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-box">
+          <i data-lucide="search"></i>
+          <input type="text" id="search-input" placeholder="Buscar por nombre o proveedor..." />
+        </div>
+        <div class="filter-chips" id="filter-chips">
+          <!-- renderizado por JS -->
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-scroll">
+          <table class="table">
+            <thead>
+              <tr>
+                <th style="width:140px">Categoria</th>
+                <th>Recurso</th>
+                <th class="money" style="width:130px">Costo compra</th>
+                <th class="num" style="width:140px">Cantidad</th>
+                <th class="money" style="width:140px">Por unidad</th>
+                <th style="width:80px"></th>
+              </tr>
+            </thead>
+            <tbody id="recursos-tbody">
+              <!-- renderizado por JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- MODAL -->
+<div class="modal-backdrop" id="modal-backdrop">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-title">Nuevo recurso</h2>
+      <button class="modal-close" onclick="closeModal()">
+        <i data-lucide="x"></i>
+      </button>
+    </div>
+
+    <form id="modal-form">
+      <div class="modal-body">
+
+        <div class="form-group">
+          <label class="form-label" for="input-nombre">Nombre <span class="required">*</span></label>
+          <input type="text" id="input-nombre" class="form-input" required placeholder="Ej: Harina trigo blanca / Hora consultor senior" />
+        </div>
+
+        <div class="form-row cols-2">
+          <div class="form-group">
+            <label class="form-label" for="input-categoria">Categoria</label>
+            <select id="input-categoria" class="form-select"></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="input-categoria-nueva">o crear nueva</label>
+            <input type="text" id="input-categoria-nueva" class="form-input" placeholder="Nueva categoria..." />
+          </div>
+        </div>
+
+        <div class="form-row cols-3">
+          <div class="form-group">
+            <label class="form-label" for="input-costo">Costo compra <span class="required">*</span></label>
+            <input type="text" id="input-costo" class="form-input" inputmode="decimal" placeholder="0.00" required />
+            <div class="form-hint">Cuanto pagas en total</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="input-cantidad">Cantidad <span class="required">*</span></label>
+            <input type="text" id="input-cantidad" class="form-input" inputmode="decimal" value="1" required />
+            <div class="form-hint">Que recibes</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="input-unidad">Unidad <span class="required">*</span></label>
+            <select id="input-unidad" class="form-select" required></select>
+          </div>
+        </div>
+
+        <div class="preview-box">
+          <div class="preview-label">Costo por unidad</div>
+          <div class="preview-value" id="preview-costo-unit">$ 0 / unidad</div>
+        </div>
+
+        <div class="form-group" style="margin-top:18px">
+          <label class="form-label" for="input-proveedor">Proveedor</label>
+          <input type="text" id="input-proveedor" class="form-input" placeholder="Opcional" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="input-descripcion">Notas</label>
+          <textarea id="input-descripcion" class="form-textarea" placeholder="Opcional: marca, ubicacion, observaciones..."></textarea>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="modal-save-btn">
+          <i data-lucide="check"></i>
+          <span>Crear recurso</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>lucide.createIcons();</script>
+<script type="module" src="/assets/js/costeo-recursos.js"></script>
+
+</body>
+</html>
