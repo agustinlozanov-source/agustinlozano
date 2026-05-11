@@ -383,7 +383,6 @@ function openCreateModal() {
 
   renderBuilder()
   modalBackdrop.classList.add('active')
-  if (window.lucide) lucide.createIcons()
   setTimeout(() => $('#input-nombre').focus(), 100)
 }
 
@@ -430,6 +429,7 @@ function renderBuilder() {
   renderBuilderRecursos()
   renderBuilderComponentes()
   renderBuilderTotal()
+  if (window.lucide) lucide.createIcons()
 }
 
 function hintTiempo(cantidad, unidad) {
@@ -487,8 +487,6 @@ function renderBuilderRecursos() {
       renderBuilder()
     })
   })
-
-  if (window.lucide) lucide.createIcons()
 }
 
 function renderBuilderComponentes() {
@@ -528,8 +526,6 @@ function renderBuilderComponentes() {
       renderBuilder()
     })
   })
-
-  if (window.lucide) lucide.createIcons()
 }
 
 function onBuilderInput(e, tipo, fullRender = true) {

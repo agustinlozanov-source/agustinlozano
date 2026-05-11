@@ -458,7 +458,6 @@ function openCreateModal() {
   renderBuilder()
   updatePreview()
   $('#modal-backdrop').classList.add('active')
-  if (window.lucide) lucide.createIcons()
   setTimeout(() => $('#input-nombre').focus(), 100)
 }
 
@@ -491,7 +490,6 @@ async function openEditModal(id) {
   renderBuilder()
   updatePreview()
   $('#modal-backdrop').classList.add('active')
-  if (window.lucide) lucide.createIcons()
 }
 
 function closeModal() {
@@ -505,6 +503,7 @@ function renderBuilder() {
   renderBuilderRecursos()
   renderBuilderComponentes()
   updatePreview()
+  if (window.lucide) lucide.createIcons()
 }
 
 function hintTiempo(cantidad, unidad) {
@@ -562,8 +561,6 @@ function renderBuilderRecursos() {
       renderBuilder()
     })
   })
-
-  if (window.lucide) lucide.createIcons()
 }
 
 function renderBuilderComponentes() {
@@ -601,8 +598,6 @@ function renderBuilderComponentes() {
       renderBuilder()
     })
   })
-
-  if (window.lucide) lucide.createIcons()
 }
 
 function onBuilderInput(e, tipo) {
