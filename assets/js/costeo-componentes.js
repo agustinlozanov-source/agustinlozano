@@ -467,7 +467,7 @@ function renderBuilderRecursos() {
       const hint = hintTiempo(r.cantidad, r.unidad)
       return '<div class="builder-row">' +
         '<select class="form-select sm" data-idx="' + idx + '" data-field="recurso_id">' + renderRecursoOptions(r.recurso_id) + '</select>' +
-        '<input type="text" class="form-input sm right" inputmode="decimal" step="any" value="' + (r.cantidad || '') + '" placeholder="0" data-idx="' + idx + '" data-field="cantidad" />' +
+        '<input type="text" class="form-input sm right" inputmode="decimal" step="any" value="' + (r.cantidad != null ? r.cantidad : '0.0') + '" placeholder="0.0" data-idx="' + idx + '" data-field="cantidad" />' +
         '<select class="form-select sm" data-idx="' + idx + '" data-field="unidad">' + renderUnidadesOptions(r.unidad) + '</select>' +
         '<div class="builder-cost">' + fmtMoney(costoTotal) + '</div>' +
         '<button class="icon-btn" data-action="rm-recurso" data-idx="' + idx + '"><i data-lucide="x"></i></button>' +
@@ -508,7 +508,7 @@ function renderBuilderComponentes() {
       const hint = hintTiempo(s.cantidad, s.unidad)
       return '<div class="builder-row">' +
         '<select class="form-select sm" data-idx="' + idx + '" data-field="componente_hijo_id">' + renderComponenteOptions(s.componente_hijo_id, state.editingId) + '</select>' +
-        '<input type="text" class="form-input sm right" inputmode="decimal" step="any" value="' + (s.cantidad || '') + '" placeholder="0" data-idx="' + idx + '" data-field="cantidad" />' +
+        '<input type="text" class="form-input sm right" inputmode="decimal" step="any" value="' + (s.cantidad != null ? s.cantidad : '0.0') + '" placeholder="0.0" data-idx="' + idx + '" data-field="cantidad" />' +
         '<select class="form-select sm" data-idx="' + idx + '" data-field="unidad">' + renderUnidadesOptions(s.unidad) + '</select>' +
         '<div class="builder-cost">' + fmtMoney(costoTotal) + '</div>' +
         '<button class="icon-btn" data-action="rm-comp" data-idx="' + idx + '"><i data-lucide="x"></i></button>' +
@@ -552,11 +552,8 @@ function onBuilderInput(e, tipo, fullRender = true) {
 
   if (field === 'cantidad') {
     arr[idx][field] = parseAmount(e.target.value)
-    // Mientras escribe: solo actualizar el total, no re-renderizar las filas
-    if (!fullRender) {
-      renderBuilderTotal()
-      return
-    }
+    renderBuilderTotal()
+    return  // nunca re-renderizar la fila por cambio de cantidad
   } else {
     arr[idx][field] = e.target.value
   }
