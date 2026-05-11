@@ -48,7 +48,9 @@ let state = {
   detailId: null,            // si esta abierto el detalle de un componente
   // builder
   builderRecursos: [],       // [{recurso_id, cantidad, unidad}]
-  builderComponentes: []     // [{componente_hijo_id, cantidad, unidad}]
+  builderComponentes: [],    // [{componente_hijo_id, cantidad, unidad}]
+  miniModalType: null,       // 'recurso' | 'comp'
+  miniModalIdx: null
 }
 
 const UNIDADES_COMUNES = [
@@ -332,6 +334,7 @@ function renderRecursoOptions(selected) {
     const sel = r.id === selected ? 'selected' : ''
     html += '<option value="' + r.id + '" ' + sel + '>' + escapeHtml(r.nombre) + ' (' + escapeHtml(r.unidad_compra) + ')</option>'
   })
+  html += '<option value="__CREATE_RECURSO__" style="color:#1aab99;font-weight:700;">+ Crear nuevo recurso...</option>'
   return html
 }
 
@@ -343,6 +346,7 @@ function renderComponenteOptions(selected, excludeId) {
       const sel = c.id === selected ? 'selected' : ''
       html += '<option value="' + c.id + '" ' + sel + '>' + escapeHtml(c.nombre) + ' (rinde ' + fmtNum(c.rendimiento_cantidad) + ' ' + escapeHtml(c.rendimiento_unidad) + ')</option>'
     })
+  html += '<option value="__CREATE_COMP__" style="color:#1aab99;font-weight:700;">+ Crear nuevo sub-componente...</option>'
   return html
 }
 
@@ -495,6 +499,18 @@ function onBuilderInput(e, tipo) {
   const arr = tipo === 'recurso' ? state.builderRecursos : state.builderComponentes
   if (!arr[idx]) return
 
+  // Detectar "Crear nuevo"
+  if (field === 'recurso_id' && e.target.value === '__CREATE_RECURSO__') {
+    e.target.value = arr[idx].recurso_id || ''
+    openMiniModal('recurso', idx)
+    return
+  }
+  if (field === 'componente_hijo_id' && e.target.value === '__CREATE_COMP__') {
+    e.target.value = arr[idx].componente_hijo_id || ''
+    openMiniModal('comp', idx)
+    return
+  }
+
   if (field === 'cantidad') {
     arr[idx][field] = parseAmount(e.target.value)
   } else {
@@ -512,6 +528,125 @@ function onBuilderInput(e, tipo) {
   }
 
   renderBuilder()
+}
+
+function openMiniModal(type, idx) {
+  state.miniModalType = type
+  state.miniModalIdx = idx
+
+  const title = $('#mini-modal-title')
+  if (type === 'recurso') {
+    title.innerHTML = 'Crear recurso <span class="mini-badge">Rápido</span>'
+    $('#mini-fields-recurso').style.display = 'block'
+    $('#mini-fields-comp').style.display = 'none'
+    $('#mini-input-nombre').value = ''
+    $('#mini-input-costo').value = ''
+    $('#mini-input-cantidad-compra').value = ''
+    $('#mini-input-unidad-compra').innerHTML = renderUnidadesOptions('gr')
+  } else {
+    title.innerHTML = 'Crear sub-componente <span class="mini-badge">Rápido</span>'
+    $('#mini-fields-recurso').style.display = 'none'
+    $('#mini-fields-comp').style.display = 'block'
+    $('#mini-input-comp-nombre').value = ''
+    $('#mini-input-comp-rend-cant').value = '1'
+    $('#mini-input-comp-rend-unidad').innerHTML = renderUnidadesOptions('unidad')
+  }
+
+  $('#mini-modal-backdrop').classList.add('active')
+  if (window.lucide) lucide.createIcons()
+  setTimeout(() => {
+    const focusEl = type === 'recurso' ? $('#mini-input-nombre') : $('#mini-input-comp-nombre')
+    focusEl?.focus()
+  }, 80)
+}
+
+function closeMiniModal() {
+  $('#mini-modal-backdrop').classList.remove('active')
+  state.miniModalType = null
+  state.miniModalIdx = null
+}
+
+async function saveMiniModal() {
+  const type = state.miniModalType
+  const idx = state.miniModalIdx
+  const btn = $('#mini-modal-save-btn')
+  btn.disabled = true
+  btn.innerHTML = '<span class="spinner"></span><span>Creando...</span>'
+
+  try {
+    if (type === 'recurso') {
+      const nombre = $('#mini-input-nombre').value.trim()
+      if (!nombre) { $('#mini-input-nombre').focus(); throw new Error('Escribe el nombre del recurso') }
+      const costo = parseAmount($('#mini-input-costo').value)
+      const cantCompra = parseAmount($('#mini-input-cantidad-compra').value)
+      const unidad = $('#mini-input-unidad-compra').value
+      if (!unidad) throw new Error('Selecciona una unidad de compra')
+
+      const { data, error } = await supabase.from('recursos').insert({
+        organizacion_id: state.org.id,
+        nombre,
+        costo_compra: costo || 0,
+        cantidad_compra: cantCompra > 0 ? cantCompra : 1,
+        unidad_compra: unidad,
+        activo: true,
+        created_by: state.profile?.id
+      }).select('*').single()
+
+      if (error) throw error
+
+      state.recursos.push(data)
+      state.recursos.sort((a, b) => a.nombre.localeCompare(b.nombre))
+
+      if (idx !== null && state.builderRecursos[idx]) {
+        state.builderRecursos[idx].recurso_id = data.id
+        state.builderRecursos[idx].unidad = data.unidad_compra
+      }
+
+      showToast('Recurso creado y agregado ✓', 'success')
+
+    } else {
+      const nombre = $('#mini-input-comp-nombre').value.trim()
+      if (!nombre) { $('#mini-input-comp-nombre').focus(); throw new Error('Escribe el nombre del sub-componente') }
+      const rendCant = parseAmount($('#mini-input-comp-rend-cant').value)
+      if (rendCant <= 0) throw new Error('El rendimiento debe ser mayor a cero')
+      const rendUnidad = $('#mini-input-comp-rend-unidad').value
+      if (!rendUnidad) throw new Error('Selecciona una unidad de rendimiento')
+
+      const { data, error } = await supabase.from('componentes').insert({
+        organizacion_id: state.org.id,
+        nombre,
+        rendimiento_cantidad: rendCant,
+        rendimiento_unidad: rendUnidad,
+        minutos_produccion: 0,
+        activo: true,
+        created_by: state.profile?.id
+      }).select('*').single()
+
+      if (error) throw error
+
+      state.componentes.push(data)
+      state.componentes.sort((a, b) => a.nombre.localeCompare(b.nombre))
+      state.componentesCostos[data.id] = 0
+
+      if (idx !== null && state.builderComponentes[idx]) {
+        state.builderComponentes[idx].componente_hijo_id = data.id
+        state.builderComponentes[idx].unidad = data.rendimiento_unidad
+      }
+
+      showToast('Sub-componente creado y agregado ✓', 'success')
+    }
+
+    closeMiniModal()
+    renderBuilder()
+
+  } catch (err) {
+    console.error('[saveMiniModal]', err)
+    showToast(err.message || 'Error al crear', 'error')
+  } finally {
+    btn.disabled = false
+    btn.innerHTML = '<i data-lucide="check"></i><span>Crear y agregar</span>'
+    if (window.lucide) lucide.createIcons()
+  }
 }
 
 function addBuilderRecurso() {
@@ -679,6 +814,8 @@ window.openCreateModal = openCreateModal
 window.closeModal = closeModal
 window.addBuilderRecurso = addBuilderRecurso
 window.addBuilderComponente = addBuilderComponente
+window.closeMiniModal = closeMiniModal
+window.saveMiniModal = saveMiniModal
 
 async function init() {
   try {
@@ -718,8 +855,12 @@ async function init() {
     })
 
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && $('#modal-backdrop').classList.contains('active')) {
-        closeModal()
+      if (e.key === 'Escape') {
+        if ($('#mini-modal-backdrop').classList.contains('active')) {
+          closeMiniModal()
+        } else if ($('#modal-backdrop').classList.contains('active')) {
+          closeModal()
+        }
       }
     })
 

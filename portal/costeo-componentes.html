@@ -445,6 +445,48 @@
     .toast.success { border-color: var(--green); color: var(--green); }
     .toast.error { border-color: var(--red); color: var(--red); }
 
+    /* MINI-MODAL */
+    .mini-modal-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center; justify-content: center;
+      z-index: 150;
+      padding: 16px;
+    }
+    .mini-modal-backdrop.active { display: flex; }
+    .mini-modal {
+      background: var(--bg-shell);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-xl);
+      width: 100%; max-width: 460px;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+      animation: modalIn .18s ease;
+    }
+    @keyframes modalIn { from { opacity:0; transform:scale(.96) translateY(8px); } to { opacity:1; transform:none; } }
+    .mini-modal-header {
+      padding: 18px 22px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .mini-modal-header h3 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 15px; font-weight: 800; letter-spacing: -0.2px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .mini-modal-header h3 .mini-badge {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.6px;
+      text-transform: uppercase; background: var(--teal-light);
+      color: var(--teal); padding: 2px 8px; border-radius: 20px;
+    }
+    .mini-modal-body { padding: 18px 22px; }
+    .mini-modal-footer {
+      padding: 14px 22px 18px;
+      border-top: 1px solid var(--border);
+      display: flex; gap: 10px; justify-content: flex-end;
+    }
+
     @media (max-width: 700px) {
       .app-layout { padding: 8px; gap: 8px; }
       .topbar { padding: 14px 18px; flex-wrap: wrap; gap: 10px; }
@@ -650,6 +692,70 @@
         </button>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- MINI-MODAL: Crear rápido -->
+<div class="mini-modal-backdrop" id="mini-modal-backdrop">
+  <div class="mini-modal">
+    <div class="mini-modal-header">
+      <h3 id="mini-modal-title">Crear recurso <span class="mini-badge">Rápido</span></h3>
+      <button class="modal-close" type="button" onclick="closeMiniModal()">
+        <i data-lucide="x"></i>
+      </button>
+    </div>
+    <div class="mini-modal-body">
+
+      <!-- Campos recurso -->
+      <div id="mini-fields-recurso">
+        <div class="form-group">
+          <label class="form-label">Nombre <span class="required">*</span></label>
+          <input type="text" id="mini-input-nombre" class="form-input" placeholder="Ej: Tomate, Harina, Caja..." />
+        </div>
+        <div class="form-row cols-2">
+          <div class="form-group">
+            <label class="form-label">Costo de compra <span class="required">*</span></label>
+            <input type="text" id="mini-input-costo" class="form-input" inputmode="decimal" placeholder="0.00" />
+            <div class="form-hint">Lo que pagas al proveedor</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Cantidad que compras <span class="required">*</span></label>
+            <input type="text" id="mini-input-cantidad-compra" class="form-input" inputmode="decimal" placeholder="Ej: 1000" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Unidad de compra <span class="required">*</span></label>
+          <select id="mini-input-unidad-compra" class="form-select"></select>
+        </div>
+      </div>
+
+      <!-- Campos sub-componente -->
+      <div id="mini-fields-comp" style="display:none">
+        <div class="form-group">
+          <label class="form-label">Nombre <span class="required">*</span></label>
+          <input type="text" id="mini-input-comp-nombre" class="form-input" placeholder="Ej: Sofrito base, Sub-ensamble A..." />
+        </div>
+        <div class="form-row cols-2">
+          <div class="form-group">
+            <label class="form-label">Rendimiento - cantidad <span class="required">*</span></label>
+            <input type="text" id="mini-input-comp-rend-cant" class="form-input" inputmode="decimal" value="1" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Rendimiento - unidad <span class="required">*</span></label>
+            <select id="mini-input-comp-rend-unidad" class="form-select"></select>
+          </div>
+        </div>
+        <p class="form-hint" style="margin-top:0">Podrás agregar recursos a este sub-componente después de crearlo.</p>
+      </div>
+
+    </div>
+    <div class="mini-modal-footer">
+      <button type="button" class="btn btn-ghost" onclick="closeMiniModal()">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="mini-modal-save-btn" onclick="saveMiniModal()">
+        <i data-lucide="check"></i>
+        <span>Crear y agregar</span>
+      </button>
+    </div>
   </div>
 </div>
 
