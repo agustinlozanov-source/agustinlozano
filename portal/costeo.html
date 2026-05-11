@@ -459,20 +459,22 @@
     if (!orgId) return;
 
     const [gastosRes, recursosRes, componentesRes, productosRes] = await Promise.all([
-      supabase.from('gastos_fijos').select('monto').eq('organizacion_id', orgId),
+      supabase.from('gastos_fijos_costeo').select('*').eq('organizacion_id', orgId).maybeSingle(),
       supabase.from('recursos').select('id', { count: 'exact', head: true }).eq('organizacion_id', orgId),
       supabase.from('componentes').select('id', { count: 'exact', head: true }).eq('organizacion_id', orgId),
-      supabase.from('productos').select('precio_venta,costo_total').eq('organizacion_id', orgId),
+      supabase.from('productos').select('id,precio_venta').eq('organizacion_id', orgId).eq('activo', true),
     ]);
 
     /* Gastos fijos */
-    const gastos = gastosRes.data || [];
-    const totalGastos = gastos.reduce((s, g) => s + (parseFloat(g.monto) || 0), 0);
+    const gastosData = gastosRes.data;
+    const conceptos = gastosData?.conceptos || {};
+    const totalGastos = Object.values(conceptos).reduce((s, v) => s + parseFloat(v || 0), 0);
+    const nConceptos = Object.keys(conceptos).length;
     document.getElementById('kpi-gastos').textContent = totalGastos > 0
       ? '$' + totalGastos.toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
       : '$0';
-    document.getElementById('kpi-gastos-sub').textContent = gastos.length + ' concepto' + (gastos.length !== 1 ? 's' : '');
-    document.getElementById('badge-gastos').textContent = gastos.length;
+    document.getElementById('kpi-gastos-sub').textContent = nConceptos + ' concepto' + (nConceptos !== 1 ? 's' : '');
+    document.getElementById('badge-gastos').textContent = nConceptos;
     if (totalGastos > 0) {
       document.getElementById('stat-gastos').textContent = '$' + totalGastos.toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' / mes';
     }
@@ -487,17 +489,22 @@
     document.getElementById('kpi-componentes').textContent = nComp;
     document.getElementById('badge-componentes').textContent = nComp;
 
-    /* Productos + margen promedio */
+    /* Productos + margen promedio vía RPC */
     const productos = productosRes.data || [];
     const nProd = productos.length;
     document.getElementById('badge-productos').textContent = nProd;
 
-    const conMargen = productos.filter(p => p.precio_venta > 0 && p.costo_total > 0);
-    if (conMargen.length > 0) {
-      const avgMargen = conMargen.reduce((s, p) => {
-        const margen = ((p.precio_venta - p.costo_total) / p.precio_venta) * 100;
-        return s + margen;
-      }, 0) / conMargen.length;
+    let sumMargen = 0;
+    let validos = 0;
+    for (const p of productos) {
+      const { data: breakdown } = await supabase.rpc('costo_producto', { p_producto_id: p.id });
+      if (breakdown && parseFloat(breakdown.margen_pct) !== null) {
+        sumMargen += parseFloat(breakdown.margen_pct);
+        validos++;
+      }
+    }
+    if (validos > 0) {
+      const avgMargen = sumMargen / validos;
       document.getElementById('kpi-margen').textContent = avgMargen.toFixed(1) + '%';
       document.getElementById('kpi-productos-sub').textContent = 'en ' + nProd + ' producto' + (nProd !== 1 ? 's' : '');
       document.getElementById('stat-productos').textContent = nProd + ' producto' + (nProd !== 1 ? 's' : '') + ' activos';
