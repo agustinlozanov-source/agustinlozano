@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCALEx Portal - PIE</title>
+  <link rel="icon" type="image/png" href="/logos/SX Icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script type="module" src="/assets/js/auth-guard.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal: #1aab99; --teal-light: rgba(26,171,153,0.12);
+      --indigo: #3533cd; --indigo-light: rgba(53,51,205,0.12);
+      --gradient: linear-gradient(135deg, #1aab99, #3533cd);
+      --gradient-soft: linear-gradient(135deg, rgba(26,171,153,0.15), rgba(53,51,205,0.15));
+      --green: #00c853; --green-light: rgba(0,200,83,0.12);
+      --amber: #ff9500; --amber-light: rgba(255,149,0,0.12);
+      --red: #ff3b30; --red-light: rgba(255,59,48,0.12);
+      --purple: #7c3aed; --purple-light: rgba(124,58,237,0.12);
+      --radius-xl: 28px; --radius-lg: 20px; --radius: 14px; --radius-sm: 9px;
+      --sidebar-w: 80px;
+      font-family: 'Inter', sans-serif; line-height: 1.6;
+    }
+    [data-theme="dark"] {
+      --bg-page: #0a0a0c; --bg-shell: #141416; --bg-card: #1c1c1e; --bg-card-2: #242426;
+      --bg-input: #0d0d10;
+      --surface: rgba(255,255,255,0.04); --surface-hover: rgba(255,255,255,0.07);
+      --border: rgba(255,255,255,0.08); --border-strong: rgba(255,255,255,0.13);
+      --text: #fff; --text-2: #c7c7cc; --text-3: #8e8e93; --text-4: #48484a;
+      --sidebar-bg: #050506;
+    }
+    [data-theme="light"] {
+      --bg-page: #eef0f5; --bg-shell: #fff; --bg-card: #f5f5f7; --bg-card-2: #ebebef;
+      --bg-input: #fff;
+      --surface: rgba(0,0,0,0.03); --surface-hover: rgba(0,0,0,0.055);
+      --border: rgba(0,0,0,0.08); --border-strong: rgba(0,0,0,0.14);
+      --text: #070708; --text-2: #3a3a3c; --text-3: #6e6e73; --text-4: #c7c7cc;
+      --sidebar-bg: #0a0a0c;
+    }
+
+    body { background: var(--bg-page); color: var(--text); min-height: 100vh; overflow: hidden; transition: background .3s, color .3s; }
+    .app-layout { display: flex; min-height: 100vh; padding: 16px; gap: 16px; }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: var(--sidebar-w); background: var(--sidebar-bg);
+      border-radius: var(--radius-xl); padding: 20px 0;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      flex-shrink: 0; position: sticky; top: 16px; height: calc(100vh - 32px);
+    }
+    .sidebar-logo { width: 44px; height: auto; display: block; margin-bottom: 16px; text-decoration: none; }
+    .sidebar-logo img { width: 100%; height: auto; display: block; }
+    .sidebar-divider { width: 28px; height: 1px; background: rgba(255,255,255,0.08); margin: 4px 0; }
+    .sidebar-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all .2s;
+      color: rgba(255,255,255,0.5); position: relative;
+      text-decoration: none; background: none; border: none;
+    }
+    .sidebar-icon:hover { background: rgba(255,255,255,0.06); color: white; }
+    .sidebar-icon.active { background: var(--gradient); color: white; }
+    .sidebar-icon.active::before {
+      content: ''; position: absolute; left: -16px; top: 50%; transform: translateY(-50%);
+      width: 3px; height: 24px; background: var(--teal); border-radius: 0 3px 3px 0;
+    }
+    .sidebar-icon svg { width: 20px; height: 20px; }
+    .sidebar-bottom { margin-top: auto; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+
+    /* SHELL */
+    .shell {
+      flex: 1; background: var(--bg-shell); border-radius: var(--radius-xl);
+      overflow: hidden; display: flex; flex-direction: column;
+      height: calc(100vh - 32px);
+    }
+    .topbar {
+      padding: 18px 28px; display: flex; align-items: center; gap: 16px;
+      border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .topbar-back {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--surface); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all .2s; color: var(--text-2);
+      text-decoration: none;
+    }
+    .topbar-back:hover { background: var(--surface-hover); color: var(--text); }
+    .topbar-back svg { width: 16px; height: 16px; }
+    .topbar-title-block { flex: 1; min-width: 0; }
+    .topbar-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--teal); }
+    .topbar-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; font-weight: 800; color: var(--text); letter-spacing: -0.3px; margin-top: 2px; }
+
+    .content { flex: 1; overflow-y: auto; padding: 28px 32px; }
+    .content::-webkit-scrollbar { width: 8px; }
+    .content::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 50px; }
+
+    /* VIEWS */
+    .view { display: none; }
+    .view.active { display: block; animation: fadeIn .3s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+
+    /* PAGE HEADER */
+    .page-header { margin-bottom: 24px; max-width: 720px; }
+    .page-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--teal); margin-bottom: 8px; }
+    .page-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 30px; font-weight: 800; line-height: 1.15;
+      letter-spacing: -0.8px; color: var(--text); margin-bottom: 10px;
+    }
+    .page-title span { background: var(--gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .page-sub { font-size: 14.5px; color: var(--text-3); line-height: 1.6; }
+
+    /* INTRO VIEW */
+    .intro-grid {
+      display: grid; grid-template-columns: 1.2fr 1fr;
+      gap: 20px; align-items: stretch; margin-bottom: 24px;
+    }
+    .intro-hero {
+      background: var(--gradient); color: white;
+      border-radius: var(--radius-xl); padding: 32px 36px;
+      position: relative; overflow: hidden;
+      display: flex; flex-direction: column; justify-content: center;
+    }
+    .intro-hero::before {
+      content: ''; position: absolute;
+      top: -60px; right: -60px; width: 240px; height: 240px;
+      background: radial-gradient(circle, rgba(255,255,255,0.18), transparent 70%);
+      border-radius: 50%;
+    }
+    .intro-quote {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 26px; font-weight: 800; line-height: 1.2;
+      letter-spacing: -0.5px; margin-bottom: 14px;
+    }
+    .intro-quote-mark { font-size: 56px; font-weight: 900; line-height: 0.5; opacity: 0.4; display: block; margin-bottom: 10px; }
+    .intro-byline { font-size: 13px; opacity: 0.9; line-height: 1.55; }
+
+    .intro-info {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-xl); padding: 22px 24px;
+      display: flex; flex-direction: column;
+    }
+    .info-stat { display: flex; align-items: center; gap: 14px; padding: 11px 0; border-bottom: 1px solid var(--border); }
+    .info-stat:last-child { border-bottom: none; }
+    .info-icon { width: 36px; height: 36px; border-radius: 10px; background: var(--teal-light); color: var(--teal); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .info-icon svg { width: 16px; height: 16px; }
+    .info-body { flex: 1; }
+    .info-label { font-size: 10.5px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.4px; }
+    .info-value { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 800; color: var(--text); margin-top: 2px; }
+
+    .sections-preview {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 22px 24px; margin-bottom: 22px;
+    }
+    .sections-preview-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 12.5px; font-weight: 800; color: var(--text);
+      text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 14px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .sections-preview-title svg { width: 14px; height: 14px; color: var(--teal); }
+    .sections-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .section-pill {
+      background: var(--bg-input); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px 16px;
+    }
+    .section-pill-num { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10.5px; font-weight: 800; color: var(--teal); letter-spacing: 0.5px; margin-bottom: 4px; }
+    .section-pill-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13.5px; font-weight: 700; color: var(--text); line-height: 1.3; margin-bottom: 4px; }
+    .section-pill-desc { font-size: 11.5px; color: var(--text-3); line-height: 1.4; }
+
+    .historial-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-left: 3px solid var(--teal);
+      border-radius: var(--radius-lg); padding: 18px 22px;
+      margin-bottom: 22px;
+      display: flex; align-items: center; gap: 18px;
+    }
+    .historial-icon {
+      width: 42px; height: 42px; border-radius: 11px;
+      background: var(--teal-light); color: var(--teal);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .historial-icon svg { width: 20px; height: 20px; }
+    .historial-body { flex: 1; }
+    .historial-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+    .historial-meta { font-size: 12.5px; color: var(--text-3); display: flex; gap: 14px; flex-wrap: wrap; }
+    .historial-meta strong { color: var(--text-2); font-weight: 700; }
+
+    /* BUTTONS */
+    .btn {
+      padding: 12px 22px; border-radius: 50px;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 700;
+      cursor: pointer; border: none;
+      display: inline-flex; align-items: center; gap: 8px;
+      transition: all .2s; text-decoration: none;
+    }
+    .btn svg { width: 16px; height: 16px; }
+    .btn-primary { background: var(--gradient); color: white; }
+    .btn-primary:hover:not(:disabled) { transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-primary.large { padding: 14px 28px; font-size: 15px; }
+    .btn-ghost { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
+    .btn-ghost:hover { background: var(--surface-hover); }
+
+    /* EVAL VIEW */
+    .eval-progress-bar { height: 6px; background: var(--surface); border-radius: 50px; overflow: hidden; margin-bottom: 6px; }
+    .eval-progress-fill { height: 100%; background: var(--gradient); border-radius: 50px; transition: width .3s; }
+    .eval-progress-info {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 12px; color: var(--text-3); margin-bottom: 22px;
+    }
+    .eval-progress-info strong { color: var(--text); }
+    .eval-save { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--text-3); }
+    .eval-save .dot { width: 7px; height: 7px; border-radius: 50%; }
+    .eval-save .dot.saved { background: var(--green); }
+    .eval-save .dot.saving { background: var(--amber); animation: pulse 1s infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+    .eval-section-header { margin-bottom: 20px; }
+    .eval-section-num {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      display: inline-block; padding: 5px 12px;
+      background: var(--teal-light); color: var(--teal);
+      border-radius: 50px; font-size: 11px; font-weight: 800;
+      letter-spacing: 0.5px; margin-bottom: 10px;
+    }
+    .eval-section-titulo {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 22px; font-weight: 800; color: var(--text);
+      letter-spacing: -0.4px; margin-bottom: 6px;
+    }
+    .eval-section-desc { font-size: 13.5px; color: var(--text-3); font-style: italic; }
+
+    .eval-question {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 20px 22px;
+      margin-bottom: 12px;
+    }
+    .eval-question-text {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 15px; font-weight: 600; color: var(--text);
+      line-height: 1.5; margin-bottom: 16px;
+      letter-spacing: -0.1px;
+    }
+    .eval-options { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+    .eval-option {
+      background: var(--bg-input); border: 1.5px solid var(--border);
+      border-radius: var(--radius); padding: 12px 6px;
+      cursor: pointer; text-align: center; transition: all .15s;
+      font-family: inherit;
+    }
+    .eval-option:hover { border-color: var(--teal); background: var(--surface-hover); }
+    .eval-option.selected { background: var(--gradient); border-color: transparent; color: white; }
+    .eval-option-num { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 19px; font-weight: 900; color: var(--text); margin-bottom: 2px; }
+    .eval-option.selected .eval-option-num { color: white; }
+    .eval-option-label { font-size: 10.5px; color: var(--text-3); line-height: 1.3; }
+    .eval-option.selected .eval-option-label { color: rgba(255,255,255,0.9); }
+
+    .eval-nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 22px; }
+
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* RESULT VIEW */
+    .result-hero {
+      background: var(--gradient); color: white;
+      border-radius: var(--radius-xl); padding: 32px 36px;
+      margin-bottom: 22px; position: relative; overflow: hidden;
+    }
+    .result-hero::before {
+      content: ''; position: absolute;
+      top: -80px; right: -80px; width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(255,255,255,0.18), transparent 70%);
+      border-radius: 50%;
+    }
+    .result-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 1.3px; text-transform: uppercase; opacity: 0.9; margin-bottom: 12px; }
+    .result-perfil { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 38px; font-weight: 900; letter-spacing: -1.1px; line-height: 1; margin-bottom: 12px; }
+    .result-score-line { display: flex; align-items: baseline; gap: 12px; margin-bottom: 18px; }
+    .result-score { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 56px; font-weight: 900; letter-spacing: -1.8px; line-height: 1; }
+    .result-score-total { font-size: 17px; opacity: 0.85; font-weight: 600; }
+    .result-desc { font-size: 14.5px; line-height: 1.6; max-width: 580px; opacity: 0.95; }
+    .result-meter { margin-top: 20px; background: rgba(255,255,255,0.18); height: 8px; border-radius: 50px; overflow: hidden; }
+    .result-meter-fill { height: 100%; background: white; border-radius: 50px; transition: width .8s; }
+    .result-meter-labels { display: flex; justify-content: space-between; margin-top: 8px; font-size: 10.5px; opacity: 0.85; font-weight: 600; letter-spacing: 0.4px; }
+
+    .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 22px; }
+    .result-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 22px 24px;
+    }
+    .result-card-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 12.5px; font-weight: 800; color: var(--text);
+      text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .result-card-title svg { width: 14px; height: 14px; color: var(--teal); }
+
+    .radar-wrap { display: flex; justify-content: center; align-items: center; padding: 8px 0; }
+    .radar-svg { width: 240px; height: 240px; }
+
+    .section-scores { display: flex; flex-direction: column; gap: 14px; }
+    .section-score-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: baseline; }
+    .section-score-label { font-size: 13px; font-weight: 600; color: var(--text-2); }
+    .section-score-value { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 800; color: var(--text); }
+    .section-score-bar { grid-column: 1 / -1; height: 6px; background: var(--surface); border-radius: 50px; overflow: hidden; margin-top: 2px; }
+    .section-score-bar-fill { height: 100%; border-radius: 50px; transition: width .8s; }
+    .section-score-bar-fill.good { background: var(--green); }
+    .section-score-bar-fill.warn { background: var(--amber); }
+    .section-score-bar-fill.bad { background: var(--red); }
+
+    .reco-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .reco-item {
+      background: var(--bg-input); border: 1px solid var(--border);
+      border-left: 3px solid var(--teal);
+      border-radius: var(--radius); padding: 14px 18px;
+      display: flex; gap: 14px; align-items: flex-start;
+    }
+    .reco-icon { width: 26px; height: 26px; border-radius: 8px; background: var(--teal-light); color: var(--teal); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .reco-icon svg { width: 13px; height: 13px; }
+    .reco-text { font-size: 13.5px; color: var(--text-2); line-height: 1.55; }
+    .reco-text strong { color: var(--text); }
+
+    .result-actions { display: flex; gap: 10px; margin-top: 22px; flex-wrap: wrap; }
+
+    /* EMPTY STATE */
+    .empty-state-big { text-align: center; padding: 60px 20px; }
+    .empty-state-big h2 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; margin-bottom: 12px; }
+
+    /* TOAST */
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 50px; padding: 12px 22px;
+      font-size: 13.5px; font-weight: 600; color: var(--text);
+      opacity: 0; pointer-events: none;
+      transition: all .25s ease; z-index: 200;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.success { border-color: var(--green); color: var(--green); }
+    .toast.error { border-color: var(--red); color: var(--red); }
+
+    @media (max-width: 1100px) {
+      .intro-grid { grid-template-columns: 1fr; }
+      .sections-grid { grid-template-columns: 1fr 1fr; }
+      .result-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 700px) {
+      .app-layout { padding: 8px; gap: 8px; }
+      .topbar { padding: 14px 18px; flex-wrap: wrap; }
+      .content { padding: 20px 18px; }
+      .page-title { font-size: 24px; }
+      .intro-quote { font-size: 20px; }
+      .result-perfil { font-size: 28px; }
+      .result-score { font-size: 44px; }
+      .sections-grid { grid-template-columns: 1fr; }
+      .eval-options { grid-template-columns: 1fr 1fr; }
+      .historial-card { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <a href="/portal/dashboard.html" class="sidebar-logo">
+      <img src="/logos/SX Isp.png" alt="SCALEx" onerror="this.style.display='none'">
+    </a>
+
+    <a href="/portal/dashboard.html" class="sidebar-icon" title="Dashboard">
+      <i data-lucide="layout-dashboard"></i>
+    </a>
+    <a href="/portal/opsp.html" class="sidebar-icon" title="OPSP">
+      <i data-lucide="map"></i>
+    </a>
+    <a href="/portal/rituales.html" class="sidebar-icon" title="Rituales">
+      <i data-lucide="repeat"></i>
+    </a>
+
+    <div class="sidebar-divider"></div>
+
+    <a href="/portal/pie.html" class="sidebar-icon active" title="PIE - Reflejo">
+      <i data-lucide="eye"></i>
+    </a>
+    <a href="/portal/costeo.html" class="sidebar-icon" title="Costeo - Flujo">
+      <i data-lucide="calculator"></i>
+    </a>
+
+    <div class="sidebar-bottom">
+      <button class="sidebar-icon" title="Cambiar tema" onclick="toggleTheme()">
+        <i data-lucide="sun" id="theme-icon"></i>
+      </button>
+      <button class="sidebar-icon" title="Cerrar sesion" onclick="logout()">
+        <i data-lucide="log-out"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- SHELL -->
+  <main class="shell">
+
+    <div class="topbar">
+      <a href="/portal/dashboard.html" class="topbar-back">
+        <i data-lucide="arrow-left"></i>
+      </a>
+      <div class="topbar-title-block">
+        <div class="topbar-eyebrow">Pilar 1 - Reflejo</div>
+        <div class="topbar-title">PIE - Perfil de Impacto Empresarial</div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ════════════ VIEW INTRO ════════════ -->
+      <div class="view active" id="view-intro">
+
+        <div class="page-header">
+          <div class="page-eyebrow">Pilar 1 - Reflejo</div>
+          <h1 class="page-title">Si tu empresa <span>tuviera voz</span>, ¿que diria de ti como lider?</h1>
+          <p class="page-sub">El PIE es un espejo sin filtros. La forma mas rapida de saber si eres el motor de la escalabilidad o el freno de tu negocio.</p>
+        </div>
+
+        <!-- HISTORIAL (si existe) -->
+        <div class="historial-card" id="intro-historial" style="display:none">
+          <div class="historial-icon"><i data-lucide="history"></i></div>
+          <div class="historial-body">
+            <div class="historial-title">Ya completaste el PIE antes</div>
+            <div class="historial-meta">
+              <span>Ultima vez: <strong id="hist-fecha">-</strong></span>
+              <span>Perfil: <strong id="hist-perfil">-</strong></span>
+              <span>Puntaje: <strong id="hist-puntaje">-</strong></span>
+              <span id="hist-count">-</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="intro-grid">
+          <div class="intro-hero">
+            <div class="intro-quote">
+              <span class="intro-quote-mark">"</span>
+              Antes de escalar tu negocio, primero necesitas escalar tu liderazgo.
+            </div>
+            <div class="intro-byline">Esta evaluacion no busca buenos o malos. Solo claridad sobre donde estas y que necesitas ajustar.</div>
+          </div>
+
+          <div class="intro-info">
+            <div class="info-stat">
+              <div class="info-icon"><i data-lucide="clock"></i></div>
+              <div class="info-body">
+                <div class="info-label">Duracion estimada</div>
+                <div class="info-value">8-12 minutos</div>
+              </div>
+            </div>
+            <div class="info-stat">
+              <div class="info-icon"><i data-lucide="list-checks"></i></div>
+              <div class="info-body">
+                <div class="info-label">Preguntas</div>
+                <div class="info-value">20 afirmaciones - escala 1-5</div>
+              </div>
+            </div>
+            <div class="info-stat">
+              <div class="info-icon"><i data-lucide="award"></i></div>
+              <div class="info-body">
+                <div class="info-label">Resultado</div>
+                <div class="info-value">Tu perfil de lider</div>
+              </div>
+            </div>
+            <div class="info-stat">
+              <div class="info-icon"><i data-lucide="shield"></i></div>
+              <div class="info-body">
+                <div class="info-label">Confidencialidad</div>
+                <div class="info-value">Solo tu y tu consultor</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sections-preview">
+          <div class="sections-preview-title">
+            <i data-lucide="layers"></i>
+            Las 4 dimensiones que evalua
+          </div>
+          <div class="sections-grid">
+            <div class="section-pill">
+              <div class="section-pill-num">SECCION 1</div>
+              <div class="section-pill-title">Mentalidad empresarial</div>
+              <div class="section-pill-desc">Como piensas sobre tu rol y el crecimiento</div>
+            </div>
+            <div class="section-pill">
+              <div class="section-pill-num">SECCION 2</div>
+              <div class="section-pill-title">Toma de decisiones</div>
+              <div class="section-pill-desc">Decides con estructura o reaccionas?</div>
+            </div>
+            <div class="section-pill">
+              <div class="section-pill-num">SECCION 3</div>
+              <div class="section-pill-title">Delegacion y liderazgo</div>
+              <div class="section-pill-desc">Sigues siendo el cuello de botella?</div>
+            </div>
+            <div class="section-pill">
+              <div class="section-pill-num">SECCION 4</div>
+              <div class="section-pill-title">Vision y estrategia</div>
+              <div class="section-pill-desc">Tienes vision clara o sobrevives?</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary large" id="btn-empezar">
+          <i data-lucide="play"></i>
+          Empezar evaluacion
+        </button>
+
+      </div>
+
+      <!-- ════════════ VIEW EVALUACION ════════════ -->
+      <div class="view" id="view-eval">
+
+        <div class="eval-progress-bar">
+          <div class="eval-progress-fill" id="eval-progress-fill" style="width: 0%"></div>
+        </div>
+        <div class="eval-progress-info">
+          <span>Seccion <strong id="eval-progress-seccion">1</strong> de 4</span>
+          <span class="eval-save" id="eval-save">
+            <div class="dot saved"></div><span>Respuestas guardadas</span>
+          </span>
+          <span><strong id="eval-progress-preguntas">0</strong> de <strong id="eval-progress-total">20</strong> preguntas</span>
+        </div>
+
+        <div class="eval-section-header">
+          <div class="eval-section-num" id="eval-seccion-num">SECCION 1 - MENTALIDAD</div>
+          <h2 class="eval-section-titulo" id="eval-seccion-titulo">-</h2>
+          <div class="eval-section-desc" id="eval-seccion-desc">-</div>
+        </div>
+
+        <div id="eval-questions">
+          <!-- Render dinamico -->
+        </div>
+
+        <div class="eval-nav">
+          <button class="btn btn-ghost" id="eval-btn-prev">
+            <i data-lucide="arrow-left"></i>
+            <span>Seccion anterior</span>
+          </button>
+          <button class="btn btn-primary" id="eval-btn-next" disabled>
+            <span>Seccion siguiente</span>
+            <i data-lucide="arrow-right"></i>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- ════════════ VIEW RESULTADO ════════════ -->
+      <div class="view" id="view-result">
+
+        <div class="result-hero">
+          <div class="result-eyebrow">Tu perfil de liderazgo</div>
+          <div class="result-perfil" id="result-perfil">-</div>
+          <div class="result-score-line">
+            <div class="result-score" id="result-score">-</div>
+            <div class="result-score-total">/ 100 puntos</div>
+          </div>
+          <p class="result-desc" id="result-desc">-</p>
+          <div class="result-meter">
+            <div class="result-meter-fill" id="result-meter-fill" style="width:0%"></div>
+          </div>
+          <div class="result-meter-labels">
+            <span>Reactivo</span>
+            <span>Operativo</span>
+            <span>Transicion</span>
+            <span>Estrategico</span>
+          </div>
+        </div>
+
+        <div class="result-grid">
+
+          <div class="result-card">
+            <div class="result-card-title">
+              <i data-lucide="activity"></i>
+              Radar por dimension
+            </div>
+            <div class="radar-wrap" id="result-radar">
+              <!-- SVG dinamico -->
+            </div>
+          </div>
+
+          <div class="result-card">
+            <div class="result-card-title">
+              <i data-lucide="bar-chart-2"></i>
+              Desglose por seccion
+            </div>
+            <div class="section-scores" id="result-secciones">
+              <!-- Render dinamico -->
+            </div>
+          </div>
+
+        </div>
+
+        <div class="result-card" style="margin-bottom: 22px">
+          <div class="result-card-title">
+            <i data-lucide="target"></i>
+            Que hacer ahora - acciones prioritarias
+          </div>
+          <ul class="reco-list" id="result-reco">
+            <!-- Render dinamico -->
+          </ul>
+        </div>
+
+        <div class="result-actions">
+          <button class="btn btn-ghost" id="btn-volver-intro">
+            <i data-lucide="home"></i>
+            Volver al inicio
+          </button>
+          <button class="btn btn-primary" id="btn-nueva-eval">
+            <i data-lucide="refresh-ccw"></i>
+            Hacer nueva evaluacion
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>lucide.createIcons();</script>
+<script type="module" src="/assets/js/pie.js"></script>
+
+</body>
+</html>
