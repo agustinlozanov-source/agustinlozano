@@ -13,7 +13,8 @@
 import { supabase } from './supabase-client.js'
 
 // Oculta el body hasta verificar la sesión (evita flash de contenido)
-document.documentElement.style.visibility = 'hidden'
+document.documentElement.style.opacity = '0'
+document.documentElement.style.transition = 'opacity 0.15s ease'
 
 ;(async () => {
   try {
@@ -28,7 +29,7 @@ document.documentElement.style.visibility = 'hidden'
     }
 
     // 2. Sesión OK → mostrar contenido
-    document.documentElement.style.visibility = 'visible'
+    document.documentElement.style.opacity = '1'
 
     // 3. Escuchar cambios de sesión (logout en otra pestaña, expiración, etc.)
     supabase.auth.onAuthStateChange((event, sess) => {
@@ -39,6 +40,6 @@ document.documentElement.style.visibility = 'hidden'
 
   } catch (err) {
     console.error('[auth-guard] error verificando sesión:', err)
-    document.documentElement.style.visibility = 'visible'
+    document.documentElement.style.opacity = '1'
   }
 })()
