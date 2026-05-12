@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCALEx Portal - PRISMA</title>
+  <link rel="icon" type="image/png" href="/logos/SX Icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script type="module" src="/assets/js/auth-guard.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal: #1aab99; --teal-light: rgba(26,171,153,0.12);
+      --indigo: #3533cd; --indigo-light: rgba(53,51,205,0.12);
+      --gradient: linear-gradient(135deg, #1aab99, #3533cd);
+      --gradient-green: linear-gradient(135deg, #00c853, #1aab99);
+      --gradient-amber: linear-gradient(135deg, #ff9500, #ff6b00);
+      --gradient-red: linear-gradient(135deg, #ff3b30, #cc1f1f);
+      --green: #00c853; --green-light: rgba(0,200,83,0.12);
+      --amber: #ff9500; --amber-light: rgba(255,149,0,0.12);
+      --red: #ff3b30; --red-light: rgba(255,59,48,0.12);
+      --purple: #7c3aed; --purple-light: rgba(124,58,237,0.12);
+      --radius-xl: 28px; --radius-lg: 20px; --radius: 14px; --radius-sm: 9px;
+      --sidebar-w: 80px;
+      font-family: 'Inter', sans-serif; line-height: 1.6;
+    }
+    [data-theme="dark"] {
+      --bg-page: #0a0a0c; --bg-shell: #141416; --bg-card: #1c1c1e; --bg-card-2: #242426;
+      --bg-input: #0d0d10;
+      --surface: rgba(255,255,255,0.04); --surface-hover: rgba(255,255,255,0.07);
+      --border: rgba(255,255,255,0.08); --border-strong: rgba(255,255,255,0.13);
+      --text: #fff; --text-2: #c7c7cc; --text-3: #8e8e93; --text-4: #48484a;
+      --sidebar-bg: #050506;
+    }
+    [data-theme="light"] {
+      --bg-page: #eef0f5; --bg-shell: #fff; --bg-card: #f5f5f7; --bg-card-2: #ebebef;
+      --bg-input: #fff;
+      --surface: rgba(0,0,0,0.03); --surface-hover: rgba(0,0,0,0.055);
+      --border: rgba(0,0,0,0.08); --border-strong: rgba(0,0,0,0.14);
+      --text: #070708; --text-2: #3a3a3c; --text-3: #6e6e73; --text-4: #c7c7cc;
+      --sidebar-bg: #0a0a0c;
+    }
+
+    body { background: var(--bg-page); color: var(--text); min-height: 100vh; overflow: hidden; transition: background .3s, color .3s; }
+    .app-layout { display: flex; min-height: 100vh; padding: 16px; gap: 16px; }
+
+    /* SIDEBAR (idéntica a las demás) */
+    .sidebar {
+      width: var(--sidebar-w); background: var(--sidebar-bg);
+      border-radius: var(--radius-xl); padding: 20px 0;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      flex-shrink: 0; position: sticky; top: 16px; height: calc(100vh - 32px);
+    }
+    .sidebar-logo { width: 44px; height: auto; display: block; margin-bottom: 16px; text-decoration: none; }
+    .sidebar-logo img { width: 100%; height: auto; display: block; }
+    .sidebar-divider { width: 28px; height: 1px; background: rgba(255,255,255,0.08); margin: 4px 0; }
+    .sidebar-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all .2s;
+      color: rgba(255,255,255,0.5); position: relative;
+      text-decoration: none; background: none; border: none;
+    }
+    .sidebar-icon:hover { background: rgba(255,255,255,0.06); color: white; }
+    .sidebar-icon.active { background: var(--gradient); color: white; }
+    .sidebar-icon.active::before {
+      content: ''; position: absolute; left: -16px; top: 50%; transform: translateY(-50%);
+      width: 3px; height: 24px; background: var(--teal); border-radius: 0 3px 3px 0;
+    }
+    .sidebar-icon svg { width: 20px; height: 20px; }
+    .sidebar-bottom { margin-top: auto; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+
+    /* SHELL */
+    .shell {
+      flex: 1; background: var(--bg-shell); border-radius: var(--radius-xl);
+      overflow: hidden; display: flex; flex-direction: column;
+      height: calc(100vh - 32px);
+    }
+    .topbar {
+      padding: 18px 28px; display: flex; align-items: center; gap: 16px;
+      border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .topbar-back {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--surface); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--text-2); text-decoration: none;
+    }
+    .topbar-back:hover { background: var(--surface-hover); color: var(--text); }
+    .topbar-back svg { width: 16px; height: 16px; }
+    .topbar-title-block { flex: 1; min-width: 0; }
+    .topbar-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--teal); }
+    .topbar-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; font-weight: 800; color: var(--text); letter-spacing: -0.3px; margin-top: 2px; }
+
+    .content { flex: 1; overflow-y: auto; padding: 28px 32px; }
+    .content::-webkit-scrollbar { width: 8px; }
+    .content::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 50px; }
+
+    .view { display: none; }
+    .view.active { display: block; animation: fadeIn .3s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+
+    /* PAGE HEADER */
+    .page-header { margin-bottom: 26px; max-width: 720px; }
+    .page-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--teal); margin-bottom: 8px; }
+    .page-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 32px; font-weight: 800; line-height: 1.15; letter-spacing: -0.8px; color: var(--text); margin-bottom: 10px; }
+    .page-title span { background: var(--gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .page-sub { font-size: 14.5px; color: var(--text-3); line-height: 1.6; }
+
+    /* BUTTONS */
+    .btn {
+      padding: 12px 22px; border-radius: 50px;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 700;
+      cursor: pointer; border: none;
+      display: inline-flex; align-items: center; gap: 8px;
+      transition: all .2s; text-decoration: none;
+    }
+    .btn svg { width: 16px; height: 16px; }
+    .btn-primary { background: var(--gradient); color: white; }
+    .btn-primary:hover:not(:disabled) { transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-primary.large { padding: 16px 32px; font-size: 16px; }
+    .btn-ghost { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
+    .btn-ghost:hover { background: var(--surface-hover); }
+    .btn-sm { padding: 7px 14px; font-size: 12.5px; }
+
+    .spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.4); border-top-color: white; border-radius: 50%; animation: spin .7s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ════════════ VISTA: SIN REQUISITOS ════════════ */
+    .req-hero {
+      background: linear-gradient(135deg, rgba(255,149,0,0.12), rgba(255,107,0,0.06));
+      border: 1px solid var(--amber);
+      border-radius: var(--radius-xl); padding: 30px 34px;
+      margin-bottom: 24px;
+      display: flex; gap: 22px; align-items: center;
+    }
+    .req-hero-icon {
+      width: 56px; height: 56px; border-radius: 14px;
+      background: var(--amber-light); color: var(--amber);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .req-hero-icon svg { width: 26px; height: 26px; }
+    .req-hero h2 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 22px; font-weight: 800; letter-spacing: -0.4px;
+      color: var(--text); margin-bottom: 6px;
+    }
+    .req-hero p {
+      font-size: 14px; color: var(--text-2); line-height: 1.55;
+    }
+
+    .req-pills { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+    .req-pill {
+      background: var(--bg-card); border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg); padding: 22px 26px;
+      display: flex; align-items: center; gap: 18px;
+      transition: all .2s;
+    }
+    .req-pill.done {
+      border-color: var(--green);
+      background: linear-gradient(135deg, rgba(0,200,83,0.06), transparent);
+    }
+    .req-pill-icon {
+      width: 48px; height: 48px; border-radius: 13px;
+      background: var(--teal-light); color: var(--teal);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .req-pill.done .req-pill-icon { background: var(--green-light); color: var(--green); }
+    .req-pill-icon svg { width: 22px; height: 22px; }
+    .req-pill-body { flex: 1; }
+    .req-pill-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 16px; font-weight: 800; color: var(--text);
+      letter-spacing: -0.3px; margin-bottom: 4px;
+    }
+    .req-pill-desc { font-size: 13px; color: var(--text-3); line-height: 1.5; }
+    .req-pill-status {
+      display: flex; align-items: center; gap: 7px;
+      margin-top: 8px; font-size: 12.5px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 600; color: var(--text-3);
+    }
+    .req-pill-status svg { width: 14px; height: 14px; }
+    .req-pill.done .req-pill-status { color: var(--green); }
+    .req-pill-action { flex-shrink: 0; }
+
+    /* ════════════ VISTA: LISTO PARA GENERAR ════════════ */
+    .listo-hero {
+      background: var(--gradient); color: white;
+      border-radius: var(--radius-xl); padding: 36px 40px;
+      margin-bottom: 24px; position: relative; overflow: hidden;
+      text-align: center;
+    }
+    .listo-hero::before {
+      content: ''; position: absolute;
+      top: -100px; right: -100px; width: 320px; height: 320px;
+      background: radial-gradient(circle, rgba(255,255,255,0.18), transparent 70%);
+      border-radius: 50%;
+    }
+    .listo-hero-icon {
+      width: 72px; height: 72px; border-radius: 20px;
+      background: rgba(255,255,255,0.18);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px;
+      position: relative; z-index: 1;
+    }
+    .listo-hero-icon svg { width: 36px; height: 36px; color: white; }
+    .listo-hero h2 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 28px; font-weight: 900;
+      letter-spacing: -0.7px; margin-bottom: 10px;
+      position: relative; z-index: 1;
+    }
+    .listo-hero p {
+      font-size: 15px; opacity: 0.92; max-width: 560px;
+      margin: 0 auto; line-height: 1.55;
+      position: relative; z-index: 1;
+    }
+
+    .ingredients {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 14px; margin-bottom: 24px;
+    }
+    .ingredient {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 20px 24px;
+    }
+    .ingredient-head {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 14px;
+    }
+    .ingredient-icon {
+      width: 38px; height: 38px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .ingredient-icon svg { width: 18px; height: 18px; }
+    .ingredient.pie .ingredient-icon { background: var(--purple-light); color: var(--purple); }
+    .ingredient.mape .ingredient-icon { background: var(--teal-light); color: var(--teal); }
+    .ingredient-label {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 11px; font-weight: 800; color: var(--text-3);
+      letter-spacing: 0.5px; text-transform: uppercase;
+    }
+    .ingredient-name {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 17px; font-weight: 800; color: var(--text);
+      letter-spacing: -0.3px;
+    }
+    .ingredient-meta {
+      font-size: 12.5px; color: var(--text-3);
+      display: flex; justify-content: space-between;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .generar-action {
+      text-align: center;
+      padding: 20px 0 32px;
+    }
+
+    /* HISTORIAL en vista listo */
+    .historial-section {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 22px 24px;
+      margin-top: 8px;
+    }
+    .historial-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 12.5px; font-weight: 800; color: var(--text);
+      text-transform: uppercase; letter-spacing: 0.6px;
+      margin-bottom: 14px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .historial-title svg { width: 14px; height: 14px; color: var(--teal); }
+    .hist-list { display: flex; flex-direction: column; gap: 8px; }
+    .hist-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 12px 14px;
+      background: var(--bg-input); border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+    .hist-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .hist-icon svg { width: 16px; height: 16px; }
+    .hist-icon.green { background: var(--green-light); color: var(--green); }
+    .hist-icon.amber { background: var(--amber-light); color: var(--amber); }
+    .hist-icon.red { background: var(--red-light); color: var(--red); }
+    .hist-body { flex: 1; }
+    .hist-perfil { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 700; color: var(--text); }
+    .hist-fecha { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+
+    /* ════════════ VISTA: RESULTADO ════════════ */
+    .result-hero {
+      color: white;
+      border-radius: var(--radius-xl); padding: 36px 40px;
+      margin-bottom: 24px; position: relative; overflow: hidden;
+    }
+    .result-hero.green { background: var(--gradient-green); }
+    .result-hero.amber { background: var(--gradient-amber); }
+    .result-hero.red { background: var(--gradient-red); }
+    .result-hero::before {
+      content: ''; position: absolute;
+      top: -100px; right: -100px; width: 340px; height: 340px;
+      background: radial-gradient(circle, rgba(255,255,255,0.18), transparent 70%);
+      border-radius: 50%;
+    }
+    .result-hero-top {
+      display: flex; align-items: center; gap: 18px;
+      position: relative; z-index: 1; margin-bottom: 16px;
+    }
+    .result-perfil-icon {
+      width: 68px; height: 68px; border-radius: 18px;
+      background: rgba(255,255,255,0.18);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .result-perfil-icon svg { width: 32px; height: 32px; color: white; }
+    .result-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 1.3px; text-transform: uppercase; opacity: 0.85; margin-bottom: 6px; }
+    .result-perfil-nombre {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 38px; font-weight: 900;
+      letter-spacing: -1.1px; line-height: 1;
+    }
+    .result-perfil-desc {
+      font-size: 15px; line-height: 1.6;
+      max-width: 620px; opacity: 0.95;
+      position: relative; z-index: 1;
+      margin-bottom: 18px;
+    }
+    .result-badges {
+      display: flex; gap: 10px; flex-wrap: wrap;
+      position: relative; z-index: 1;
+    }
+    .result-badge {
+      background: rgba(255,255,255,0.18);
+      padding: 8px 14px; border-radius: 50px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 12px; font-weight: 700;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .result-badge svg { width: 12px; height: 12px; }
+    .result-fecha {
+      position: absolute; top: 20px; right: 24px;
+      font-size: 11px; opacity: 0.7; z-index: 2;
+      font-weight: 600;
+    }
+
+    /* ORIGEN: PIE + MAPE */
+    .origen-section {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 14px; margin-bottom: 24px;
+    }
+    .origen-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 18px 22px;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .origen-icon {
+      width: 42px; height: 42px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .origen-icon svg { width: 20px; height: 20px; }
+    .origen-card.pie .origen-icon { background: var(--purple-light); color: var(--purple); }
+    .origen-card.mape .origen-icon { background: var(--teal-light); color: var(--teal); }
+    .origen-body { flex: 1; }
+    .origen-label {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 10.5px; font-weight: 800; color: var(--text-3);
+      text-transform: uppercase; letter-spacing: 0.5px;
+      margin-bottom: 3px;
+    }
+    .origen-value {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 15px; font-weight: 800; color: var(--text);
+      letter-spacing: -0.2px;
+    }
+    .origen-meta { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+
+    /* PLAN 7-30-90 */
+    .plan-section {
+      margin-bottom: 24px;
+    }
+    .plan-section-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 18px; font-weight: 800; color: var(--text);
+      letter-spacing: -0.3px; margin-bottom: 14px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .plan-section-title svg { width: 18px; height: 18px; color: var(--teal); }
+
+    .plan-cards { display: flex; flex-direction: column; gap: 12px; }
+    .plan-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 22px 26px;
+      display: grid; grid-template-columns: 100px 1fr; gap: 22px;
+      align-items: start;
+    }
+    .plan-card-time {
+      padding-top: 4px;
+    }
+    .plan-card-time-num {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 42px; font-weight: 900;
+      letter-spacing: -1.2px; line-height: 1;
+      background: var(--gradient);
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .plan-card-time-label {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 12px; font-weight: 700; color: var(--text-3);
+      letter-spacing: 0.4px; text-transform: uppercase;
+      margin-top: 4px;
+    }
+    .plan-card-body { padding-top: 4px; }
+    .plan-card-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px; font-weight: 800; color: var(--text);
+      letter-spacing: -0.2px; margin-bottom: 8px;
+    }
+    .plan-card-text {
+      font-size: 14px; color: var(--text-2);
+      line-height: 1.65;
+    }
+
+    /* NOTAS DEL CONSULTOR */
+    .notas-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 22px 24px;
+      margin-bottom: 22px;
+    }
+    .notas-card-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13px; font-weight: 800; color: var(--text);
+      text-transform: uppercase; letter-spacing: 0.6px;
+      margin-bottom: 12px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .notas-card-title svg { width: 14px; height: 14px; color: var(--teal); }
+    .notas-textarea {
+      width: 100%; min-height: 90px;
+      background: var(--bg-input); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px 16px;
+      color: var(--text); font-size: 14px; font-family: inherit;
+      line-height: 1.55; resize: vertical;
+      outline: none; transition: border-color .15s;
+    }
+    .notas-textarea:focus { border-color: var(--teal); }
+    .notas-hint {
+      font-size: 11.5px; color: var(--text-3);
+      margin-top: 6px;
+    }
+
+    .result-actions { display: flex; gap: 10px; margin-top: 22px; flex-wrap: wrap; }
+
+    /* EMPTY */
+    .empty-state-big { text-align: center; padding: 60px 20px; }
+    .empty-state-big h2 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; margin-bottom: 12px; }
+
+    .loading-state {
+      padding: 80px 20px; text-align: center;
+    }
+    .loading-state .spinner {
+      width: 32px; height: 32px;
+      border: 3px solid var(--border-strong);
+      border-top-color: var(--teal);
+      margin: 0 auto 16px;
+    }
+    .loading-state p { color: var(--text-3); font-size: 13px; }
+
+    /* TOAST */
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 50px; padding: 12px 22px;
+      font-size: 13.5px; font-weight: 600; color: var(--text);
+      opacity: 0; pointer-events: none;
+      transition: all .25s ease; z-index: 200;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.success { border-color: var(--green); color: var(--green); }
+    .toast.error { border-color: var(--red); color: var(--red); }
+
+    @media (max-width: 900px) {
+      .ingredients { grid-template-columns: 1fr; }
+      .origen-section { grid-template-columns: 1fr; }
+      .plan-card { grid-template-columns: 1fr; gap: 12px; }
+      .req-hero { flex-direction: column; text-align: center; }
+      .req-pill { flex-direction: column; text-align: center; }
+      .req-pill-action { width: 100%; }
+    }
+    @media (max-width: 700px) {
+      .app-layout { padding: 8px; gap: 8px; }
+      .topbar { padding: 14px 18px; flex-wrap: wrap; }
+      .content { padding: 20px 18px; }
+      .page-title { font-size: 26px; }
+      .result-perfil-nombre { font-size: 28px; }
+      .listo-hero h2 { font-size: 22px; }
+      .result-hero-top { flex-direction: column; text-align: center; }
+      .plan-card-time-num { font-size: 32px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <a href="/portal/dashboard.html" class="sidebar-logo">
+      <img src="/logos/SX Isp.png" alt="SCALEx" onerror="this.style.display='none'">
+    </a>
+
+    <a href="/portal/dashboard.html" class="sidebar-icon" title="Dashboard">
+      <i data-lucide="layout-dashboard"></i>
+    </a>
+    <a href="/portal/opsp.html" class="sidebar-icon" title="OPSP">
+      <i data-lucide="map"></i>
+    </a>
+    <a href="/portal/rituales.html" class="sidebar-icon" title="Rituales">
+      <i data-lucide="repeat"></i>
+    </a>
+
+    <div class="sidebar-divider"></div>
+
+    <a href="/portal/pie.html" class="sidebar-icon" title="PIE - Reflejo">
+      <i data-lucide="eye"></i>
+    </a>
+    <a href="/portal/mape.html" class="sidebar-icon" title="MAPE - Reflejo">
+      <i data-lucide="grid"></i>
+    </a>
+    <a href="/portal/prisma.html" class="sidebar-icon active" title="PRISMA - Reflejo">
+      <i data-lucide="sparkles"></i>
+    </a>
+    <a href="/portal/costeo.html" class="sidebar-icon" title="Costeo - Flujo">
+      <i data-lucide="calculator"></i>
+    </a>
+
+    <div class="sidebar-bottom">
+      <button class="sidebar-icon" title="Cambiar tema" onclick="toggleTheme()">
+        <i data-lucide="sun" id="theme-icon"></i>
+      </button>
+      <button class="sidebar-icon" title="Cerrar sesion" onclick="logout()">
+        <i data-lucide="log-out"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- SHELL -->
+  <main class="shell">
+
+    <div class="topbar">
+      <a href="/portal/dashboard.html" class="topbar-back">
+        <i data-lucide="arrow-left"></i>
+      </a>
+      <div class="topbar-title-block">
+        <div class="topbar-eyebrow">Pilar 1 - Reflejo - Integracion</div>
+        <div class="topbar-title">PRISMA - Perfil de Resultados Integrados</div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- LOADING -->
+      <div class="view active" id="view-loading">
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Cargando tu PRISMA...</p>
+        </div>
+      </div>
+
+      <!-- ════════════ VIEW: SIN REQUISITOS ════════════ -->
+      <div class="view" id="view-sin-requisitos">
+
+        <div class="page-header">
+          <div class="page-eyebrow">Pilar 1 - Reflejo</div>
+          <h1 class="page-title">PRISMA: tu <span>perfil integrado</span></h1>
+          <p class="page-sub">PRISMA combina los resultados del PIE (lider) y MAPE (empresa) para darte un perfil con nombre propio y un plan de accion 7-30-90 dias.</p>
+        </div>
+
+        <div class="req-hero">
+          <div class="req-hero-icon"><i data-lucide="info"></i></div>
+          <div>
+            <h2>Aun te faltan herramientas para generar PRISMA</h2>
+            <p>PRISMA es la integracion de los pilares anteriores. Necesitas completar primero el PIE y el MAPE para que el sistema pueda cruzar los datos.</p>
+          </div>
+        </div>
+
+        <div class="req-pills">
+
+          <div class="req-pill" id="req-pie-pill">
+            <div class="req-pill-icon"><i data-lucide="eye"></i></div>
+            <div class="req-pill-body">
+              <div class="req-pill-title">PIE - Perfil de Impacto Empresarial</div>
+              <div class="req-pill-desc">Mide tu liderazgo en 4 dimensiones: mentalidad, decisiones, delegacion y vision.</div>
+              <div class="req-pill-status"><i data-lucide="circle"></i><span>Pendiente</span></div>
+            </div>
+            <a href="/portal/pie.html" class="btn btn-primary btn-sm req-pill-action">
+              <i data-lucide="arrow-right"></i>
+              <span>Completar PIE</span>
+            </a>
+          </div>
+
+          <div class="req-pill" id="req-mape-pill">
+            <div class="req-pill-icon"><i data-lucide="grid"></i></div>
+            <div class="req-pill-body">
+              <div class="req-pill-title">MAPE - Matriz de Posicionamiento Empresarial</div>
+              <div class="req-pill-desc">Ubica a tu empresa en una matriz 2x2 segun crecimiento financiero y capacidad operativa.</div>
+              <div class="req-pill-status"><i data-lucide="circle"></i><span>Pendiente</span></div>
+            </div>
+            <a href="/portal/mape.html" class="btn btn-primary btn-sm req-pill-action">
+              <i data-lucide="arrow-right"></i>
+              <span>Completar MAPE</span>
+            </a>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ════════════ VIEW: LISTO PARA GENERAR ════════════ -->
+      <div class="view" id="view-listo">
+
+        <div class="page-header">
+          <div class="page-eyebrow">Pilar 1 - Reflejo</div>
+          <h1 class="page-title">Todo listo para generar tu <span>PRISMA</span></h1>
+          <p class="page-sub">Ya tienes PIE y MAPE completados. Al generar PRISMA, el sistema cruza ambos resultados y crea tu perfil integrado con un plan de accion 7-30-90 dias.</p>
+        </div>
+
+        <div class="listo-hero">
+          <div class="listo-hero-icon"><i data-lucide="sparkles"></i></div>
+          <h2>Tu perfil integrado en 1 click</h2>
+          <p>PRISMA es la herramienta que cierra el ciclo del pilar Reflejo. Te da claridad sobre donde estas tu como lider y donde esta tu empresa, juntos.</p>
+        </div>
+
+        <div class="ingredients">
+          <div class="ingredient pie">
+            <div class="ingredient-head">
+              <div class="ingredient-icon"><i data-lucide="eye"></i></div>
+              <div class="ingredient-label">PIE - Tu liderazgo</div>
+            </div>
+            <div class="ingredient-name" id="listo-pie-perfil">-</div>
+            <div class="ingredient-meta">
+              <span>Completado</span>
+              <strong id="listo-pie-fecha">-</strong>
+            </div>
+          </div>
+
+          <div class="ingredient mape">
+            <div class="ingredient-head">
+              <div class="ingredient-icon"><i data-lucide="grid"></i></div>
+              <div class="ingredient-label">MAPE - Tu empresa</div>
+            </div>
+            <div class="ingredient-name" id="listo-mape-cuadrante">-</div>
+            <div class="ingredient-meta">
+              <span>Completado</span>
+              <strong id="listo-mape-fecha">-</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="generar-action">
+          <button class="btn btn-primary large" id="btn-generar">
+            <i data-lucide="sparkles"></i>
+            <span>Generar mi PRISMA</span>
+          </button>
+        </div>
+
+        <div id="listo-historial-wrap" style="display:none">
+          <div class="historial-section">
+            <div class="historial-title">
+              <i data-lucide="history"></i>
+              PRISMAs anteriores
+            </div>
+            <div class="hist-list" id="listo-historial-list"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ════════════ VIEW: RESULTADO ════════════ -->
+      <div class="view" id="view-resultado">
+
+        <div class="result-hero green" id="result-hero">
+          <div class="result-fecha" id="result-fecha">-</div>
+          <div class="result-hero-top">
+            <div class="result-perfil-icon" id="result-perfil-icon">
+              <i data-lucide="star"></i>
+            </div>
+            <div>
+              <div class="result-eyebrow">Tu perfil PRISMA</div>
+              <div class="result-perfil-nombre" id="result-perfil-nombre">-</div>
+            </div>
+          </div>
+          <p class="result-perfil-desc" id="result-perfil-desc">-</p>
+          <div class="result-badges">
+            <div class="result-badge"><i data-lucide="compass"></i><span id="result-estrategia">-</span></div>
+            <div class="result-badge"><i data-lucide="zap"></i><span id="result-urgencia">-</span></div>
+          </div>
+        </div>
+
+        <!-- ORIGEN -->
+        <div class="origen-section">
+          <div class="origen-card pie">
+            <div class="origen-icon"><i data-lucide="eye"></i></div>
+            <div class="origen-body">
+              <div class="origen-label">PIE - Tu liderazgo</div>
+              <div class="origen-value" id="result-pie-perfil">-</div>
+              <div class="origen-meta">Puntaje: <strong id="result-pie-puntaje">-</strong></div>
+            </div>
+          </div>
+
+          <div class="origen-card mape">
+            <div class="origen-icon"><i data-lucide="grid"></i></div>
+            <div class="origen-body">
+              <div class="origen-label">MAPE - Tu empresa</div>
+              <div class="origen-value" id="result-mape-cuadrante">-</div>
+              <div class="origen-meta" id="result-mape-puntajes">-</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PLAN 7-30-90 -->
+        <div class="plan-section">
+          <h2 class="plan-section-title">
+            <i data-lucide="target"></i>
+            Tu plan de accion
+          </h2>
+
+          <div class="plan-cards">
+
+            <div class="plan-card">
+              <div class="plan-card-time">
+                <div class="plan-card-time-num">7</div>
+                <div class="plan-card-time-label">DIAS</div>
+              </div>
+              <div class="plan-card-body">
+                <div class="plan-card-title">Intervencion rapida</div>
+                <div class="plan-card-text" id="plan-7-text">-</div>
+              </div>
+            </div>
+
+            <div class="plan-card">
+              <div class="plan-card-time">
+                <div class="plan-card-time-num">30</div>
+                <div class="plan-card-time-label">DIAS</div>
+              </div>
+              <div class="plan-card-body">
+                <div class="plan-card-title">Implementacion estructurada</div>
+                <div class="plan-card-text" id="plan-30-text">-</div>
+              </div>
+            </div>
+
+            <div class="plan-card">
+              <div class="plan-card-time">
+                <div class="plan-card-time-num">90</div>
+                <div class="plan-card-time-label">DIAS</div>
+              </div>
+              <div class="plan-card-body">
+                <div class="plan-card-title">Transformacion completa</div>
+                <div class="plan-card-text" id="plan-90-text">-</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- NOTAS DEL CONSULTOR -->
+        <div class="notas-card">
+          <div class="notas-card-title">
+            <i data-lucide="file-text"></i>
+            Notas del consultor
+          </div>
+          <textarea class="notas-textarea" id="result-notas" placeholder="Anota contexto de este PRISMA (ej: la sesion donde se genero, decisiones tomadas, observaciones del cliente...)"></textarea>
+          <div class="notas-hint">Las notas se guardan automaticamente cada 1.2 segundos.</div>
+        </div>
+
+        <div class="result-actions">
+          <button class="btn btn-ghost" id="btn-generar-nuevo">
+            <i data-lucide="refresh-ccw"></i>
+            <span>Generar nuevo PRISMA</span>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>lucide.createIcons();</script>
+<script type="module" src="/assets/js/prisma.js"></script>
+
+</body>
+</html>
