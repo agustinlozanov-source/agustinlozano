@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCALEx Portal - MAPE</title>
+  <link rel="icon" type="image/png" href="/logos/SX Icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script type="module" src="/assets/js/auth-guard.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal: #1aab99; --teal-light: rgba(26,171,153,0.12);
+      --indigo: #3533cd; --indigo-light: rgba(53,51,205,0.12);
+      --gradient: linear-gradient(135deg, #1aab99, #3533cd);
+      --green: #00c853; --green-light: rgba(0,200,83,0.12);
+      --amber: #ff9500; --amber-light: rgba(255,149,0,0.12);
+      --red: #ff3b30; --red-light: rgba(255,59,48,0.12);
+      --purple: #7c3aed; --purple-light: rgba(124,58,237,0.12);
+      --radius-xl: 28px; --radius-lg: 20px; --radius: 14px; --radius-sm: 9px;
+      --sidebar-w: 80px;
+      font-family: 'Inter', sans-serif; line-height: 1.6;
+    }
+    [data-theme="dark"] {
+      --bg-page: #0a0a0c; --bg-shell: #141416; --bg-card: #1c1c1e; --bg-card-2: #242426;
+      --bg-input: #0d0d10;
+      --surface: rgba(255,255,255,0.04); --surface-hover: rgba(255,255,255,0.07);
+      --border: rgba(255,255,255,0.08); --border-strong: rgba(255,255,255,0.13);
+      --text: #fff; --text-2: #c7c7cc; --text-3: #8e8e93; --text-4: #48484a;
+      --sidebar-bg: #050506;
+    }
+    [data-theme="light"] {
+      --bg-page: #eef0f5; --bg-shell: #fff; --bg-card: #f5f5f7; --bg-card-2: #ebebef;
+      --bg-input: #fff;
+      --surface: rgba(0,0,0,0.03); --surface-hover: rgba(0,0,0,0.055);
+      --border: rgba(0,0,0,0.08); --border-strong: rgba(0,0,0,0.14);
+      --text: #070708; --text-2: #3a3a3c; --text-3: #6e6e73; --text-4: #c7c7cc;
+      --sidebar-bg: #0a0a0c;
+    }
+
+    body { background: var(--bg-page); color: var(--text); min-height: 100vh; overflow: hidden; transition: background .3s, color .3s; }
+    .app-layout { display: flex; min-height: 100vh; padding: 16px; gap: 16px; }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: var(--sidebar-w); background: var(--sidebar-bg);
+      border-radius: var(--radius-xl); padding: 20px 0;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      flex-shrink: 0; position: sticky; top: 16px; height: calc(100vh - 32px);
+    }
+    .sidebar-logo { width: 44px; height: auto; display: block; margin-bottom: 16px; text-decoration: none; }
+    .sidebar-logo img { width: 100%; height: auto; display: block; }
+    .sidebar-divider { width: 28px; height: 1px; background: rgba(255,255,255,0.08); margin: 4px 0; }
+    .sidebar-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all .2s;
+      color: rgba(255,255,255,0.5); position: relative;
+      text-decoration: none; background: none; border: none;
+    }
+    .sidebar-icon:hover { background: rgba(255,255,255,0.06); color: white; }
+    .sidebar-icon.active { background: var(--gradient); color: white; }
+    .sidebar-icon.active::before {
+      content: ''; position: absolute; left: -16px; top: 50%; transform: translateY(-50%);
+      width: 3px; height: 24px; background: var(--teal); border-radius: 0 3px 3px 0;
+    }
+    .sidebar-icon svg { width: 20px; height: 20px; }
+    .sidebar-bottom { margin-top: auto; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+
+    /* SHELL */
+    .shell {
+      flex: 1; background: var(--bg-shell); border-radius: var(--radius-xl);
+      overflow: hidden; display: flex; flex-direction: column;
+      height: calc(100vh - 32px);
+    }
+    .topbar {
+      padding: 18px 28px; display: flex; align-items: center; gap: 16px;
+      border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .topbar-back {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--surface); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--text-2); text-decoration: none;
+    }
+    .topbar-back:hover { background: var(--surface-hover); color: var(--text); }
+    .topbar-back svg { width: 16px; height: 16px; }
+    .topbar-title-block { flex: 1; min-width: 0; }
+    .topbar-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--teal); }
+    .topbar-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; font-weight: 800; color: var(--text); letter-spacing: -0.3px; margin-top: 2px; }
+
+    .content { flex: 1; overflow-y: auto; padding: 28px 32px; }
+    .content::-webkit-scrollbar { width: 8px; }
+    .content::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 50px; }
+
+    .view { display: none; }
+    .view.active { display: block; animation: fadeIn .3s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+
+    /* PAGE HEADER */
+    .page-header { margin-bottom: 24px; max-width: 720px; }
+    .page-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--teal); margin-bottom: 8px; }
+    .page-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 30px; font-weight: 800; line-height: 1.15; letter-spacing: -0.8px; color: var(--text); margin-bottom: 10px; }
+    .page-title span { background: var(--gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .page-sub { font-size: 14.5px; color: var(--text-3); line-height: 1.6; }
+
+    /* INTRO */
+    .intro-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px; align-items: stretch; margin-bottom: 22px; }
+    .intro-hero {
+      background: var(--gradient); color: white;
+      border-radius: var(--radius-xl); padding: 32px 36px;
+      position: relative; overflow: hidden;
+      display: flex; flex-direction: column; justify-content: center;
+    }
+    .intro-hero::before { content: ''; position: absolute; top: -60px; right: -60px; width: 240px; height: 240px; background: radial-gradient(circle, rgba(255,255,255,0.18), transparent 70%); border-radius: 50%; }
+    .intro-quote { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 26px; font-weight: 800; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 14px; }
+    .intro-quote-mark { font-size: 56px; font-weight: 900; line-height: 0.5; opacity: 0.4; display: block; margin-bottom: 10px; }
+    .intro-byline { font-size: 13px; opacity: 0.9; line-height: 1.55; }
+
+    .intro-info {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-xl); padding: 22px 24px;
+      display: flex; flex-direction: column;
+    }
+    .info-stat { display: flex; align-items: center; gap: 14px; padding: 11px 0; border-bottom: 1px solid var(--border); }
+    .info-stat:last-child { border-bottom: none; }
+    .info-icon { width: 36px; height: 36px; border-radius: 10px; background: var(--teal-light); color: var(--teal); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .info-icon svg { width: 16px; height: 16px; }
+    .info-body { flex: 1; }
+    .info-label { font-size: 10.5px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.4px; }
+    .info-value { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 800; color: var(--text); margin-top: 2px; }
+
+    .historial-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-left: 3px solid var(--teal);
+      border-radius: var(--radius-lg); padding: 18px 22px;
+      margin-bottom: 22px;
+      display: flex; align-items: center; gap: 18px;
+    }
+    .historial-icon { width: 42px; height: 42px; border-radius: 11px; background: var(--teal-light); color: var(--teal); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .historial-icon svg { width: 20px; height: 20px; }
+    .historial-body { flex: 1; }
+    .historial-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+    .historial-meta { font-size: 12.5px; color: var(--text-3); display: flex; gap: 14px; flex-wrap: wrap; }
+    .historial-meta strong { color: var(--text-2); font-weight: 700; }
+
+    /* MATRIZ PREVIEW */
+    .matriz-preview {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 24px 28px; margin-bottom: 22px;
+    }
+    .matriz-preview-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 12.5px; font-weight: 800; color: var(--text);
+      text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 18px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .matriz-preview-title svg { width: 14px; height: 14px; color: var(--teal); }
+    .matriz-grid {
+      display: grid;
+      grid-template-columns: 100px 1fr 1fr;
+      grid-template-rows: auto 1fr 1fr auto;
+      gap: 8px;
+      aspect-ratio: 16/10;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .matriz-eje-y {
+      grid-column: 1 / 2; grid-row: 1 / 4;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      writing-mode: vertical-rl; transform: rotate(180deg);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 11px; font-weight: 800; color: var(--text-3);
+      letter-spacing: 1.2px; text-transform: uppercase;
+      gap: 8px;
+    }
+    .matriz-h-alta, .matriz-h-baja {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 11px; font-weight: 700; color: var(--text-3);
+      text-transform: uppercase; letter-spacing: 0.8px; text-align: center;
+      padding-bottom: 6px;
+    }
+    .matriz-h-alta { grid-column: 2 / 3; grid-row: 1 / 2; }
+    .matriz-h-baja { grid-column: 3 / 4; grid-row: 1 / 2; }
+
+    .matriz-cell {
+      border-radius: var(--radius);
+      padding: 18px;
+      display: flex; flex-direction: column; gap: 8px;
+      border: 1.5px solid;
+    }
+    .matriz-cell.q1 { background: rgba(0,200,83,0.10); border-color: var(--green); grid-column: 2 / 3; grid-row: 2 / 3; }
+    .matriz-cell.q2 { background: rgba(255,149,0,0.10); border-color: var(--amber); grid-column: 3 / 4; grid-row: 2 / 3; }
+    .matriz-cell.q3 { background: rgba(255,149,0,0.10); border-color: var(--amber); grid-column: 2 / 3; grid-row: 3 / 4; }
+    .matriz-cell.q4 { background: rgba(255,59,48,0.10); border-color: var(--red); grid-column: 3 / 4; grid-row: 3 / 4; }
+    .matriz-cell-name { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 800; line-height: 1.2; letter-spacing: -0.2px; color: var(--text); }
+    .matriz-cell-desc { font-size: 12px; color: var(--text-3); line-height: 1.4; }
+    .matriz-cell-badge {
+      align-self: flex-start; padding: 3px 8px; border-radius: 50px;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 800;
+      letter-spacing: 0.4px;
+    }
+    .matriz-cell.q1 .matriz-cell-badge { background: var(--green-light); color: var(--green); }
+    .matriz-cell.q2 .matriz-cell-badge { background: var(--amber-light); color: var(--amber); }
+    .matriz-cell.q3 .matriz-cell-badge { background: var(--amber-light); color: var(--amber); }
+    .matriz-cell.q4 .matriz-cell-badge { background: var(--red-light); color: var(--red); }
+    .matriz-eje-x-row {
+      grid-column: 2 / 4; grid-row: 4 / 5;
+      text-align: center; padding-top: 8px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 11px; font-weight: 800; color: var(--text-3);
+      letter-spacing: 1.2px; text-transform: uppercase;
+    }
+
+    /* BUTTONS */
+    .btn {
+      padding: 12px 22px; border-radius: 50px;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 700;
+      cursor: pointer; border: none;
+      display: inline-flex; align-items: center; gap: 8px;
+      transition: all .2s; text-decoration: none;
+    }
+    .btn svg { width: 16px; height: 16px; }
+    .btn-primary { background: var(--gradient); color: white; }
+    .btn-primary:hover:not(:disabled) { transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-primary.large { padding: 14px 28px; font-size: 15px; }
+    .btn-ghost { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
+    .btn-ghost:hover { background: var(--surface-hover); }
+
+    /* EVAL */
+    .eval-progress-bar { height: 6px; background: var(--surface); border-radius: 50px; overflow: hidden; margin-bottom: 6px; }
+    .eval-progress-fill { height: 100%; background: var(--gradient); border-radius: 50px; transition: width .3s; }
+    .eval-progress-info {
+      display: flex; justify-content: space-between; align-items: center; gap: 12px;
+      font-size: 12px; color: var(--text-3); margin-bottom: 22px;
+      flex-wrap: wrap;
+    }
+    .eval-progress-info strong { color: var(--text); }
+    .eval-save { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--text-3); }
+    .eval-save .dot { width: 7px; height: 7px; border-radius: 50%; }
+    .eval-save .dot.saved { background: var(--green); }
+    .eval-save .dot.saving { background: var(--amber); animation: pulse 1s infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+    .eval-axis-header {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 22px 24px; margin-bottom: 18px;
+      display: flex; gap: 18px; align-items: center;
+    }
+    .eval-axis-icon {
+      width: 56px; height: 56px; border-radius: 14px;
+      background: var(--teal-light); color: var(--teal);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .eval-axis-icon svg { width: 26px; height: 26px; }
+    .eval-axis-body { flex: 1; }
+    .eval-axis-num { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11px; font-weight: 800; color: var(--teal); letter-spacing: 0.6px; text-transform: uppercase; margin-bottom: 4px; }
+    .eval-axis-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; font-weight: 800; color: var(--text); letter-spacing: -0.3px; margin-bottom: 4px; }
+    .eval-axis-desc { font-size: 13px; color: var(--text-3); font-style: italic; }
+
+    .eval-question {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 20px 22px;
+      margin-bottom: 12px;
+    }
+    .eval-question-text { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.5; margin-bottom: 16px; }
+
+    /* Likert */
+    .eval-options { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+    .eval-option {
+      background: var(--bg-input); border: 1.5px solid var(--border);
+      border-radius: var(--radius); padding: 12px 6px;
+      cursor: pointer; text-align: center; transition: all .15s;
+      font-family: inherit;
+    }
+    .eval-option:hover { border-color: var(--teal); background: var(--surface-hover); }
+    .eval-option.selected { background: var(--gradient); border-color: transparent; color: white; }
+    .eval-option-num { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 19px; font-weight: 900; color: var(--text); margin-bottom: 2px; }
+    .eval-option.selected .eval-option-num { color: white; }
+    .eval-option-label { font-size: 10.5px; color: var(--text-3); line-height: 1.3; }
+    .eval-option.selected .eval-option-label { color: rgba(255,255,255,0.9); }
+
+    /* Numerico */
+    .eval-input-row { display: flex; align-items: center; gap: 12px; }
+    .eval-input-num {
+      flex: 1; background: var(--bg-input); border: 1.5px solid var(--border);
+      border-radius: var(--radius); padding: 14px 18px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 18px; font-weight: 700; color: var(--text);
+      outline: none; transition: border-color .15s;
+    }
+    .eval-input-num:focus { border-color: var(--teal); }
+    .eval-input-suffix { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 700; color: var(--text-2); min-width: 50px; }
+    .eval-hint {
+      font-size: 12px; color: var(--text-3);
+      margin-top: 10px; line-height: 1.5;
+      background: var(--surface); padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      border-left: 2px solid var(--teal);
+    }
+
+    /* Selector */
+    .eval-buttons { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+    .eval-button {
+      background: var(--bg-input); border: 1.5px solid var(--border);
+      border-radius: var(--radius); padding: 14px 16px;
+      cursor: pointer; text-align: center; transition: all .15s;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13px; font-weight: 700; color: var(--text);
+    }
+    .eval-button:hover { border-color: var(--teal); background: var(--surface-hover); }
+    .eval-button.selected { background: var(--gradient); border-color: transparent; color: white; }
+
+    .eval-nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 22px; }
+    .spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.4); border-top-color: white; border-radius: 50%; animation: spin .7s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* RESULT */
+    .result-hero {
+      background: var(--gradient); color: white;
+      border-radius: var(--radius-xl); padding: 32px 36px;
+      margin-bottom: 22px; position: relative; overflow: hidden;
+    }
+    .result-hero::before { content: ''; position: absolute; top: -80px; right: -80px; width: 300px; height: 300px; background: radial-gradient(circle, rgba(255,255,255,0.18), transparent 70%); border-radius: 50%; }
+    .result-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 1.3px; text-transform: uppercase; opacity: 0.9; margin-bottom: 12px; }
+    .result-cuadrante { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 38px; font-weight: 900; letter-spacing: -1.1px; line-height: 1; margin-bottom: 12px; }
+    .result-coords-line { display: flex; gap: 14px; margin-bottom: 18px; flex-wrap: wrap; }
+    .result-coord-block { background: rgba(255,255,255,0.18); border-radius: var(--radius); padding: 12px 18px; }
+    .result-coord-label { font-size: 10.5px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; opacity: 0.85; margin-bottom: 4px; }
+    .result-coord-value { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; font-weight: 900; letter-spacing: -0.6px; }
+    .result-desc { font-size: 14.5px; line-height: 1.6; max-width: 580px; opacity: 0.95; }
+
+    .result-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 16px; margin-bottom: 22px; }
+    .result-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 22px 24px; }
+    .result-card-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12.5px; font-weight: 800; color: var(--text); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .result-card-title svg { width: 14px; height: 14px; color: var(--teal); }
+
+    /* MATRIZ RESULTADO con punto */
+    .matriz-result-wrap { position: relative; aspect-ratio: 1; max-width: 360px; margin: 0 auto; padding-top: 20px; padding-bottom: 20px; padding-left: 30px; padding-right: 30px; }
+    .matriz-result {
+      width: 100%; height: 100%;
+      display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr;
+      gap: 4px; border-radius: var(--radius); overflow: hidden; position: relative;
+    }
+    .matriz-result-cell {
+      padding: 16px;
+      display: flex; flex-direction: column;
+      justify-content: flex-start; gap: 6px;
+      border: 1.5px solid; opacity: 0.5; transition: opacity .3s;
+    }
+    .matriz-result-cell.active { opacity: 1; }
+    .matriz-result-cell.q1 { background: rgba(0,200,83,0.10); border-color: var(--green); }
+    .matriz-result-cell.q2 { background: rgba(255,149,0,0.10); border-color: var(--amber); }
+    .matriz-result-cell.q3 { background: rgba(255,149,0,0.10); border-color: var(--amber); }
+    .matriz-result-cell.q4 { background: rgba(255,59,48,0.10); border-color: var(--red); }
+    .matriz-result-cell-name { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11px; font-weight: 800; color: var(--text); line-height: 1.2; }
+    .matriz-result-cell-mini { font-size: 9.5px; color: var(--text-3); }
+
+    .matriz-result-dot {
+      position: absolute; width: 22px; height: 22px;
+      background: var(--gradient); border: 3px solid white;
+      border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      z-index: 5; transform: translate(-50%, -50%);
+      transition: all .8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .matriz-result-dot::before {
+      content: ''; position: absolute; inset: -8px;
+      border: 2px solid var(--teal); border-radius: 50%;
+      opacity: 0.4; animation: pulseRing 2s infinite;
+    }
+    @keyframes pulseRing {
+      0% { transform: scale(0.8); opacity: 0.6; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+    .matriz-result-y-label, .matriz-result-x-label {
+      position: absolute;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 9.5px; font-weight: 800; color: var(--text-3);
+      letter-spacing: 0.5px; text-transform: uppercase;
+    }
+    .matriz-result-y-top { top: 0; left: 50%; transform: translateX(-50%); }
+    .matriz-result-y-bottom { bottom: 0; left: 50%; transform: translateX(-50%); }
+    .matriz-result-x-left { left: 0; top: 50%; transform: translateY(-50%) rotate(-90deg); transform-origin: left center; }
+    .matriz-result-x-right { right: 0; top: 50%; transform: translateY(-50%) rotate(-90deg); transform-origin: right center; }
+
+    /* AXIS BREAKDOWN */
+    .axis-breakdown { display: flex; flex-direction: column; gap: 16px; }
+    .axis-block { padding: 14px 0; border-bottom: 1px solid var(--border); }
+    .axis-block:last-child { border-bottom: none; padding-bottom: 0; }
+    .axis-block-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+    .axis-block-name { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 700; color: var(--text); }
+    .axis-block-value { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 800; color: var(--text); }
+    .axis-block-bar { height: 8px; background: var(--surface); border-radius: 50px; overflow: hidden; }
+    .axis-block-bar-fill { height: 100%; border-radius: 50px; transition: width .8s; }
+    .axis-block-bar-fill.green { background: var(--green); }
+    .axis-block-bar-fill.amber { background: var(--amber); }
+    .axis-block-bar-fill.red { background: var(--red); }
+
+    /* RECOMENDACIONES */
+    .reco-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .reco-item {
+      background: var(--bg-input); border: 1px solid var(--border);
+      border-left: 3px solid var(--teal);
+      border-radius: var(--radius); padding: 14px 18px;
+      display: flex; gap: 14px; align-items: flex-start;
+    }
+    .reco-icon { width: 26px; height: 26px; border-radius: 8px; background: var(--teal-light); color: var(--teal); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .reco-icon svg { width: 13px; height: 13px; }
+    .reco-text { font-size: 13.5px; color: var(--text-2); line-height: 1.55; }
+    .reco-text strong { color: var(--text); }
+    .reco-item.warning { border-left-color: var(--amber); }
+    .reco-item.warning .reco-icon { background: var(--amber-light); color: var(--amber); }
+
+    .result-actions { display: flex; gap: 10px; margin-top: 22px; flex-wrap: wrap; }
+
+    /* EMPTY */
+    .empty-state-big { text-align: center; padding: 60px 20px; }
+    .empty-state-big h2 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; margin-bottom: 12px; }
+
+    /* TOAST */
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 50px; padding: 12px 22px;
+      font-size: 13.5px; font-weight: 600; color: var(--text);
+      opacity: 0; pointer-events: none;
+      transition: all .25s ease; z-index: 200;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.success { border-color: var(--green); color: var(--green); }
+    .toast.error { border-color: var(--red); color: var(--red); }
+
+    @media (max-width: 1100px) {
+      .intro-grid { grid-template-columns: 1fr; }
+      .result-grid { grid-template-columns: 1fr; }
+      .matriz-grid { aspect-ratio: 1; }
+    }
+    @media (max-width: 700px) {
+      .app-layout { padding: 8px; gap: 8px; }
+      .topbar { padding: 14px 18px; flex-wrap: wrap; }
+      .content { padding: 20px 18px; }
+      .page-title { font-size: 24px; }
+      .intro-quote { font-size: 20px; }
+      .result-cuadrante { font-size: 28px; }
+      .eval-options { grid-template-columns: 1fr 1fr; }
+      .matriz-grid { grid-template-columns: 60px 1fr 1fr; aspect-ratio: 1; }
+      .matriz-cell-name { font-size: 12px; }
+      .matriz-cell-desc { display: none; }
+      .historial-card { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-layout">
+
+  <aside class="sidebar">
+    <a href="/portal/dashboard.html" class="sidebar-logo">
+      <img src="/logos/SX Isp.png" alt="SCALEx" onerror="this.style.display='none'">
+    </a>
+
+    <a href="/portal/dashboard.html" class="sidebar-icon" title="Dashboard">
+      <i data-lucide="layout-dashboard"></i>
+    </a>
+    <a href="/portal/opsp.html" class="sidebar-icon" title="OPSP">
+      <i data-lucide="map"></i>
+    </a>
+    <a href="/portal/rituales.html" class="sidebar-icon" title="Rituales">
+      <i data-lucide="repeat"></i>
+    </a>
+
+    <div class="sidebar-divider"></div>
+
+    <a href="/portal/pie.html" class="sidebar-icon" title="PIE - Reflejo">
+      <i data-lucide="eye"></i>
+    </a>
+    <a href="/portal/mape.html" class="sidebar-icon active" title="MAPE - Reflejo">
+      <i data-lucide="grid"></i>
+    </a>
+    <a href="/portal/costeo.html" class="sidebar-icon" title="Costeo - Flujo">
+      <i data-lucide="calculator"></i>
+    </a>
+
+    <div class="sidebar-bottom">
+      <button class="sidebar-icon" title="Cambiar tema" onclick="toggleTheme()">
+        <i data-lucide="sun" id="theme-icon"></i>
+      </button>
+      <button class="sidebar-icon" title="Cerrar sesion" onclick="logout()">
+        <i data-lucide="log-out"></i>
+      </button>
+    </div>
+  </aside>
+
+  <main class="shell">
+
+    <div class="topbar">
+      <a href="/portal/dashboard.html" class="topbar-back">
+        <i data-lucide="arrow-left"></i>
+      </a>
+      <div class="topbar-title-block">
+        <div class="topbar-eyebrow">Pilar 1 - Reflejo</div>
+        <div class="topbar-title">MAPE - Matriz de Posicionamiento Empresarial</div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ════════════ VIEW INTRO ════════════ -->
+      <div class="view active" id="view-intro">
+
+        <div class="page-header">
+          <div class="page-eyebrow">Pilar 1 - Reflejo</div>
+          <h1 class="page-title">Estas escalando o solo <span>sobreviviendo</span>?</h1>
+          <p class="page-sub">El MAPE ubica a tu empresa en una matriz 2x2. Mide 2 ejes que determinan si vas hacia escalabilidad real o hacia el estancamiento.</p>
+        </div>
+
+        <div class="historial-card" id="intro-historial" style="display:none">
+          <div class="historial-icon"><i data-lucide="history"></i></div>
+          <div class="historial-body">
+            <div class="historial-title">Ya completaste el MAPE antes</div>
+            <div class="historial-meta">
+              <span>Ultima vez: <strong id="hist-fecha">-</strong></span>
+              <span>Cuadrante: <strong id="hist-cuadrante">-</strong></span>
+              <span>Puntajes: <strong id="hist-puntajes">-</strong></span>
+              <span id="hist-count">-</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="intro-grid">
+          <div class="intro-hero">
+            <div class="intro-quote">
+              <span class="intro-quote-mark">"</span>
+              Estas avanzando o estas estancado. No hay punto medio.
+            </div>
+            <div class="intro-byline">Si el PIE midio tu liderazgo, el MAPE mide tu empresa. Es la otra mitad del diagnostico.</div>
+          </div>
+
+          <div class="intro-info">
+            <div class="info-stat">
+              <div class="info-icon"><i data-lucide="clock"></i></div>
+              <div class="info-body">
+                <div class="info-label">Duracion estimada</div>
+                <div class="info-value">10-15 minutos</div>
+              </div>
+            </div>
+            <div class="info-stat">
+              <div class="info-icon"><i data-lucide="layers"></i></div>
+              <div class="info-body">
+                <div class="info-label">Estructura</div>
+                <div class="info-value">2 ejes - 12 indicadores</div>
+              </div>
+            </div>
+            <div class="info-stat">
+              <div class="info-icon"><i data-lucide="grid"></i></div>
+              <div class="info-body">
+                <div class="info-label">Resultado</div>
+                <div class="info-value">Tu cuadrante + plan</div>
+              </div>
+            </div>
+            <div class="info-stat">
+              <div class="info-icon"><i data-lucide="shield"></i></div>
+              <div class="info-body">
+                <div class="info-label">Confidencialidad</div>
+                <div class="info-value">Solo tu y tu consultor</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MATRIZ PREVIEW -->
+        <div class="matriz-preview">
+          <div class="matriz-preview-title">
+            <i data-lucide="grid"></i>
+            Los 4 cuadrantes posibles
+          </div>
+
+          <div class="matriz-grid">
+            <div></div>
+            <div class="matriz-h-alta">↑ Alta capacidad operativa</div>
+            <div class="matriz-h-baja">Baja capacidad operativa ↓</div>
+
+            <div class="matriz-eje-y">
+              <span>↑ Alto · Bajo ↓</span>
+              <span>Crecimiento financiero</span>
+            </div>
+
+            <div class="matriz-cell q1">
+              <span class="matriz-cell-badge">SALUDABLE</span>
+              <div class="matriz-cell-name">Crecimiento Escalable</div>
+              <div class="matriz-cell-desc">Crece con control. Equipo autonomo. Finanzas sanas. Listo para expandir.</div>
+            </div>
+            <div class="matriz-cell q2">
+              <span class="matriz-cell-badge">ATENCION</span>
+              <div class="matriz-cell-name">Crecimiento Fragil</div>
+              <div class="matriz-cell-desc">Vende, pero el equipo y procesos no aguantan. Caos creciente.</div>
+            </div>
+
+            <div class="matriz-cell q3">
+              <span class="matriz-cell-badge">ATENCION</span>
+              <div class="matriz-cell-name">Financiero Estancado</div>
+              <div class="matriz-cell-desc">Operacion solida pero el mercado no responde. Estable sin escala.</div>
+            </div>
+            <div class="matriz-cell q4">
+              <span class="matriz-cell-badge">URGENTE</span>
+              <div class="matriz-cell-name">Zona de Estancamiento</div>
+              <div class="matriz-cell-desc">Atrapado. No crece, no tiene estructura. Riesgo real.</div>
+            </div>
+
+            <div class="matriz-eje-x-row">Capacidad operativa →</div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary large" id="btn-empezar">
+          <i data-lucide="play"></i>
+          Empezar evaluacion
+        </button>
+
+      </div>
+
+      <!-- ════════════ VIEW EVALUACION ════════════ -->
+      <div class="view" id="view-eval">
+
+        <div class="eval-progress-bar">
+          <div class="eval-progress-fill" id="eval-progress-fill" style="width: 0%"></div>
+        </div>
+        <div class="eval-progress-info">
+          <span>Eje <strong id="eval-progress-eje">1</strong> de 2 - <span id="eval-progress-actual">-</span></span>
+          <span class="eval-save" id="eval-save">
+            <div class="dot saved"></div><span>Respuestas guardadas</span>
+          </span>
+          <span><strong id="eval-progress-resp">0</strong> de <strong id="eval-progress-total">12</strong> indicadores</span>
+        </div>
+
+        <div class="eval-axis-header">
+          <div class="eval-axis-icon" id="eval-eje-icon"><i data-lucide="trending-up"></i></div>
+          <div class="eval-axis-body">
+            <div class="eval-axis-num" id="eval-eje-num">EJE 1 DE 2 - CRECIMIENTO FINANCIERO</div>
+            <div class="eval-axis-title" id="eval-eje-titulo">-</div>
+            <div class="eval-axis-desc" id="eval-eje-desc">-</div>
+          </div>
+        </div>
+
+        <div id="eval-questions">
+          <!-- Render dinamico -->
+        </div>
+
+        <div class="eval-nav">
+          <button class="btn btn-ghost" id="eval-btn-prev">
+            <i data-lucide="arrow-left"></i>
+            <span>Eje anterior</span>
+          </button>
+          <button class="btn btn-primary" id="eval-btn-next" disabled>
+            <span>Siguiente eje</span>
+            <i data-lucide="arrow-right"></i>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- ════════════ VIEW RESULTADO ════════════ -->
+      <div class="view" id="view-result">
+
+        <div class="result-hero">
+          <div class="result-eyebrow">Tu cuadrante</div>
+          <div class="result-cuadrante" id="result-cuadrante">-</div>
+          <div class="result-coords-line">
+            <div class="result-coord-block">
+              <div class="result-coord-label">Crecimiento financiero</div>
+              <div class="result-coord-value" id="result-puntaje-fin">-</div>
+            </div>
+            <div class="result-coord-block">
+              <div class="result-coord-label">Capacidad operativa</div>
+              <div class="result-coord-value" id="result-puntaje-op">-</div>
+            </div>
+          </div>
+          <p class="result-desc" id="result-desc">-</p>
+        </div>
+
+        <div class="result-grid">
+
+          <div class="result-card">
+            <div class="result-card-title">
+              <i data-lucide="grid"></i>
+              Tu posicion en la matriz
+            </div>
+            <div class="matriz-result-wrap">
+              <div class="matriz-result-y-label matriz-result-y-top">↑ ALTO CREC.</div>
+              <div class="matriz-result-y-label matriz-result-y-bottom">↓ BAJO CREC.</div>
+              <div class="matriz-result-x-label matriz-result-x-left">↑ ALTA OP.</div>
+              <div class="matriz-result-x-label matriz-result-x-right">BAJA OP. ↓</div>
+              <div class="matriz-result">
+                <div class="matriz-result-cell q1" data-cuadrante="crecimiento_escalable">
+                  <div class="matriz-result-cell-name">Crecimiento Escalable</div>
+                  <div class="matriz-result-cell-mini">Alto · Alta</div>
+                </div>
+                <div class="matriz-result-cell q2" data-cuadrante="crecimiento_fragil">
+                  <div class="matriz-result-cell-name">Crecimiento Fragil</div>
+                  <div class="matriz-result-cell-mini">Alto · Baja</div>
+                </div>
+                <div class="matriz-result-cell q3" data-cuadrante="financiero_estancado">
+                  <div class="matriz-result-cell-name">Financiero Estancado</div>
+                  <div class="matriz-result-cell-mini">Bajo · Alta</div>
+                </div>
+                <div class="matriz-result-cell q4" data-cuadrante="zona_estancamiento">
+                  <div class="matriz-result-cell-name">Estancamiento</div>
+                  <div class="matriz-result-cell-mini">Bajo · Baja</div>
+                </div>
+              </div>
+              <div class="matriz-result-dot" id="matriz-dot" style="top: 50%; left: 50%"></div>
+            </div>
+          </div>
+
+          <div class="result-card">
+            <div class="result-card-title">
+              <i data-lucide="bar-chart-2"></i>
+              Desglose por eje
+            </div>
+            <div class="axis-breakdown" id="result-breakdown">
+              <!-- Render dinamico -->
+            </div>
+          </div>
+
+        </div>
+
+        <div class="result-card" style="margin-bottom: 22px">
+          <div class="result-card-title">
+            <i data-lucide="target"></i>
+            Acciones prioritarias para tu cuadrante
+          </div>
+          <ul class="reco-list" id="result-reco">
+            <!-- Render dinamico -->
+          </ul>
+        </div>
+
+        <div class="result-actions">
+          <button class="btn btn-ghost" id="btn-volver-intro">
+            <i data-lucide="home"></i>
+            Volver al inicio
+          </button>
+          <button class="btn btn-primary" id="btn-nueva-eval">
+            <i data-lucide="refresh-ccw"></i>
+            Hacer nueva evaluacion
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>lucide.createIcons();</script>
+<script type="module" src="/assets/js/mape.js"></script>
+
+</body>
+</html>
