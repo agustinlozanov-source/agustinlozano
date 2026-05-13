@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCALEx Portal - Reflejo</title>
+  <link rel="icon" type="image/png" href="/logos/SX Icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script type="module" src="/assets/js/auth-guard.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal: #1aab99; --teal-light: rgba(26,171,153,0.12);
+      --indigo: #3533cd; --indigo-light: rgba(53,51,205,0.12);
+      --gradient: linear-gradient(135deg, #1aab99, #3533cd);
+      --green: #00c853; --green-light: rgba(0,200,83,0.12);
+      --amber: #ff9500; --amber-light: rgba(255,149,0,0.12);
+      --red: #ff3b30; --red-light: rgba(255,59,48,0.12);
+      --purple: #7c3aed; --purple-light: rgba(124,58,237,0.12);
+      --radius-xl: 28px; --radius-lg: 20px; --radius: 14px; --radius-sm: 9px;
+      --sidebar-w: 80px;
+      font-family: 'Inter', sans-serif; line-height: 1.6;
+    }
+    [data-theme="dark"] {
+      --bg-page: #0a0a0c; --bg-shell: #141416; --bg-card: #1c1c1e; --bg-card-2: #242426;
+      --bg-input: #0d0d10;
+      --surface: rgba(255,255,255,0.04); --surface-hover: rgba(255,255,255,0.07);
+      --border: rgba(255,255,255,0.08); --border-strong: rgba(255,255,255,0.13);
+      --text: #fff; --text-2: #c7c7cc; --text-3: #8e8e93; --text-4: #48484a;
+      --sidebar-bg: #050506;
+    }
+    [data-theme="light"] {
+      --bg-page: #eef0f5; --bg-shell: #fff; --bg-card: #f5f5f7; --bg-card-2: #ebebef;
+      --bg-input: #fff;
+      --surface: rgba(0,0,0,0.03); --surface-hover: rgba(0,0,0,0.055);
+      --border: rgba(0,0,0,0.08); --border-strong: rgba(0,0,0,0.14);
+      --text: #070708; --text-2: #3a3a3c; --text-3: #6e6e73; --text-4: #c7c7cc;
+      --sidebar-bg: #0a0a0c;
+    }
+
+    body { background: var(--bg-page); color: var(--text); min-height: 100vh; overflow: hidden; transition: background .3s, color .3s; }
+    .app-layout { display: flex; min-height: 100vh; padding: 16px; gap: 16px; }
+
+    /* SIDEBAR */
+    .sidebar { width: var(--sidebar-w); background: var(--sidebar-bg); border-radius: var(--radius-xl); padding: 20px 0; display: flex; flex-direction: column; align-items: center; gap: 8px; flex-shrink: 0; position: sticky; top: 16px; height: calc(100vh - 32px); }
+    .sidebar-logo { width: 44px; height: auto; display: block; margin-bottom: 16px; text-decoration: none; }
+    .sidebar-logo img { width: 100%; height: auto; display: block; }
+    .sidebar-divider { width: 28px; height: 1px; background: rgba(255,255,255,0.08); margin: 4px 0; }
+    .sidebar-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all .2s; color: rgba(255,255,255,0.5); position: relative; text-decoration: none; background: none; border: none; }
+    .sidebar-icon:hover { background: rgba(255,255,255,0.06); color: white; }
+    .sidebar-icon.active { background: var(--gradient); color: white; }
+    .sidebar-icon.active::before { content: ''; position: absolute; left: -16px; top: 50%; transform: translateY(-50%); width: 3px; height: 24px; background: var(--teal); border-radius: 0 3px 3px 0; }
+    .sidebar-icon svg { width: 20px; height: 20px; }
+    .sidebar-bottom { margin-top: auto; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+
+    /* SHELL */
+    .shell { flex: 1; background: var(--bg-shell); border-radius: var(--radius-xl); overflow: hidden; display: flex; flex-direction: column; height: calc(100vh - 32px); }
+    .topbar { padding: 18px 28px; display: flex; align-items: center; gap: 16px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .topbar-back { width: 36px; height: 36px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-2); text-decoration: none; }
+    .topbar-back:hover { background: var(--surface-hover); color: var(--text); }
+    .topbar-back svg { width: 16px; height: 16px; }
+    .topbar-title-block { flex: 1; min-width: 0; }
+    .topbar-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--teal); }
+    .topbar-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; font-weight: 800; color: var(--text); letter-spacing: -0.3px; margin-top: 2px; }
+
+    .content { flex: 1; overflow-y: auto; padding: 32px 36px; }
+    .content::-webkit-scrollbar { width: 8px; }
+    .content::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 50px; }
+
+    /* HERO */
+    .hero {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 24px;
+      margin-bottom: 32px;
+      align-items: stretch;
+    }
+    .hero-text { display: flex; flex-direction: column; justify-content: center; }
+    .hero-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--teal); margin-bottom: 12px; }
+    .hero-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 36px; font-weight: 900; line-height: 1.1;
+      letter-spacing: -0.8px; color: var(--text); margin-bottom: 14px;
+    }
+    .hero-title span { background: var(--gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero-sub {
+      font-size: 15px; color: var(--text-3); line-height: 1.6;
+      max-width: 540px;
+    }
+
+    .hero-status {
+      background: var(--gradient);
+      border-radius: var(--radius-xl);
+      padding: 28px 32px;
+      color: white;
+      position: relative; overflow: hidden;
+      display: flex; flex-direction: column; justify-content: center;
+    }
+    .hero-status::before {
+      content: ''; position: absolute;
+      top: -50px; right: -50px; width: 220px; height: 220px;
+      background: radial-gradient(circle, rgba(255,255,255,0.18), transparent 70%);
+      border-radius: 50%;
+    }
+    .hero-status-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 1px;
+      text-transform: uppercase; opacity: 0.85; margin-bottom: 8px;
+    }
+    .hero-status-value {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 36px; font-weight: 900;
+      letter-spacing: -1px; line-height: 1; margin-bottom: 6px;
+    }
+    .hero-status-sub {
+      font-size: 13px; opacity: 0.95;
+      line-height: 1.5;
+    }
+    .hero-status-mini {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 14px; margin-top: 22px;
+      padding-top: 22px;
+      border-top: 1px solid rgba(255,255,255,0.18);
+      position: relative;
+    }
+    .mini-stat-num {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 22px; font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+    .mini-stat-label {
+      font-size: 11px; opacity: 0.85; margin-top: 2px;
+    }
+
+    /* SECTION TITLES */
+    .section-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px; font-weight: 800; color: var(--text-2);
+      text-transform: uppercase; letter-spacing: 0.8px;
+      margin: 0 0 16px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .section-title svg { width: 14px; height: 14px; color: var(--teal); }
+
+    /* MODULOS GRID */
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .module-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px 26px;
+      cursor: pointer;
+      transition: all .2s;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+    }
+    .module-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-strong);
+    }
+    .module-card.done {
+      border-color: var(--green);
+      background: linear-gradient(135deg, rgba(0,200,83,0.05), transparent);
+    }
+
+    .module-card-top {
+      display: flex; align-items: flex-start;
+      justify-content: space-between;
+    }
+    .module-icon {
+      width: 48px; height: 48px; border-radius: 13px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .module-icon svg { width: 22px; height: 22px; }
+    .module-icon.pie { background: var(--purple-light); color: var(--purple); }
+    .module-icon.mape { background: var(--teal-light); color: var(--teal); }
+    .module-icon.prisma { background: var(--indigo-light); color: var(--indigo); }
+
+    .module-step {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 11px; font-weight: 800;
+      color: var(--text-3);
+      background: var(--surface);
+      padding: 4px 10px; border-radius: 50px;
+      letter-spacing: 0.5px;
+    }
+    .module-card.done .module-step { background: var(--green-light); color: var(--green); }
+
+    .module-card-body { flex: 1; }
+    .module-card-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 20px; font-weight: 800;
+      letter-spacing: -0.4px; color: var(--text);
+      margin-bottom: 6px;
+    }
+    .module-card-desc {
+      font-size: 13.5px; color: var(--text-3);
+      line-height: 1.5;
+    }
+
+    .module-card-stat {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      display: flex; align-items: baseline; justify-content: space-between;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      gap: 8px;
+    }
+    .module-stat-value {
+      font-size: 16px; font-weight: 800;
+      color: var(--teal); letter-spacing: -0.3px;
+      max-width: 70%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .module-stat-value.muted {
+      color: var(--text-3);
+      font-weight: 600;
+    }
+    .module-stat-label {
+      font-size: 11px; color: var(--text-3);
+      text-transform: uppercase; letter-spacing: 0.4px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .module-card-arrow {
+      position: absolute;
+      top: 24px; right: 24px;
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      background: var(--surface);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-3);
+      transition: all .2s;
+    }
+    .module-card:hover .module-card-arrow {
+      background: var(--teal-light); color: var(--teal);
+      transform: translateX(2px);
+    }
+    .module-card-arrow svg { width: 14px; height: 14px; }
+
+    /* PRISMA CARD (full width destacada) */
+    .prisma-card-full {
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, rgba(26,171,153,0.06), rgba(53,51,205,0.06));
+      border: 1px solid var(--teal);
+    }
+    .prisma-card-full.done {
+      background: linear-gradient(135deg, rgba(26,171,153,0.12), rgba(53,51,205,0.12));
+    }
+
+    /* FLOW CARD */
+    .flow-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px 28px;
+    }
+    .flow-steps {
+      display: flex; align-items: stretch;
+      gap: 12px;
+    }
+    .flow-step {
+      flex: 1;
+      padding: 16px;
+      background: var(--bg-card-2);
+      border-radius: var(--radius);
+      position: relative;
+      text-align: center;
+    }
+    .flow-step::after {
+      content: '→';
+      position: absolute;
+      right: -14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-4);
+      font-size: 18px;
+      font-weight: 300;
+      z-index: 1;
+    }
+    .flow-step:last-child::after { display: none; }
+    .flow-step-num {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 11px; font-weight: 800;
+      color: var(--teal); letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .flow-step-name {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13px; font-weight: 700;
+      color: var(--text);
+    }
+    .flow-step-desc {
+      font-size: 11px;
+      color: var(--text-3);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    /* HELP SECTION */
+    .help-section {
+      margin-top: 24px;
+      background: var(--teal-light);
+      border: 1px solid var(--teal);
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .help-icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: var(--teal);
+      color: white;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .help-icon svg { width: 18px; height: 18px; }
+    .help-body { flex: 1; }
+    .help-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px; font-weight: 800;
+      color: var(--text); margin-bottom: 4px;
+    }
+    .help-text {
+      font-size: 13px; color: var(--text-2);
+      line-height: 1.5;
+    }
+
+    @media (max-width: 1000px) {
+      .hero { grid-template-columns: 1fr; }
+      .modules-grid { grid-template-columns: 1fr; }
+      .flow-steps { flex-wrap: wrap; }
+      .flow-step::after { display: none; }
+      .prisma-card-full { grid-column: auto; }
+    }
+    @media (max-width: 700px) {
+      .app-layout { padding: 8px; gap: 8px; }
+      .topbar { padding: 14px 18px; }
+      .content { padding: 20px 18px; }
+      .hero-title { font-size: 28px; }
+      .hero-status-value { font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-layout">
+
+  <aside class="sidebar">
+    <a href="/portal/dashboard.html" class="sidebar-logo">
+      <img src="/logos/SX Isp.png" alt="SCALEx" onerror="this.style.display='none'">
+    </a>
+
+    <a href="/portal/dashboard.html" class="sidebar-icon" title="Dashboard">
+      <i data-lucide="layout-dashboard"></i>
+    </a>
+    <a href="/portal/opsp.html" class="sidebar-icon" title="OPSP">
+      <i data-lucide="map"></i>
+    </a>
+    <a href="/portal/rituales.html" class="sidebar-icon" title="Rituales">
+      <i data-lucide="repeat"></i>
+    </a>
+
+    <div class="sidebar-divider"></div>
+
+    <a href="/portal/reflejo.html" class="sidebar-icon active" title="Reflejo">
+      <i data-lucide="eye"></i>
+    </a>
+    <a href="/portal/costeo.html" class="sidebar-icon" title="Costeo">
+      <i data-lucide="calculator"></i>
+    </a>
+
+    <div class="sidebar-bottom">
+      <button class="sidebar-icon" title="Cambiar tema" onclick="toggleTheme()">
+        <i data-lucide="sun" id="theme-icon"></i>
+      </button>
+      <button class="sidebar-icon" title="Cerrar sesion" onclick="logout()">
+        <i data-lucide="log-out"></i>
+      </button>
+    </div>
+  </aside>
+
+  <main class="shell">
+
+    <div class="topbar">
+      <a href="/portal/dashboard.html" class="topbar-back">
+        <i data-lucide="arrow-left"></i>
+      </a>
+      <div class="topbar-title-block">
+        <div class="topbar-eyebrow">Pilar 1 - Reflejo</div>
+        <div class="topbar-title">Centro de diagnostico del lider y la empresa</div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- HERO -->
+      <div class="hero">
+        <div class="hero-text">
+          <div class="hero-eyebrow">Pilar 1 - El espejo de tu negocio</div>
+          <h1 class="hero-title">Antes de escalar tu negocio, primero <span>escala tu liderazgo</span></h1>
+          <p class="hero-sub">Reflejo mide donde estas tu como lider, donde esta tu empresa, y cruza ambos resultados en un plan de accion concreto. Es el punto de partida de SCALEx.</p>
+        </div>
+
+        <div class="hero-status">
+          <div class="hero-status-label">Tu estado actual</div>
+          <div class="hero-status-value" id="kpi-status">-</div>
+          <div class="hero-status-sub" id="kpi-status-sub">Cargando...</div>
+
+          <div class="hero-status-mini">
+            <div>
+              <div class="mini-stat-num" id="kpi-acciones-completadas">0</div>
+              <div class="mini-stat-label">Acciones completadas</div>
+            </div>
+            <div>
+              <div class="mini-stat-num" id="kpi-acciones-pendientes">0</div>
+              <div class="mini-stat-label">Acciones pendientes</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 HERRAMIENTAS -->
+      <div class="section-title">
+        <i data-lucide="layers"></i>
+        Las 3 herramientas del pilar
+      </div>
+
+      <div class="modules-grid">
+
+        <!-- PIE -->
+        <a href="/portal/pie.html" class="module-card" id="mod-pie-card">
+          <div class="module-card-arrow"><i data-lucide="arrow-right"></i></div>
+          <div class="module-card-top">
+            <div class="module-icon pie"><i data-lucide="eye"></i></div>
+            <div class="module-step" id="mod-pie-step">Paso 1</div>
+          </div>
+          <div class="module-card-body">
+            <div class="module-card-title">PIE</div>
+            <div class="module-card-desc">Perfil de Impacto Empresarial. Mide tu liderazgo en 4 dimensiones: mentalidad, decisiones, delegacion y vision.</div>
+          </div>
+          <div class="module-card-stat">
+            <span class="module-stat-value muted" id="mod-pie-value">Sin completar</span>
+            <span class="module-stat-label" id="mod-pie-label">Tu perfil</span>
+          </div>
+        </a>
+
+        <!-- MAPE -->
+        <a href="/portal/mape.html" class="module-card" id="mod-mape-card">
+          <div class="module-card-arrow"><i data-lucide="arrow-right"></i></div>
+          <div class="module-card-top">
+            <div class="module-icon mape"><i data-lucide="grid"></i></div>
+            <div class="module-step" id="mod-mape-step">Paso 2</div>
+          </div>
+          <div class="module-card-body">
+            <div class="module-card-title">MAPE</div>
+            <div class="module-card-desc">Matriz de Posicionamiento Empresarial. Ubica a tu empresa en una matriz 2x2 segun crecimiento financiero y capacidad operativa.</div>
+          </div>
+          <div class="module-card-stat">
+            <span class="module-stat-value muted" id="mod-mape-value">Sin completar</span>
+            <span class="module-stat-label" id="mod-mape-label">Tu cuadrante</span>
+          </div>
+        </a>
+
+        <!-- PRISMA - full width -->
+        <a href="/portal/prisma.html" class="module-card prisma-card-full" id="mod-prisma-card">
+          <div class="module-card-arrow"><i data-lucide="arrow-right"></i></div>
+          <div class="module-card-top">
+            <div class="module-icon prisma"><i data-lucide="sparkles"></i></div>
+            <div class="module-step" id="mod-prisma-step">Paso 3 - Integracion</div>
+          </div>
+          <div class="module-card-body">
+            <div class="module-card-title">PRISMA</div>
+            <div class="module-card-desc">Perfil de Resultados Integrados. Cruza PIE + MAPE para darte un perfil con nombre propio y un plan de accion accionable de 7-30-90 dias.</div>
+          </div>
+          <div class="module-card-stat">
+            <span class="module-stat-value muted" id="mod-prisma-value">Aun no generado</span>
+            <span class="module-stat-label" id="mod-prisma-label">Tu perfil integrado</span>
+          </div>
+        </a>
+
+      </div>
+
+      <!-- FLUJO EDUCATIVO -->
+      <div class="section-title">
+        <i data-lucide="git-branch"></i>
+        Como se conectan
+      </div>
+
+      <div class="flow-card">
+        <div class="flow-steps">
+          <div class="flow-step">
+            <div class="flow-step-num">1</div>
+            <div class="flow-step-name">PIE</div>
+            <div class="flow-step-desc">Mide al lider</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num">2</div>
+            <div class="flow-step-name">MAPE</div>
+            <div class="flow-step-desc">Mide a la empresa</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num">3</div>
+            <div class="flow-step-name">PRISMA</div>
+            <div class="flow-step-desc">Cruza ambos</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num">4</div>
+            <div class="flow-step-name">Plan 7-30-90</div>
+            <div class="flow-step-desc">Acciones concretas</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num">5</div>
+            <div class="flow-step-name">Ejecucion</div>
+            <div class="flow-step-desc">Trackear y evolucionar</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HELP -->
+      <div class="help-section">
+        <div class="help-icon"><i data-lucide="lightbulb"></i></div>
+        <div class="help-body">
+          <div class="help-title">¿Primera vez? Empieza por PIE</div>
+          <div class="help-text">El orden importa. PIE primero (tu liderazgo), despues MAPE (tu empresa), y al final PRISMA cruza ambos para darte el plan de accion. Cada herramienta toma 8-15 minutos.</div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script type="module">
+  import {
+    supabase,
+    getMyProfile,
+    getMyOrganization,
+    signOut
+  } from '/assets/js/supabase-client.js'
+
+  const PIE_PERFIL_NOMBRES = {
+    'lider_estrategico': 'Lider Estrategico',
+    'lider_transicion': 'Lider en Transicion',
+    'lider_operativo': 'Lider Operativo',
+    'lider_reactivo': 'Lider Reactivo'
+  }
+  const MAPE_CUADRANTE_NOMBRES = {
+    'crecimiento_escalable': 'Crecimiento Escalable',
+    'crecimiento_fragil': 'Crecimiento Fragil',
+    'financiero_estancado': 'Financiero Estancado',
+    'zona_estancamiento': 'Zona de Estancamiento'
+  }
+  const PRISMA_PERFIL_NOMBRES = {
+    'lider_estrategico': 'Lider Estrategico',
+    'lider_estancado': 'Lider Estancado',
+    'lider_agotado': 'Lider Agotado',
+    'lider_supervivencia': 'Lider en Supervivencia'
+  }
+
+  window.toggleTheme = function() {
+    const html = document.documentElement
+    const next = html.dataset.theme === 'dark' ? 'light' : 'dark'
+    html.dataset.theme = next
+    localStorage.setItem('scalex-theme', next)
+    const icon = document.getElementById('theme-icon')
+    if (icon) {
+      icon.setAttribute('data-lucide', next === 'dark' ? 'sun' : 'moon')
+      lucide.createIcons()
+    }
+  }
+
+  const savedTheme = localStorage.getItem('scalex-theme')
+  if (savedTheme) document.documentElement.dataset.theme = savedTheme
+
+  window.logout = signOut
+
+  async function init() {
+    try {
+      const [profile, org] = await Promise.all([getMyProfile(), getMyOrganization()])
+      if (!org) return
+
+      // Cargar ultimas evaluaciones y snapshot
+      const [pieRes, mapeRes, prismaRes] = await Promise.all([
+        supabase
+          .from('pie_evaluaciones')
+          .select('*')
+          .eq('organizacion_id', org.id)
+          .eq('usuario_id', profile.id)
+          .eq('estado', 'completada')
+          .order('completada_en', { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+        supabase
+          .from('mape_evaluaciones')
+          .select('*')
+          .eq('organizacion_id', org.id)
+          .eq('usuario_id', profile.id)
+          .eq('estado', 'completada')
+          .order('completada_en', { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+        supabase
+          .from('prisma_snapshots')
+          .select('*')
+          .eq('organizacion_id', org.id)
+          .eq('usuario_id', profile.id)
+          .order('generado_en', { ascending: false })
+          .limit(1)
+          .maybeSingle()
+      ])
+
+      const pie = pieRes.data
+      const mape = mapeRes.data
+      const prisma = prismaRes.data
+
+      // PIE card
+      if (pie) {
+        document.getElementById('mod-pie-card').classList.add('done')
+        document.getElementById('mod-pie-step').textContent = 'Completado'
+        const el = document.getElementById('mod-pie-value')
+        el.textContent = PIE_PERFIL_NOMBRES[pie.perfil] || pie.perfil
+        el.classList.remove('muted')
+        document.getElementById('mod-pie-label').textContent = pie.puntaje_total + '/100'
+      }
+
+      // MAPE card
+      if (mape) {
+        document.getElementById('mod-mape-card').classList.add('done')
+        document.getElementById('mod-mape-step').textContent = 'Completado'
+        const el = document.getElementById('mod-mape-value')
+        el.textContent = MAPE_CUADRANTE_NOMBRES[mape.cuadrante] || mape.cuadrante
+        el.classList.remove('muted')
+        document.getElementById('mod-mape-label').textContent = 'F:' + mape.puntaje_financiero + ' O:' + mape.puntaje_operativo
+      }
+
+      // PRISMA card
+      if (prisma) {
+        document.getElementById('mod-prisma-card').classList.add('done')
+        document.getElementById('mod-prisma-step').textContent = 'Generado'
+        const el = document.getElementById('mod-prisma-value')
+        el.textContent = PRISMA_PERFIL_NOMBRES[prisma.perfil_prisma] || prisma.perfil_prisma
+        el.classList.remove('muted')
+        document.getElementById('mod-prisma-label').textContent = 'Tu perfil'
+
+        // Hero status
+        document.getElementById('kpi-status').textContent = PRISMA_PERFIL_NOMBRES[prisma.perfil_prisma] || prisma.perfil_prisma
+        document.getElementById('kpi-status-sub').textContent = 'PRISMA generado el ' + new Date(prisma.generado_en).toLocaleDateString('es-MX', {day:'2-digit', month:'long', year:'numeric'})
+
+        // Acciones stats
+        try {
+          const { data: stats } = await supabase.rpc('prisma_acciones_stats', { p_snapshot_id: prisma.id })
+          if (stats) {
+            document.getElementById('kpi-acciones-completadas').textContent = stats.hechas || 0
+            document.getElementById('kpi-acciones-pendientes').textContent = ((stats.pendientes || 0) + (stats.en_progreso || 0))
+          }
+        } catch (e) {
+          console.error('[reflejo] stats acciones', e)
+        }
+      } else if (pie && mape) {
+        document.getElementById('kpi-status').textContent = 'Listo para PRISMA'
+        document.getElementById('kpi-status-sub').textContent = 'Ya tienes PIE y MAPE completados. Genera tu PRISMA para obtener tu plan de accion.'
+      } else if (pie || mape) {
+        const completados = (pie ? 1 : 0) + (mape ? 1 : 0)
+        document.getElementById('kpi-status').textContent = completados + ' de 3'
+        document.getElementById('kpi-status-sub').textContent = 'Sigue avanzando con las herramientas faltantes para llegar al PRISMA.'
+      } else {
+        document.getElementById('kpi-status').textContent = 'Sin empezar'
+        document.getElementById('kpi-status-sub').textContent = 'Empieza por el PIE para medir tu liderazgo y construir tu perfil paso a paso.'
+      }
+
+      lucide.createIcons()
+    } catch (err) {
+      console.error('[reflejo-hub] init error:', err)
+    }
+  }
+
+  lucide.createIcons()
+  init()
+</script>
+
+</body>
+</html>
