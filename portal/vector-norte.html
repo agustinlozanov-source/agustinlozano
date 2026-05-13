@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCALEx Portal - Vector</title>
+  <link rel="icon" type="image/png" href="/logos/SX Icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script type="module" src="/assets/js/auth-guard.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal: #1aab99; --teal-light: rgba(26,171,153,0.12);
+      --indigo: #3533cd; --indigo-light: rgba(53,51,205,0.12);
+      --gradient: linear-gradient(135deg, #1aab99, #3533cd);
+      --green: #00c853; --green-light: rgba(0,200,83,0.12);
+      --amber: #ff9500; --amber-light: rgba(255,149,0,0.12);
+      --red: #ff3b30; --red-light: rgba(255,59,48,0.12);
+      --purple: #7c3aed; --purple-light: rgba(124,58,237,0.12);
+      --radius-xl: 28px; --radius-lg: 20px; --radius: 14px; --radius-sm: 9px;
+      --sidebar-w: 80px;
+      font-family: 'Inter', sans-serif; line-height: 1.6;
+    }
+    [data-theme="dark"] {
+      --bg-page: #0a0a0c; --bg-shell: #141416; --bg-card: #1c1c1e; --bg-card-2: #242426;
+      --bg-input: #0d0d10;
+      --surface: rgba(255,255,255,0.04); --surface-hover: rgba(255,255,255,0.07);
+      --border: rgba(255,255,255,0.08); --border-strong: rgba(255,255,255,0.13);
+      --text: #fff; --text-2: #c7c7cc; --text-3: #8e8e93; --text-4: #48484a;
+      --sidebar-bg: #050506;
+    }
+    [data-theme="light"] {
+      --bg-page: #eef0f5; --bg-shell: #fff; --bg-card: #f5f5f7; --bg-card-2: #ebebef;
+      --bg-input: #fff;
+      --surface: rgba(0,0,0,0.03); --surface-hover: rgba(0,0,0,0.055);
+      --border: rgba(0,0,0,0.08); --border-strong: rgba(0,0,0,0.14);
+      --text: #070708; --text-2: #3a3a3c; --text-3: #6e6e73; --text-4: #c7c7cc;
+      --sidebar-bg: #0a0a0c;
+    }
+
+    body { background: var(--bg-page); color: var(--text); min-height: 100vh; overflow: hidden; transition: background .3s, color .3s; }
+    .app-layout { display: flex; min-height: 100vh; padding: 16px; gap: 16px; }
+
+    .sidebar { width: var(--sidebar-w); background: var(--sidebar-bg); border-radius: var(--radius-xl); padding: 20px 0; display: flex; flex-direction: column; align-items: center; gap: 8px; flex-shrink: 0; position: sticky; top: 16px; height: calc(100vh - 32px); }
+    .sidebar-logo { width: 44px; height: auto; display: block; margin-bottom: 16px; text-decoration: none; }
+    .sidebar-logo img { width: 100%; height: auto; display: block; }
+    .sidebar-divider { width: 28px; height: 1px; background: rgba(255,255,255,0.08); margin: 4px 0; }
+    .sidebar-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all .2s; color: rgba(255,255,255,0.5); position: relative; text-decoration: none; background: none; border: none; }
+    .sidebar-icon:hover { background: rgba(255,255,255,0.06); color: white; }
+    .sidebar-icon.active { background: var(--gradient); color: white; }
+    .sidebar-icon.active::before { content: ''; position: absolute; left: -16px; top: 50%; transform: translateY(-50%); width: 3px; height: 24px; background: var(--teal); border-radius: 0 3px 3px 0; }
+    .sidebar-icon svg { width: 20px; height: 20px; }
+    .sidebar-bottom { margin-top: auto; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+
+    .shell { flex: 1; background: var(--bg-shell); border-radius: var(--radius-xl); overflow: hidden; display: flex; flex-direction: column; height: calc(100vh - 32px); }
+    .topbar { padding: 18px 28px; display: flex; align-items: center; gap: 16px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .topbar-back { width: 36px; height: 36px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-2); text-decoration: none; }
+    .topbar-back:hover { background: var(--surface-hover); color: var(--text); }
+    .topbar-back svg { width: 16px; height: 16px; }
+    .topbar-title-block { flex: 1; min-width: 0; }
+    .topbar-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--teal); }
+    .topbar-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; font-weight: 800; color: var(--text); letter-spacing: -0.3px; margin-top: 2px; }
+
+    .content { flex: 1; overflow-y: auto; padding: 28px 32px; }
+    .content::-webkit-scrollbar { width: 8px; }
+    .content::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 50px; }
+
+    .view { display: none; }
+    .view.active { display: block; animation: fadeIn .3s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+
+    .loading-state { padding: 80px 20px; text-align: center; }
+    .loading-state .spinner { width: 32px; height: 32px; border: 3px solid var(--border-strong); border-top-color: var(--teal); border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 16px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-state p { color: var(--text-3); font-size: 13px; }
+    .spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.4); border-top-color: white; border-radius: 50%; animation: spin .7s linear infinite; display: inline-block; }
+
+    .page-header { margin-bottom: 24px; max-width: 760px; }
+    .page-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--teal); margin-bottom: 8px; }
+    .page-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 30px; font-weight: 800; line-height: 1.15; letter-spacing: -0.8px; color: var(--text); margin-bottom: 10px; }
+    .page-title span { background: var(--gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .page-sub { font-size: 14.5px; color: var(--text-3); line-height: 1.6; }
+
+    /* SETUP */
+    .setup-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px 32px; margin-bottom: 22px; }
+    .setup-card-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; font-weight: 800; color: var(--text); letter-spacing: -0.2px; margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
+    .setup-card-title svg { width: 18px; height: 18px; color: var(--teal); }
+
+    .form-group { margin-bottom: 16px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+    .form-label { display: block; font-size: 11.5px; font-weight: 700; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px; }
+    .form-input, .form-textarea {
+      width: 100%; background: var(--bg-input); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 12px 14px;
+      color: var(--text); font-size: 14px; font-family: inherit;
+      transition: border-color .15s;
+    }
+    .form-input:focus, .form-textarea:focus { outline: none; border-color: var(--teal); }
+    .form-textarea { resize: vertical; min-height: 70px; }
+    .form-hint { font-size: 11.5px; color: var(--text-3); margin-top: 4px; line-height: 1.5; }
+
+    .meta-input-wrap {
+      background: linear-gradient(135deg, rgba(26,171,153,0.10), rgba(53,51,205,0.10));
+      border: 1.5px solid var(--teal);
+      border-radius: var(--radius);
+      padding: 18px 22px;
+    }
+    .meta-input-wrap label {
+      font-size: 11px; font-weight: 700; color: var(--teal);
+      text-transform: uppercase; letter-spacing: 0.5px;
+      margin-bottom: 8px; display: block;
+    }
+    .meta-input-wrap input {
+      background: transparent; border: none; outline: none;
+      width: 100%;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 22px; font-weight: 800;
+      color: var(--text); letter-spacing: -0.5px;
+    }
+    .meta-input-wrap input::placeholder { color: var(--text-4); font-weight: 600; }
+    .meta-hint { font-size: 12px; color: var(--text-3); margin-top: 10px; line-height: 1.5; font-style: italic; }
+
+    .anios-input { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    .anio-card { background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
+    .anio-num { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11px; font-weight: 800; color: var(--teal); letter-spacing: 0.5px; margin-bottom: 8px; }
+    .anio-input {
+      width: 100%; background: transparent; border: none; outline: none;
+      font-family: inherit; font-size: 13px; color: var(--text);
+      line-height: 1.4; resize: none; min-height: 70px;
+    }
+    .anio-input::placeholder { color: var(--text-4); }
+
+    .btn { padding: 12px 22px; border-radius: 50px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 8px; transition: all .2s; text-decoration: none; }
+    .btn svg { width: 16px; height: 16px; }
+    .btn-primary { background: var(--gradient); color: white; }
+    .btn-primary:hover:not(:disabled) { transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-primary.large { padding: 14px 28px; font-size: 15px; }
+    .btn-ghost { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
+    .btn-ghost:hover { background: var(--surface-hover); }
+
+    /* TABLERO */
+    .tablero-hero {
+      background: var(--gradient); color: white;
+      border-radius: var(--radius-xl); padding: 30px 34px;
+      margin-bottom: 22px; position: relative; overflow: hidden;
+    }
+    .tablero-hero::before { content: ''; position: absolute; top: -80px; right: -80px; width: 300px; height: 300px; background: radial-gradient(circle, rgba(255,255,255,0.18), transparent 70%); border-radius: 50%; }
+    .tablero-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 1.3px; text-transform: uppercase; opacity: 0.9; margin-bottom: 8px; position: relative; z-index: 1; }
+    .tablero-meta {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 30px; font-weight: 900;
+      letter-spacing: -0.8px; line-height: 1.15;
+      margin-bottom: 14px; max-width: 720px;
+      position: relative; z-index: 1;
+    }
+    .tablero-meta-meta {
+      display: flex; gap: 22px; flex-wrap: wrap;
+      font-size: 13px; opacity: 0.95;
+      position: relative; z-index: 1;
+    }
+    .tablero-meta-meta strong { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; font-weight: 800; }
+
+    .tablero-progress {
+      background: rgba(255,255,255,0.18);
+      border-radius: var(--radius); padding: 14px 18px;
+      margin-top: 16px; position: relative; z-index: 1;
+    }
+    .tablero-progress-line { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+    .tablero-progress-pct { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; font-weight: 900; letter-spacing: -0.5px; }
+    .tablero-progress-bar { height: 6px; background: rgba(0,0,0,0.22); border-radius: 50px; overflow: hidden; }
+    .tablero-progress-fill { height: 100%; background: white; border-radius: 50px; transition: width .6s; }
+
+    /* SECTIONS */
+    .section-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 15px; font-weight: 800; color: var(--text);
+      letter-spacing: -0.2px; margin: 26px 0 14px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .section-title svg { width: 16px; height: 16px; color: var(--teal); }
+
+    /* TIMELINE */
+    .timeline-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 22px 24px; margin-bottom: 22px; }
+    .timeline-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12.5px; font-weight: 800; color: var(--text); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .timeline-title svg { width: 14px; height: 14px; color: var(--teal); }
+    .timeline-bar-wrap { position: relative; height: 60px; padding: 0 8px; }
+    .timeline-bar { position: absolute; top: 26px; left: 8px; right: 8px; height: 4px; background: var(--surface); border-radius: 50px; }
+    .timeline-bar-fill { height: 100%; background: var(--gradient); border-radius: 50px; transition: width .6s; }
+    .timeline-marks { position: absolute; top: 0; left: 0; right: 0; display: grid; grid-template-columns: repeat(12, 1fr); padding: 0 8px; }
+    .timeline-mark { text-align: center; position: relative; }
+    .timeline-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--surface); border: 2px solid var(--border-strong); margin: 20px auto 6px; position: relative; z-index: 1; }
+    .timeline-mark.completado .timeline-dot { background: var(--green); border-color: var(--green); }
+    .timeline-mark.activo .timeline-dot { background: white; border-color: var(--teal); width: 18px; height: 18px; margin: 17px auto 6px; box-shadow: 0 0 0 4px var(--teal-light); }
+    .timeline-num { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: var(--text-3); letter-spacing: 0.4px; }
+    .timeline-mark.activo .timeline-num { color: var(--teal); font-weight: 800; }
+    .timeline-mark.completado .timeline-num { color: var(--green); }
+
+    /* PLAN ANUAL */
+    .anios-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 4px; }
+    .anio-card-view { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 22px 24px; position: relative; }
+    .anio-card-view.activo { border-color: var(--teal); background: linear-gradient(135deg, rgba(26,171,153,0.06), transparent); }
+    .anio-card-view.completado { border-color: var(--green); background: linear-gradient(135deg, rgba(0,200,83,0.06), transparent); opacity: 0.85; }
+    .anio-badge { position: absolute; top: 18px; right: 18px; padding: 4px 11px; border-radius: 50px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10.5px; font-weight: 800; letter-spacing: 0.4px; background: var(--surface); color: var(--text-3); }
+    .anio-card-view.activo .anio-badge { background: var(--teal-light); color: var(--teal); }
+    .anio-card-view.completado .anio-badge { background: var(--green-light); color: var(--green); }
+    .anio-num-big { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11px; font-weight: 800; color: var(--teal); letter-spacing: 0.6px; text-transform: uppercase; margin-bottom: 4px; }
+    .anio-titulo { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 17px; font-weight: 800; color: var(--text); letter-spacing: -0.3px; margin-bottom: 8px; }
+    .anio-desc { font-size: 13px; color: var(--text-2); line-height: 1.55; margin-bottom: 14px; }
+    .anio-stats { display: flex; gap: 12px; padding-top: 12px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-3); }
+    .anio-stats strong { color: var(--text-2); font-weight: 700; }
+
+    /* ROUND ACTIVO */
+    .factorx-hero { background: linear-gradient(135deg, rgba(26,171,153,0.08), rgba(53,51,205,0.08)); border: 1.5px solid var(--teal); border-radius: var(--radius-lg); padding: 20px 24px; margin-bottom: 22px; display: grid; grid-template-columns: 1fr auto; gap: 18px; align-items: center; }
+    .factorx-hero.vacio { background: var(--surface); border: 1.5px dashed var(--border-strong); }
+    .factorx-info { min-width: 0; }
+    .factorx-round-line {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 12.5px; color: var(--text-3); margin-bottom: 6px;
+    }
+    .factorx-round-num {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 11px; font-weight: 800; color: var(--teal);
+      letter-spacing: 0.5px;
+      background: var(--teal-light);
+      padding: 3px 9px; border-radius: 50px;
+    }
+    .factorx-label { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11px; font-weight: 800; color: var(--teal); letter-spacing: 0.6px; text-transform: uppercase; margin-bottom: 4px; }
+    .factorx-value { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; font-weight: 900; color: var(--text); letter-spacing: -0.5px; line-height: 1.2; margin-bottom: 4px; }
+    .factorx-formula { font-size: 13px; color: var(--text-2); }
+
+    /* ROUNDS GRID */
+    .rounds-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 22px; }
+    .round-card {
+      background: var(--bg-card); border: 1.5px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+      cursor: pointer; transition: all .2s;
+      position: relative; min-height: 130px;
+      display: flex; flex-direction: column;
+      text-decoration: none; color: var(--text);
+    }
+    .round-card:hover { border-color: var(--border-strong); transform: translateY(-2px); }
+    .round-card.activo { border-color: var(--teal); background: linear-gradient(135deg, rgba(26,171,153,0.10), transparent); box-shadow: 0 0 0 1px var(--teal); }
+    .round-card.completado { border-color: var(--green); background: linear-gradient(135deg, rgba(0,200,83,0.06), transparent); }
+    .round-card.completado .round-titulo, .round-card.completado .round-factorx { color: var(--text-3); }
+    .round-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .round-num { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11px; font-weight: 800; background: var(--gradient); color: white; padding: 4px 9px; border-radius: 50px; letter-spacing: 0.5px; }
+    .round-fecha { font-size: 10.5px; color: var(--text-3); font-weight: 600; }
+    .round-titulo { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 700; color: var(--text); line-height: 1.3; margin-bottom: 6px; }
+    .round-factorx { font-size: 11px; color: var(--text-3); font-style: italic; line-height: 1.4; }
+    .round-bottom { margin-top: auto; padding-top: 10px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); }
+    .round-status { display: inline-flex; align-items: center; gap: 4px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 50px; letter-spacing: 0.3px; }
+    .round-status.pendiente { background: var(--surface); color: var(--text-3); }
+    .round-status.activo { background: var(--teal); color: white; }
+    .round-status.completado { background: var(--green-light); color: var(--green); }
+    .round-status svg { width: 10px; height: 10px; }
+    .round-card.round-card-empty { border-style: dashed; }
+    .round-card.round-card-empty .round-titulo { color: var(--text-3); font-style: italic; font-weight: 500; }
+
+    /* TOAST */
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--bg-card); border: 1px solid var(--border); border-radius: 50px; padding: 12px 22px; font-size: 13.5px; font-weight: 600; color: var(--text); opacity: 0; pointer-events: none; transition: all .25s ease; z-index: 200; box-shadow: 0 8px 24px rgba(0,0,0,0.25); }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.success { border-color: var(--green); color: var(--green); }
+    .toast.error { border-color: var(--red); color: var(--red); }
+
+    .empty-state-big { text-align: center; padding: 60px 20px; }
+    .empty-state-big h2 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; margin-bottom: 12px; }
+
+    @media (max-width: 1100px) {
+      .form-row { grid-template-columns: 1fr; }
+      .anios-input { grid-template-columns: 1fr; }
+      .anios-grid { grid-template-columns: 1fr; }
+      .rounds-grid { grid-template-columns: 1fr 1fr; }
+      .factorx-hero { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 700px) {
+      .app-layout { padding: 8px; gap: 8px; }
+      .topbar { padding: 14px 18px; flex-wrap: wrap; }
+      .content { padding: 20px 18px; }
+      .page-title { font-size: 24px; }
+      .tablero-meta { font-size: 22px; }
+      .rounds-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-layout">
+
+  <aside class="sidebar">
+    <a href="/portal/dashboard.html" class="sidebar-logo">
+      <img src="/logos/SX Isp.png" alt="SCALEx" onerror="this.style.display='none'">
+    </a>
+    <a href="/portal/dashboard.html" class="sidebar-icon" title="Dashboard">
+      <i data-lucide="layout-dashboard"></i>
+    </a>
+    <a href="/portal/opsp.html" class="sidebar-icon" title="OPSP">
+      <i data-lucide="map"></i>
+    </a>
+    <a href="/portal/rituales.html" class="sidebar-icon" title="Rituales">
+      <i data-lucide="repeat"></i>
+    </a>
+
+    <div class="sidebar-divider"></div>
+
+    <a href="/portal/reflejo.html" class="sidebar-icon" title="Reflejo">
+      <i data-lucide="eye"></i>
+    </a>
+    <a href="/portal/vector-norte.html" class="sidebar-icon active" title="Vector">
+      <i data-lucide="compass"></i>
+    </a>
+    <a href="/portal/costeo.html" class="sidebar-icon" title="Costeo">
+      <i data-lucide="calculator"></i>
+    </a>
+
+    <div class="sidebar-bottom">
+      <button class="sidebar-icon" title="Cambiar tema" onclick="toggleTheme()">
+        <i data-lucide="sun" id="theme-icon"></i>
+      </button>
+      <button class="sidebar-icon" title="Cerrar sesion" onclick="logout()">
+        <i data-lucide="log-out"></i>
+      </button>
+    </div>
+  </aside>
+
+  <main class="shell">
+
+    <div class="topbar">
+      <a href="/portal/dashboard.html" class="topbar-back">
+        <i data-lucide="arrow-left"></i>
+      </a>
+      <div class="topbar-title-block">
+        <div class="topbar-eyebrow">Pilar 3 · Vector · Estrategia</div>
+        <div class="topbar-title">Vector Estratégico</div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- LOADING -->
+      <div class="view active" id="view-loading">
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Cargando tu Vector...</p>
+        </div>
+      </div>
+
+      <!-- ════════════ SETUP ════════════ -->
+      <div class="view" id="view-setup">
+
+        <div class="page-header">
+          <div class="page-eyebrow">Pilar 3 · Vector</div>
+          <h1 class="page-title">Define tu meta <span>a 3 años</span></h1>
+          <p class="page-sub">Una meta clara que defina los próximos 12 trimestres. Lo aspiracional bien anclado en lo realista. El sistema generará automáticamente los 12 rounds desde tu fecha de inicio.</p>
+        </div>
+
+        <!-- META CLARA -->
+        <div class="setup-card">
+          <div class="setup-card-title">
+            <i data-lucide="target"></i>
+            La meta — Tu norte a 3 años
+          </div>
+          <div class="meta-input-wrap">
+            <label for="setup-meta">Cuál es tu meta clara a 3 años</label>
+            <input type="text" id="setup-meta" placeholder="Ej: Triplicar ventas anuales · Llegar a 200 clientes activos · Abrir 3 sucursales nuevas" maxlength="280" />
+            <div class="meta-hint">Una sola meta. Específica, medible, ambiciosa pero realista. Si en 3 años la cumples, la empresa estará en otro nivel.</div>
+          </div>
+        </div>
+
+        <!-- PLAN ANUAL -->
+        <div class="setup-card">
+          <div class="setup-card-title">
+            <i data-lucide="calendar"></i>
+            Plan anual — Cómo se ve cada año
+          </div>
+
+          <div class="anios-input">
+            <div class="anio-card">
+              <div class="anio-num" id="setup-anio-1-label">AÑO 1</div>
+              <textarea class="anio-input" id="setup-anio-1" placeholder="¿Qué necesitas lograr en el primer año para estar en camino?"></textarea>
+            </div>
+            <div class="anio-card">
+              <div class="anio-num" id="setup-anio-2-label">AÑO 2</div>
+              <textarea class="anio-input" id="setup-anio-2" placeholder="¿Qué necesitas lograr en el segundo año?"></textarea>
+            </div>
+            <div class="anio-card">
+              <div class="anio-num" id="setup-anio-3-label">AÑO 3</div>
+              <textarea class="anio-input" id="setup-anio-3" placeholder="¿Cómo se ve la meta cumplida al final del año 3?"></textarea>
+            </div>
+          </div>
+
+          <div class="form-hint" style="margin-top:14px">Estos son los hitos anuales. Cada año tendrá 4 rounds que se llenan trimestre a trimestre.</div>
+        </div>
+
+        <!-- METADATOS -->
+        <div class="setup-card">
+          <div class="setup-card-title">
+            <i data-lucide="settings"></i>
+            Configuración del Vector
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Fecha de inicio</label>
+              <input type="date" class="form-input" id="setup-fecha-inicio" />
+              <div class="form-hint">El Round 1 empieza este día. Los 12 trimestres se calcularán automáticamente.</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nombre del Vector (opcional)</label>
+              <input type="text" class="form-input" id="setup-nombre" placeholder="Ej: Vector 2026-2028 · Triplicación" />
+              <div class="form-hint">Para identificarlo en tu historial.</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:24px;">
+          <button class="btn btn-primary large" id="btn-crear-vector">
+            <i data-lucide="check"></i>
+            <span>Crear Vector</span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- ════════════ TABLERO ════════════ -->
+      <div class="view" id="view-tablero">
+
+        <div class="tablero-hero">
+          <div class="tablero-eyebrow" id="tablero-eyebrow">-</div>
+          <div class="tablero-meta" id="tablero-meta">-</div>
+          <div class="tablero-meta-meta">
+            <div><strong>3</strong> años</div>
+            <div><strong>12</strong> rounds</div>
+            <div id="tablero-meta-round">-</div>
+            <div id="tablero-meta-anio">-</div>
+          </div>
+
+          <div class="tablero-progress">
+            <div class="tablero-progress-line">
+              <span id="tablero-progress-text">-</span>
+              <span class="tablero-progress-pct" id="tablero-progress-pct">-</span>
+            </div>
+            <div class="tablero-progress-bar">
+              <div class="tablero-progress-fill" id="tablero-progress-fill" style="width:0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TIMELINE -->
+        <div class="timeline-wrap">
+          <div class="timeline-title">
+            <i data-lucide="git-commit"></i>
+            Los 12 rounds — vista timeline
+          </div>
+          <div class="timeline-bar-wrap">
+            <div class="timeline-bar">
+              <div class="timeline-bar-fill" id="tablero-timeline-fill"></div>
+            </div>
+            <div class="timeline-marks" id="tablero-timeline-marks">
+              <!-- Generado dinamicamente -->
+            </div>
+          </div>
+        </div>
+
+        <!-- PLAN ANUAL -->
+        <div class="section-title">
+          <i data-lucide="calendar"></i>
+          Plan anual
+        </div>
+        <div class="anios-grid" id="tablero-plan-anual">
+          <!-- Generado dinamicamente -->
+        </div>
+
+        <!-- ROUND ACTIVO -->
+        <div id="tablero-round-activo-wrap" style="display:none">
+          <div class="section-title">
+            <i data-lucide="zap"></i>
+            Round activo
+          </div>
+
+          <a href="#" id="round-activo-link" style="text-decoration:none; color:inherit;">
+            <div class="factorx-hero" id="round-activo-factorx-block">
+              <div class="factorx-info">
+                <div class="factorx-round-line">
+                  <span class="factorx-round-num" id="round-activo-num">R-</span>
+                  <span id="round-activo-fecha">-</span>
+                </div>
+                <div class="factorx-label">FACTOR X DEL TRIMESTRE</div>
+                <div class="factorx-value" id="round-activo-factorx-value">-</div>
+                <div class="factorx-formula" id="round-activo-factorx-meta">-</div>
+              </div>
+              <div>
+                <span class="btn btn-primary"><span id="round-activo-titulo">Ver round</span> <i data-lucide="arrow-right"></i></span>
+              </div>
+            </div>
+          </a>
+        </div>
+
+        <!-- ROUNDS GRID -->
+        <div class="section-title">
+          <i data-lucide="grid"></i>
+          Los 12 rounds
+        </div>
+        <div class="rounds-grid" id="tablero-rounds-grid">
+          <!-- Generado dinamicamente -->
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>lucide.createIcons();</script>
+<script type="module" src="/assets/js/vector-norte.js"></script>
+
+</body>
+</html>
