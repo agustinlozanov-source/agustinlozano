@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCALEx Portal - Vector</title>
+  <link rel="icon" type="image/png" href="/logos/SX Icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script type="module" src="/assets/js/auth-guard.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal: #1aab99; --teal-light: rgba(26,171,153,0.12);
+      --indigo: #3533cd; --indigo-light: rgba(53,51,205,0.12);
+      --gradient: linear-gradient(135deg, #1aab99, #3533cd);
+      --green: #00c853; --green-light: rgba(0,200,83,0.12);
+      --green-low: #7cb342; --green-low-light: rgba(124,179,66,0.12);
+      --amber: #ff9500; --amber-light: rgba(255,149,0,0.12);
+      --red: #ff3b30; --red-light: rgba(255,59,48,0.12);
+      --purple: #7c3aed; --purple-light: rgba(124,58,237,0.12);
+      --radius-xl: 28px; --radius-lg: 20px; --radius: 14px; --radius-sm: 9px;
+      --sidebar-w: 80px;
+      font-family: 'Inter', sans-serif; line-height: 1.6;
+    }
+    [data-theme="dark"] {
+      --bg-page: #0a0a0c; --bg-shell: #141416; --bg-card: #1c1c1e; --bg-card-2: #242426;
+      --bg-input: #0d0d10;
+      --surface: rgba(255,255,255,0.04); --surface-hover: rgba(255,255,255,0.07);
+      --border: rgba(255,255,255,0.08); --border-strong: rgba(255,255,255,0.13);
+      --text: #fff; --text-2: #c7c7cc; --text-3: #8e8e93; --text-4: #48484a;
+      --sidebar-bg: #050506;
+    }
+    [data-theme="light"] {
+      --bg-page: #eef0f5; --bg-shell: #fff; --bg-card: #f5f5f7; --bg-card-2: #ebebef;
+      --bg-input: #fff;
+      --surface: rgba(0,0,0,0.03); --surface-hover: rgba(0,0,0,0.055);
+      --border: rgba(0,0,0,0.08); --border-strong: rgba(0,0,0,0.14);
+      --text: #070708; --text-2: #3a3a3c; --text-3: #6e6e73; --text-4: #c7c7cc;
+      --sidebar-bg: #0a0a0c;
+    }
+
+    body { background: var(--bg-page); color: var(--text); min-height: 100vh; overflow: hidden; transition: background .3s, color .3s; }
+    .app-layout { display: flex; min-height: 100vh; padding: 16px; gap: 16px; }
+
+    .sidebar { width: var(--sidebar-w); background: var(--sidebar-bg); border-radius: var(--radius-xl); padding: 20px 0; display: flex; flex-direction: column; align-items: center; gap: 8px; flex-shrink: 0; position: sticky; top: 16px; height: calc(100vh - 32px); }
+    .sidebar-logo { width: 44px; height: auto; display: block; margin-bottom: 16px; text-decoration: none; }
+    .sidebar-logo img { width: 100%; height: auto; display: block; }
+    .sidebar-divider { width: 28px; height: 1px; background: rgba(255,255,255,0.08); margin: 4px 0; }
+    .sidebar-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all .2s; color: rgba(255,255,255,0.5); position: relative; text-decoration: none; background: none; border: none; }
+    .sidebar-icon:hover { background: rgba(255,255,255,0.06); color: white; }
+    .sidebar-icon.active { background: var(--gradient); color: white; }
+    .sidebar-icon.active::before { content: ''; position: absolute; left: -16px; top: 50%; transform: translateY(-50%); width: 3px; height: 24px; background: var(--teal); border-radius: 0 3px 3px 0; }
+    .sidebar-icon svg { width: 20px; height: 20px; }
+    .sidebar-bottom { margin-top: auto; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+
+    .shell { flex: 1; background: var(--bg-shell); border-radius: var(--radius-xl); overflow: hidden; display: flex; flex-direction: column; height: calc(100vh - 32px); }
+    .topbar { padding: 18px 28px; display: flex; align-items: center; gap: 16px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .topbar-back { width: 36px; height: 36px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-2); text-decoration: none; }
+    .topbar-back:hover { background: var(--surface-hover); color: var(--text); }
+    .topbar-back svg { width: 16px; height: 16px; }
+    .topbar-title-block { flex: 1; min-width: 0; }
+    .topbar-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--teal); }
+    .topbar-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; font-weight: 800; color: var(--text); letter-spacing: -0.3px; margin-top: 2px; }
+
+    .content { flex: 1; overflow-y: auto; padding: 32px 36px; }
+    .content::-webkit-scrollbar { width: 8px; }
+    .content::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 50px; }
+
+    /* HERO */
+    .hero {
+      display: grid; grid-template-columns: 1.3fr 1fr;
+      gap: 24px; margin-bottom: 32px;
+      align-items: stretch;
+    }
+    .hero-text { display: flex; flex-direction: column; justify-content: center; }
+    .hero-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--teal); margin-bottom: 12px; }
+    .hero-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 36px; font-weight: 900; line-height: 1.1;
+      letter-spacing: -0.8px; color: var(--text); margin-bottom: 14px;
+    }
+    .hero-title span { background: var(--gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero-sub { font-size: 15px; color: var(--text-3); line-height: 1.6; max-width: 540px; }
+
+    .hero-status {
+      background: var(--gradient);
+      border-radius: var(--radius-xl);
+      padding: 28px 32px;
+      color: white;
+      position: relative; overflow: hidden;
+      display: flex; flex-direction: column; justify-content: center;
+    }
+    .hero-status::before {
+      content: ''; position: absolute;
+      top: -50px; right: -50px; width: 220px; height: 220px;
+      background: radial-gradient(circle, rgba(255,255,255,0.18), transparent 70%);
+      border-radius: 50%;
+    }
+    .hero-status-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; opacity: 0.85; margin-bottom: 8px; position: relative; z-index: 1; }
+    .hero-status-value {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 28px; font-weight: 900;
+      letter-spacing: -0.8px; line-height: 1.15; margin-bottom: 6px;
+      position: relative; z-index: 1;
+    }
+    .hero-status-sub { font-size: 13px; opacity: 0.95; line-height: 1.5; position: relative; z-index: 1; }
+    .hero-status-mini {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 14px; margin-top: 22px;
+      padding-top: 22px;
+      border-top: 1px solid rgba(255,255,255,0.18);
+      position: relative; z-index: 1;
+    }
+    .mini-stat-num {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 22px; font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+    .mini-stat-label { font-size: 11px; opacity: 0.85; margin-top: 2px; }
+
+    /* SECTION TITLES */
+    .section-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px; font-weight: 800; color: var(--text-2);
+      text-transform: uppercase; letter-spacing: 0.8px;
+      margin: 0 0 16px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .section-title svg { width: 14px; height: 14px; color: var(--teal); }
+
+    /* HERRAMIENTAS GRID */
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .module-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px 26px;
+      cursor: pointer;
+      transition: all .2s;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+      color: inherit;
+    }
+    .module-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-strong);
+    }
+    .module-card.done {
+      border-color: var(--green);
+      background: linear-gradient(135deg, rgba(0,200,83,0.05), transparent);
+    }
+    .module-card.activo {
+      border-color: var(--teal);
+      background: linear-gradient(135deg, rgba(26,171,153,0.05), transparent);
+    }
+
+    .module-card-top {
+      display: flex; align-items: flex-start;
+      justify-content: space-between;
+    }
+    .module-icon {
+      width: 48px; height: 48px; border-radius: 13px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .module-icon svg { width: 22px; height: 22px; }
+    .module-icon.norte { background: var(--teal-light); color: var(--teal); }
+    .module-icon.trimestre { background: var(--indigo-light); color: var(--indigo); }
+
+    .module-step {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 11px; font-weight: 800;
+      color: var(--text-3);
+      background: var(--surface);
+      padding: 4px 10px; border-radius: 50px;
+      letter-spacing: 0.5px;
+    }
+    .module-card.done .module-step { background: var(--green-light); color: var(--green); }
+    .module-card.activo .module-step { background: var(--teal-light); color: var(--teal); }
+
+    .module-card-body { flex: 1; }
+    .module-card-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 20px; font-weight: 800;
+      letter-spacing: -0.4px; color: var(--text);
+      margin-bottom: 6px;
+    }
+    .module-card-desc {
+      font-size: 13.5px; color: var(--text-3);
+      line-height: 1.5;
+    }
+
+    .module-card-stat {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      display: flex; align-items: baseline; justify-content: space-between;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      gap: 8px;
+    }
+    .module-stat-value {
+      font-size: 15px; font-weight: 800;
+      color: var(--teal); letter-spacing: -0.3px;
+      max-width: 70%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .module-stat-value.muted { color: var(--text-3); font-weight: 600; }
+    .module-stat-label {
+      font-size: 11px; color: var(--text-3);
+      text-transform: uppercase; letter-spacing: 0.4px;
+      font-weight: 700; white-space: nowrap;
+    }
+
+    .module-card-arrow {
+      position: absolute;
+      top: 24px; right: 24px;
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      background: var(--surface);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-3);
+      transition: all .2s;
+    }
+    .module-card:hover .module-card-arrow {
+      background: var(--teal-light); color: var(--teal);
+      transform: translateX(2px);
+    }
+    .module-card-arrow svg { width: 14px; height: 14px; }
+
+    /* FLOW CARD */
+    .flow-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px 28px;
+    }
+    .flow-steps {
+      display: flex; align-items: stretch;
+      gap: 12px;
+    }
+    .flow-step {
+      flex: 1;
+      padding: 16px;
+      background: var(--bg-card-2);
+      border-radius: var(--radius);
+      position: relative;
+      text-align: center;
+    }
+    .flow-step::after {
+      content: '↓';
+      position: absolute;
+      right: -14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-4);
+      font-size: 18px;
+      font-weight: 300;
+      z-index: 1;
+    }
+    .flow-step:last-child::after { display: none; }
+    .flow-step-num {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 11px; font-weight: 800;
+      color: var(--teal); letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .flow-step-name {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13px; font-weight: 700;
+      color: var(--text);
+    }
+    .flow-step-desc {
+      font-size: 11px;
+      color: var(--text-3);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    /* HELP */
+    .help-section {
+      margin-top: 24px;
+      background: var(--teal-light);
+      border: 1px solid var(--teal);
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .help-icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: var(--teal);
+      color: white;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .help-icon svg { width: 18px; height: 18px; }
+    .help-body { flex: 1; }
+    .help-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px; font-weight: 800;
+      color: var(--text); margin-bottom: 4px;
+    }
+    .help-text {
+      font-size: 13px; color: var(--text-2);
+      line-height: 1.5;
+    }
+
+    /* LOADING / EMPTY */
+    .loading-state { padding: 60px 20px; text-align: center; }
+    .loading-state .spinner { width: 32px; height: 32px; border: 3px solid var(--border-strong); border-top-color: var(--teal); border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 16px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-state p { color: var(--text-3); font-size: 13px; }
+
+    .hidden-until-loaded { display: none; }
+    .content.loaded .hidden-until-loaded { display: block; }
+    .content.loaded .initial-loading { display: none; }
+
+    @media (max-width: 1000px) {
+      .hero { grid-template-columns: 1fr; }
+      .modules-grid { grid-template-columns: 1fr; }
+      .flow-steps { flex-wrap: wrap; }
+      .flow-step::after { display: none; }
+    }
+    @media (max-width: 700px) {
+      .app-layout { padding: 8px; gap: 8px; }
+      .topbar { padding: 14px 18px; }
+      .content { padding: 20px 18px; }
+      .hero-title { font-size: 28px; }
+      .hero-status-value { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-layout">
+
+  <aside class="sidebar">
+    <a href="/portal/dashboard.html" class="sidebar-logo">
+      <img src="/logos/SX Isp.png" alt="SCALEx" onerror="this.style.display='none'">
+    </a>
+    <a href="/portal/dashboard.html" class="sidebar-icon" title="Dashboard">
+      <i data-lucide="layout-dashboard"></i>
+    </a>
+    <a href="/portal/opsp.html" class="sidebar-icon" title="OPSP">
+      <i data-lucide="map"></i>
+    </a>
+    <a href="/portal/rituales.html" class="sidebar-icon" title="Rituales">
+      <i data-lucide="repeat"></i>
+    </a>
+
+    <div class="sidebar-divider"></div>
+
+    <a href="/portal/reflejo.html" class="sidebar-icon" title="Reflejo">
+      <i data-lucide="eye"></i>
+    </a>
+    <a href="/portal/vector.html" class="sidebar-icon active" title="Vector">
+      <i data-lucide="compass"></i>
+    </a>
+    <a href="/portal/costeo.html" class="sidebar-icon" title="Costeo">
+      <i data-lucide="calculator"></i>
+    </a>
+
+    <div class="sidebar-bottom">
+      <button class="sidebar-icon" title="Cambiar tema" onclick="toggleTheme()">
+        <i data-lucide="sun" id="theme-icon"></i>
+      </button>
+      <button class="sidebar-icon" title="Cerrar sesion" onclick="logout()">
+        <i data-lucide="log-out"></i>
+      </button>
+    </div>
+  </aside>
+
+  <main class="shell">
+
+    <div class="topbar">
+      <a href="/portal/dashboard.html" class="topbar-back">
+        <i data-lucide="arrow-left"></i>
+      </a>
+      <div class="topbar-title-block">
+        <div class="topbar-eyebrow">Pilar 3 · Vector</div>
+        <div class="topbar-title">Centro de estrategia y trazabilidad</div>
+      </div>
+    </div>
+
+    <div class="content" id="content">
+
+      <!-- LOADING -->
+      <div class="initial-loading">
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Cargando estado del Vector...</p>
+        </div>
+      </div>
+
+      <!-- CONTENIDO -->
+      <div class="hidden-until-loaded">
+
+        <!-- HERO -->
+        <div class="hero">
+          <div class="hero-text">
+            <div class="hero-eyebrow">Pilar 3 · Estrategia viva</div>
+            <h1 class="hero-title">Mantente de pie <span>los 12 rounds</span></h1>
+            <p class="hero-sub">El Vector convierte tu meta a 3 años en 12 trimestres trazables. Una sola dirección, 12 oportunidades de aprender, ajustar y avanzar.</p>
+          </div>
+
+          <div class="hero-status">
+            <div class="hero-status-label">Tu estado actual</div>
+            <div class="hero-status-value" id="kpi-status">-</div>
+            <div class="hero-status-sub" id="kpi-status-sub">Cargando...</div>
+
+            <div class="hero-status-mini">
+              <div>
+                <div class="mini-stat-num" id="kpi-rounds-completados">0</div>
+                <div class="mini-stat-label">Rounds completados</div>
+              </div>
+              <div>
+                <div class="mini-stat-num" id="kpi-indicadores">0</div>
+                <div class="mini-stat-label">Indicadores activos</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- HERRAMIENTAS -->
+        <div class="section-title">
+          <i data-lucide="layers"></i>
+          Las herramientas del Vector
+        </div>
+
+        <div class="modules-grid">
+
+          <!-- VECTOR NORTE -->
+          <a href="/portal/vector-norte.html" class="module-card" id="mod-norte-card">
+            <div class="module-card-arrow"><i data-lucide="arrow-right"></i></div>
+            <div class="module-card-top">
+              <div class="module-icon norte"><i data-lucide="target"></i></div>
+              <div class="module-step" id="mod-norte-step">Paso 1</div>
+            </div>
+            <div class="module-card-body">
+              <div class="module-card-title">El Norte y los 12 Rounds</div>
+              <div class="module-card-desc">Define la meta a 3 años, el plan anual y visualiza los 12 trimestres del Vector. Es la raíz de tu estrategia.</div>
+            </div>
+            <div class="module-card-stat">
+              <span class="module-stat-value muted" id="mod-norte-value">Sin definir</span>
+              <span class="module-stat-label" id="mod-norte-label">Tu meta</span>
+            </div>
+          </a>
+
+          <!-- VECTOR TRIMESTRE ACTIVO -->
+          <a href="/portal/vector-norte.html" class="module-card" id="mod-trimestre-card">
+            <div class="module-card-arrow"><i data-lucide="arrow-right"></i></div>
+            <div class="module-card-top">
+              <div class="module-icon trimestre"><i data-lucide="zap"></i></div>
+              <div class="module-step" id="mod-trimestre-step">Round activo</div>
+            </div>
+            <div class="module-card-body">
+              <div class="module-card-title">Round Activo · Factor X</div>
+              <div class="module-card-desc">El trimestre en curso con su Factor X (utilidad por X) y los indicadores críticos con semáforo de 4 estados.</div>
+            </div>
+            <div class="module-card-stat">
+              <span class="module-stat-value muted" id="mod-trimestre-value">Sin round activo</span>
+              <span class="module-stat-label" id="mod-trimestre-label">Round actual</span>
+            </div>
+          </a>
+
+        </div>
+
+        <!-- FLUJO -->
+        <div class="section-title">
+          <i data-lucide="git-branch"></i>
+          Cómo se conectan
+        </div>
+
+        <div class="flow-card">
+          <div class="flow-steps">
+            <div class="flow-step">
+              <div class="flow-step-num">1</div>
+              <div class="flow-step-name">Meta a 3 años</div>
+              <div class="flow-step-desc">Una sola dirección</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-step-num">2</div>
+              <div class="flow-step-name">12 Rounds</div>
+              <div class="flow-step-desc">Trimestres trazables</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-step-num">3</div>
+              <div class="flow-step-name">Factor X</div>
+              <div class="flow-step-desc">Utilidad por X</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-step-num">4</div>
+              <div class="flow-step-name">Indicadores críticos</div>
+              <div class="flow-step-desc">Semáforo semanal</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-step-num">5</div>
+              <div class="flow-step-name">Revisión</div>
+              <div class="flow-step-desc">Cada trimestre</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- HELP -->
+        <div class="help-section">
+          <div class="help-icon"><i data-lucide="lightbulb"></i></div>
+          <div class="help-body">
+            <div class="help-title">"Lo importante no es ganar todos los días: lo importante es mantenerse de pie los 12 rounds."</div>
+            <div class="help-text">El Vector no es un plan rígido. Es una brújula que te permite respirar, aprender y ajustar trimestre a trimestre. Un mal mes pesa menos cuando recuerdas que tienes 36 meses para corregir el rumbo.</div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script type="module">
+  import {
+    supabase,
+    getMyProfile,
+    getMyOrganization,
+    signOut
+  } from '/assets/js/supabase-client.js'
+
+  window.toggleTheme = function() {
+    const html = document.documentElement
+    const next = html.dataset.theme === 'dark' ? 'light' : 'dark'
+    html.dataset.theme = next
+    localStorage.setItem('scalex-theme', next)
+    const icon = document.getElementById('theme-icon')
+    if (icon) {
+      icon.setAttribute('data-lucide', next === 'dark' ? 'sun' : 'moon')
+      lucide.createIcons()
+    }
+  }
+
+  const savedTheme = localStorage.getItem('scalex-theme')
+  if (savedTheme) document.documentElement.dataset.theme = savedTheme
+
+  window.logout = signOut
+
+  function escapeHtml(str) {
+    return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+  }
+
+  async function init() {
+    try {
+      const [profile, org] = await Promise.all([getMyProfile(), getMyOrganization()])
+      if (!org) {
+        document.getElementById('content').classList.add('loaded')
+        return
+      }
+
+      // Cargar vector activo
+      const { data: vector } = await supabase
+        .from('vector_estrategicos')
+        .select('*')
+        .eq('organizacion_id', org.id)
+        .eq('estado', 'activo')
+        .maybeSingle()
+
+      if (!vector) {
+        // No hay vector
+        document.getElementById('kpi-status').textContent = 'Sin Vector'
+        document.getElementById('kpi-status-sub').textContent = 'Define tu meta a 3 años para activar tu primer Vector.'
+        document.getElementById('content').classList.add('loaded')
+        lucide.createIcons()
+        return
+      }
+
+      // Si hay vector: cargar trimestres
+      const { data: trimestres } = await supabase
+        .from('vector_trimestres')
+        .select('*, vector_factor_x(complemento, meta_descripcion)')
+        .eq('vector_id', vector.id)
+        .order('numero', { ascending: true })
+
+      const completados = (trimestres || []).filter(t => t.estado === 'completado').length
+      const activo = (trimestres || []).find(t => t.estado === 'activo')
+
+      // Hero status
+      const fechaInicio = new Date(vector.fecha_inicio + 'T12:00:00').getFullYear()
+      const fechaFin = new Date(vector.fecha_fin + 'T12:00:00').getFullYear()
+      document.getElementById('kpi-status').textContent = vector.meta
+      document.getElementById('kpi-status-sub').textContent =
+        'Vector ' + fechaInicio + '-' + fechaFin + ' · ' + (activo ? 'Round ' + activo.numero + ' activo' : 'En curso')
+
+      document.getElementById('kpi-rounds-completados').textContent = completados + ' / 12'
+
+      // Card Norte (activado siempre que haya vector)
+      const mn = document.getElementById('mod-norte-card')
+      mn.classList.add('activo')
+      document.getElementById('mod-norte-step').textContent = 'Activo'
+      const mnv = document.getElementById('mod-norte-value')
+      mnv.textContent = vector.meta.length > 50 ? vector.meta.substring(0, 47) + '...' : vector.meta
+      mnv.classList.remove('muted')
+      mnv.title = vector.meta
+      document.getElementById('mod-norte-label').textContent = fechaInicio + '-' + fechaFin
+
+      // Card Trimestre activo
+      if (activo) {
+        const mt = document.getElementById('mod-trimestre-card')
+        mt.classList.add('activo')
+        mt.href = '/portal/vector-trimestre.html?id=' + activo.id
+
+        document.getElementById('mod-trimestre-step').textContent = 'R' + activo.numero + ' · activo'
+
+        const tv = document.getElementById('mod-trimestre-value')
+        const fx = activo.vector_factor_x && activo.vector_factor_x[0]
+
+        if (activo.titulo) {
+          tv.textContent = activo.titulo
+          tv.classList.remove('muted')
+          document.getElementById('mod-trimestre-label').textContent = 'Round ' + activo.numero
+        } else if (fx && fx.complemento) {
+          tv.textContent = 'Utilidad por ' + fx.complemento
+          tv.classList.remove('muted')
+          document.getElementById('mod-trimestre-label').textContent = 'Factor X · R' + activo.numero
+        } else {
+          tv.textContent = 'Sin definir · R' + activo.numero
+          document.getElementById('mod-trimestre-label').textContent = 'Por completar'
+        }
+
+        // Contar indicadores del round activo
+        try {
+          const { count } = await supabase
+            .from('vector_indicadores_criticos')
+            .select('*', { count: 'exact', head: true })
+            .eq('trimestre_id', activo.id)
+
+          document.getElementById('kpi-indicadores').textContent = count || 0
+        } catch (e) {
+          document.getElementById('kpi-indicadores').textContent = '0'
+        }
+      } else {
+        const mt = document.getElementById('mod-trimestre-card')
+        // Si no hay activo pero hay completados, link al ultimo completado
+        const ultimoCompletado = (trimestres || []).filter(t => t.estado === 'completado').slice(-1)[0]
+        if (ultimoCompletado) {
+          mt.href = '/portal/vector-trimestre.html?id=' + ultimoCompletado.id
+        }
+      }
+
+      document.getElementById('content').classList.add('loaded')
+      lucide.createIcons()
+    } catch (err) {
+      console.error('[vector-hub] init error:', err)
+      document.getElementById('content').classList.add('loaded')
+    }
+  }
+
+  lucide.createIcons()
+  init()
+</script>
+
+</body>
+</html>
