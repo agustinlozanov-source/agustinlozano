@@ -540,7 +540,7 @@ async function renderEnCurso() {
   $('#bloque-traba').value  = state.pulsoHoy.lo_que_traba || ''
 
   // Indicadores
-  ['save-avanzo','save-numero','save-traba'].forEach(id => {
+  ;['save-avanzo','save-numero','save-traba'].forEach(id => {
     const inputId = id.replace('save-', 'bloque-')
     setSaveIndicator(id, ($('#'+inputId).value ? 'saved' : ''))
   })
