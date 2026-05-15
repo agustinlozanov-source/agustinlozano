@@ -961,22 +961,141 @@ function setupListeners() {
   // Auto-save de los bloques
   attachBloquesAutoSave()
 
-  // Config (en topbar)
-  $('#btn-config-pulso')?.addEventListener('click', () => {
-    if (confirm('Para reconfigurar el Pulso (hora, días, círculo), tendremos que borrar tu config actual. Los Pulsos históricos no se pierden. ¿Continuar?')) {
-      onResetConfig()
-    }
+  // Config / Admin (en topbar) — abre menú con opciones
+  $('#btn-config-pulso')?.addEventListener('click', abrirMenuAdmin)
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// MENÚ ADMIN / TESTING
+// ────────────────────────────────────────────────────────────────────────────
+// Modal con 4 opciones:
+//   1. Saltar a la hora actual (el más útil para probar)
+//   2. Cambiar la hora del Pulso de hoy
+//   3. Reiniciar el Pulso de hoy (conserva config)
+//   4. Reconfigurar todo (vuelve al onboarding)
+// ────────────────────────────────────────────────────────────────────────────
+
+function abrirMenuAdmin() {
+  // Si ya existe lo cerramos
+  const existente = document.getElementById('admin-menu-backdrop')
+  if (existente) { existente.remove(); return }
+
+  const backdrop = document.createElement('div')
+  backdrop.id = 'admin-menu-backdrop'
+  backdrop.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;'
+
+  backdrop.innerHTML =
+    '<div style="background:var(--bg-shell);border:1px solid var(--border);border-radius:var(--radius-xl);padding:28px;max-width:480px;width:100%;">' +
+      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">' +
+        '<div style="width:32px;height:32px;border-radius:9px;background:var(--amber-light);color:var(--amber);display:flex;align-items:center;justify-content:center;"><i data-lucide="wrench"></i></div>' +
+        '<h2 style="font-family:Plus Jakarta Sans;font-weight:800;font-size:18px;margin:0;">Admin del Pulso</h2>' +
+      '</div>' +
+      '<p style="font-size:12.5px;color:var(--text-3);margin-bottom:20px;line-height:1.55;">Atajos para probar el Pulso sin las restricciones de tiempo real. Cuando tengas clientes, simplemente no abras este menú.</p>' +
+
+      '<div style="display:flex;flex-direction:column;gap:8px;">' +
+
+        '<button class="admin-opt" data-action="saltar" style="background:var(--teal-light);border:1px solid var(--teal);border-radius:var(--radius);padding:14px 16px;text-align:left;cursor:pointer;font-family:inherit;color:var(--text);">' +
+          '<div style="font-family:Plus Jakarta Sans;font-weight:800;font-size:13.5px;color:var(--teal);margin-bottom:3px;display:flex;align-items:center;gap:7px;"><i data-lucide="zap" style="width:13px;height:13px;"></i> Saltar a la hora actual</div>' +
+          '<div style="font-size:11.5px;color:var(--text-2);line-height:1.5;">Pone la hora pactada = hora actual del servidor. El botón Play se activa de inmediato.</div>' +
+        '</button>' +
+
+        '<button class="admin-opt" data-action="cambiar-hora" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;text-align:left;cursor:pointer;font-family:inherit;color:var(--text);">' +
+          '<div style="font-family:Plus Jakarta Sans;font-weight:800;font-size:13.5px;margin-bottom:3px;display:flex;align-items:center;gap:7px;"><i data-lucide="clock" style="width:13px;height:13px;"></i> Cambiar la hora del Pulso de hoy</div>' +
+          '<div style="font-size:11.5px;color:var(--text-3);line-height:1.5;">Te pregunta una hora HH:MM y actualiza el Pulso y la config.</div>' +
+        '</button>' +
+
+        '<button class="admin-opt" data-action="reset-pulso" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;text-align:left;cursor:pointer;font-family:inherit;color:var(--text);">' +
+          '<div style="font-family:Plus Jakarta Sans;font-weight:800;font-size:13.5px;margin-bottom:3px;display:flex;align-items:center;gap:7px;"><i data-lucide="refresh-cw" style="width:13px;height:13px;"></i> Reiniciar el Pulso de hoy</div>' +
+          '<div style="font-size:11.5px;color:var(--text-3);line-height:1.5;">Borra el Pulso de hoy y sus impulsos. Conserva config y círculo.</div>' +
+        '</button>' +
+
+        '<button class="admin-opt" data-action="reset-todo" style="background:var(--red-light);border:1px solid var(--red);border-radius:var(--radius);padding:14px 16px;text-align:left;cursor:pointer;font-family:inherit;color:var(--text);">' +
+          '<div style="font-family:Plus Jakarta Sans;font-weight:800;font-size:13.5px;color:var(--red);margin-bottom:3px;display:flex;align-items:center;gap:7px;"><i data-lucide="alert-triangle" style="width:13px;height:13px;"></i> Reconfigurar todo</div>' +
+          '<div style="font-size:11.5px;color:var(--text-2);line-height:1.5;">Borra config + círculo + Pulso de hoy. Vuelves al onboarding completo.</div>' +
+        '</button>' +
+
+      '</div>' +
+      '<div style="text-align:center;margin-top:18px;">' +
+        '<button id="admin-cancel" style="background:transparent;border:none;color:var(--text-3);cursor:pointer;font-family:inherit;font-size:13px;padding:6px 12px;">Cancelar</button>' +
+      '</div>' +
+    '</div>'
+
+  document.body.appendChild(backdrop)
+  if (window.lucide) lucide.createIcons()
+
+  // Cerrar al clickear fuera o cancelar
+  backdrop.addEventListener('click', (e) => {
+    if (e.target === backdrop) cerrarMenuAdmin()
+  })
+  document.getElementById('admin-cancel').addEventListener('click', cerrarMenuAdmin)
+
+  // Acciones
+  backdrop.querySelectorAll('.admin-opt').forEach(btn => {
+    btn.addEventListener('click', () => onAdminAction(btn.dataset.action))
   })
 }
 
-async function onResetConfig() {
-  // Borra solo la config y el círculo (los pulsos quedan como histórico).
-  await supabase.from('ritmo_circulo').delete().eq('organizacion_id', state.org.id)
-  await supabase.from('ritmo_pulsos_config').delete().eq('organizacion_id', state.org.id)
-  state.config = null
-  state.circulo = []
-  renderOnboarding()
-  cambiarVista('onboarding')
+function cerrarMenuAdmin() {
+  const el = document.getElementById('admin-menu-backdrop')
+  if (el) el.remove()
+}
+
+async function onAdminAction(action) {
+  cerrarMenuAdmin()
+
+  if (action === 'saltar') {
+    if (!state.config) {
+      alert('Primero configura el Pulso.')
+      return
+    }
+    const { data, error } = await supabase.rpc('ritmo_test_saltar_a_ahora', {
+      p_organizacion_id: state.org.id
+    })
+    if (error) { alert('No se pudo: ' + error.message); return }
+    // Recargar todo
+    state.pulsoHoy = null
+    await cargarYDecidirVista()
+  }
+
+  else if (action === 'cambiar-hora') {
+    const horaActual = state.config?.hora_pactada || '07:55'
+    const nueva = prompt('Nueva hora pactada (HH:MM, 24h):', horaActual)
+    if (!nueva) return
+    if (!/^[0-2][0-9]:[0-5][0-9]$/.test(nueva)) {
+      alert('Formato invalido. Usa HH:MM (ej: 07:55)')
+      return
+    }
+    const { error } = await supabase.rpc('ritmo_test_cambiar_hora', {
+      p_organizacion_id: state.org.id,
+      p_nueva_hora: nueva
+    })
+    if (error) { alert('No se pudo: ' + error.message); return }
+    state.pulsoHoy = null
+    await cargarYDecidirVista()
+  }
+
+  else if (action === 'reset-pulso') {
+    if (!confirm('¿Borrar el Pulso de hoy y sus impulsos? La config y el círculo se conservan.')) return
+    const { error } = await supabase.rpc('ritmo_test_reset_pulso', {
+      p_organizacion_id: state.org.id
+    })
+    if (error) { alert('No se pudo: ' + error.message); return }
+    state.pulsoHoy = null
+    await cargarYDecidirVista()
+  }
+
+  else if (action === 'reset-todo') {
+    if (!confirm('¿Borrar config + círculo + Pulso de hoy? Volverás al onboarding. Los Pulsos históricos NO se borran.')) return
+    const { error } = await supabase.rpc('ritmo_test_reset_dia', {
+      p_organizacion_id: state.org.id
+    })
+    if (error) { alert('No se pudo: ' + error.message); return }
+    state.config = null
+    state.circulo = []
+    state.pulsoHoy = null
+    renderOnboarding()
+    cambiarVista('onboarding')
+  }
 }
 
 // ────────────────────────────────────────────────────────────────────────────
