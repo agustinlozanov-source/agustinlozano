@@ -1,9 +1,20 @@
 // ============================================================================
-// SCALEx PORTAL - RITMO · RITUAL SEMANAL - Setup + La semana + Historial
+// SCALEx PORTAL · RITMO · RITUAL SEMANAL v2
 // ============================================================================
-// Pilar 4 - Ritmo · Herramienta 1
-// Vistas: loading / setup (no hay semanas generadas) / semana (en curso) / historial
-// Depende de: scalex-sql-13-ritmo-semanas.sql
+// Pilar 4 · Ritmo · Herramienta 1
+//
+// REDISEÑO v2 (mayo 2026) — cambios respecto a v1:
+//   1. No hay pestañas. La página decide su estado:
+//      · sin semanas      → Onboarding (pantalla completa, una sola vez)
+//      · con semanas      → vista La Semana en curso
+//      · sin semana hoy   → empty state (entre vectores)
+//   2. Banner protagonista arriba: pendiente (ámbar) / completado (verde).
+//   3. Indicadores de guardado permanentes por campo (no toasts).
+//   4. Cierre del ritual = acto explícito ("Cerrar el ritual de esta semana").
+//   5. Historial colapsable abajo, en la misma vista.
+//   6. Botón Admin en topbar para regenerar (con confirm explícito).
+//
+// Depende de: scalex-sql-13-ritmo-semanas.sql + scalex-sql-14-ritmo-semanas-fix.sql
 // ============================================================================
 
 import {
@@ -18,7 +29,7 @@ const $$ = (sel) => Array.from(document.querySelectorAll(sel))
 
 const MESES_ES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic']
 const DIAS_SEMANA = [
-  { v: 1, label: 'Lunes' },
+  { v: 1, label: 'Lunes (recomendado)' },
   { v: 2, label: 'Martes' },
   { v: 3, label: 'Miércoles' },
   { v: 4, label: 'Jueves' },
@@ -27,32 +38,36 @@ const DIAS_SEMANA = [
   { v: 7, label: 'Domingo' }
 ]
 
+// Cuántas rondas estima el horizonte (solo para mostrar en el botón del onboarding)
+function estimarRondas(desde, hasta) {
+  if (!desde || !hasta) return 156
+  const d1 = new Date(desde + 'T12:00:00')
+  const d2 = new Date(hasta + 'T12:00:00')
+  return Math.max(1, Math.floor((d2 - d1) / (7 * 24 * 60 * 60 * 1000)) + 1)
+}
+
 let state = {
   org: null,
   profile: null,
-  config: null,            // ritmo_config
-  vector: null,            // vector activo (puede ser null)
-  semanaActual: null,      // la semana en curso (ritmo_semanas)
-  tareas: [],              // tareas de la semana actual
-  historial: [],           // semanas pasadas
-  filtroTareas: 'todas',   // todas | plan | impulso
-  vista: 'loading'         // loading | setup | semana | historial
+  config: null,
+  vector: null,
+  semanaActual: null,
+  tareas: [],
+  historial: [],
+  conteoHistorial: {},     // { semanaId: { total, hechas } }
+  filtroTareas: 'todas',
+  saveTimers: {}           // timers por campo para el indicador
 }
 
 // ────────────────────────────────────────────────────────────────────────────
-// SUPABASE - LOADS
+// SUPABASE — LOADS
 // ────────────────────────────────────────────────────────────────────────────
 
 async function loadConfig(orgId) {
   const { data, error } = await supabase
-    .from('ritmo_config')
-    .select('*')
-    .eq('organizacion_id', orgId)
-    .maybeSingle()
-  if (error) {
-    console.error('[ritmo] load config error', error)
-    return null
-  }
+    .from('ritmo_config').select('*')
+    .eq('organizacion_id', orgId).maybeSingle()
+  if (error) { console.error('[ritmo] config', error); return null }
   return data
 }
 
@@ -60,105 +75,82 @@ async function loadVectorActivo(orgId) {
   const { data, error } = await supabase
     .from('vector_estrategicos')
     .select('id, meta, nombre, fecha_inicio, fecha_fin')
-    .eq('organizacion_id', orgId)
-    .eq('estado', 'activo')
-    .maybeSingle()
-  if (error) {
-    console.error('[ritmo] load vector error', error)
-    return null
-  }
+    .eq('organizacion_id', orgId).eq('estado', 'activo').maybeSingle()
+  if (error) { console.error('[ritmo] vector', error); return null }
   return data
+}
+
+async function loadTieneSemanas(orgId) {
+  const { data, error } = await supabase
+    .rpc('ritmo_org_tiene_semanas', { p_organizacion_id: orgId })
+  if (error) { console.error('[ritmo] tiene semanas', error); return false }
+  return !!data
 }
 
 async function loadSemanaEnCurso(orgId) {
   const { data, error } = await supabase
     .rpc('ritmo_semana_en_curso', { p_organizacion_id: orgId })
-  if (error) {
-    console.error('[ritmo] semana en curso error', error)
-    return null
-  }
-  // la RPC devuelve un row (o null)
+  if (error) { console.error('[ritmo] semana en curso', error); return null }
   if (Array.isArray(data)) return data[0] || null
   return data || null
 }
 
 async function loadSemanaConRound(semanaId) {
-  // Trae la semana + datos del round del Vector (si está vinculada)
   const { data, error } = await supabase
     .from('ritmo_semanas')
     .select('*, vector_trimestres(numero, anio, trimestre_anio)')
-    .eq('id', semanaId)
-    .single()
-  if (error) {
-    console.error('[ritmo] load semana error', error)
-    return null
-  }
+    .eq('id', semanaId).single()
+  if (error) { console.error('[ritmo] load semana', error); return null }
   return data
 }
 
 async function loadTareas(semanaId) {
   const { data, error } = await supabase
-    .from('ritmo_tareas')
-    .select('*')
+    .from('ritmo_tareas').select('*')
     .eq('semana_id', semanaId)
     .order('orden', { ascending: true })
     .order('created_at', { ascending: true })
-  if (error) {
-    console.error('[ritmo] load tareas error', error)
-    return []
-  }
+  if (error) { console.error('[ritmo] tareas', error); return [] }
   return data || []
 }
 
 async function loadHistorial(orgId, exceptoId) {
-  let query = supabase
+  const { data, error } = await supabase
     .from('ritmo_semanas')
     .select('id, numero_ronda, fecha_inicio, fecha_fin, objetivo, estado, cruza_de_mes')
     .eq('organizacion_id', orgId)
+    .lt('fecha_inicio', new Date().toISOString().split('T')[0])
     .order('numero_ronda', { ascending: false })
-    .limit(30)
-  const { data, error } = await query
-  if (error) {
-    console.error('[ritmo] load historial error', error)
-    return []
-  }
+    .limit(50)
+  if (error) { console.error('[ritmo] historial', error); return [] }
   return (data || []).filter(s => s.id !== exceptoId)
 }
 
-// Conteo de tareas hechas/total por semana (para el historial)
 async function loadConteoTareas(semanaIds) {
   if (!semanaIds.length) return {}
   const { data, error } = await supabase
-    .from('ritmo_tareas')
-    .select('semana_id, completada')
+    .from('ritmo_tareas').select('semana_id, completada')
     .in('semana_id', semanaIds)
-  if (error) {
-    console.error('[ritmo] conteo tareas error', error)
-    return {}
-  }
-  const conteo = {}
+  if (error) { console.error('[ritmo] conteo', error); return {} }
+  const c = {}
   for (const t of (data || [])) {
-    if (!conteo[t.semana_id]) conteo[t.semana_id] = { total: 0, hechas: 0 }
-    conteo[t.semana_id].total++
-    if (t.completada) conteo[t.semana_id].hechas++
+    if (!c[t.semana_id]) c[t.semana_id] = { total: 0, hechas: 0 }
+    c[t.semana_id].total++
+    if (t.completada) c[t.semana_id].hechas++
   }
-  return conteo
+  return c
 }
 
 // ────────────────────────────────────────────────────────────────────────────
-// SUPABASE - WRITES
+// SUPABASE — WRITES
 // ────────────────────────────────────────────────────────────────────────────
 
 async function guardarConfig(orgId, diaInicio) {
   const { data, error } = await supabase
     .from('ritmo_config')
     .upsert({ organizacion_id: orgId, dia_inicio_semana: diaInicio })
-    .select('*')
-    .single()
-  if (error) {
-    console.error('[ritmo] guardar config error', error)
-    return null
-  }
+    .select('*').single()
+  if (error) { console.error('[ritmo] guardar config', error); return null }
   return data
 }
 
@@ -169,64 +161,65 @@ async function generarSemanas(orgId, desde, hasta, vectorId) {
     p_fecha_hasta: hasta,
     p_vector_id: vectorId || null
   })
-  if (error) {
-    console.error('[ritmo] generar semanas error', error)
-    return { error }
-  }
+  if (error) { console.error('[ritmo] generar', error); return { error } }
   return { creadas: data }
 }
 
-async function guardarRitual(semanaId, payload) {
+async function regenerarSemanas(orgId, desde, hasta, vectorId) {
+  const { data, error } = await supabase.rpc('ritmo_regenerar_semanas', {
+    p_organizacion_id: orgId,
+    p_fecha_desde: desde,
+    p_fecha_hasta: hasta,
+    p_vector_id: vectorId || null
+  })
+  if (error) { console.error('[ritmo] regenerar', error); return { error } }
+  return { creadas: data }
+}
+
+async function guardarRitualParcial(semanaId, payload) {
+  // Guarda los campos del ritual SIN cambiar el estado. Borrador en vivo.
   const { data, error } = await supabase
-    .from('ritmo_semanas')
-    .update(payload)
-    .eq('id', semanaId)
-    .select('*')
-    .single()
-  if (error) {
-    console.error('[ritmo] guardar ritual error', error)
-    return null
-  }
+    .from('ritmo_semanas').update(payload).eq('id', semanaId)
+    .select('*').single()
+  if (error) { console.error('[ritmo] guardar parcial', error); return null }
+  return data
+}
+
+async function cerrarRitual(semanaId) {
+  // ACTO EXPLICITO: pasa el estado a 'completado'. El trigger sella el timestamp.
+  const { data, error } = await supabase
+    .from('ritmo_semanas').update({ estado: 'completado' }).eq('id', semanaId)
+    .select('*').single()
+  if (error) { console.error('[ritmo] cerrar ritual', error); return null }
+  return data
+}
+
+async function reabrirRitual(semanaId) {
+  const { data, error } = await supabase
+    .from('ritmo_semanas').update({ estado: 'pendiente' }).eq('id', semanaId)
+    .select('*').single()
+  if (error) { console.error('[ritmo] reabrir ritual', error); return null }
   return data
 }
 
 async function crearTarea(payload) {
   const { data, error } = await supabase
-    .from('ritmo_tareas')
-    .insert(payload)
-    .select('*')
-    .single()
-  if (error) {
-    console.error('[ritmo] crear tarea error', error)
-    return null
-  }
+    .from('ritmo_tareas').insert(payload).select('*').single()
+  if (error) { console.error('[ritmo] crear tarea', error); return null }
   return data
 }
 
 async function toggleTarea(tareaId, completada) {
   const { data, error } = await supabase
-    .from('ritmo_tareas')
-    .update({ completada })
-    .eq('id', tareaId)
-    .select('*')
-    .single()
-  if (error) {
-    console.error('[ritmo] toggle tarea error', error)
-    return null
-  }
+    .from('ritmo_tareas').update({ completada }).eq('id', tareaId)
+    .select('*').single()
+  if (error) { console.error('[ritmo] toggle', error); return null }
   return data
 }
 
 async function eliminarTarea(tareaId) {
-  const { error } = await supabase
-    .from('ritmo_tareas')
-    .delete()
-    .eq('id', tareaId)
-  if (error) {
-    console.error('[ritmo] eliminar tarea error', error)
-    return false
-  }
-  return true
+  const { error } = await supabase.from('ritmo_tareas').delete().eq('id', tareaId)
+  return !error
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -234,9 +227,8 @@ async function eliminarTarea(tareaId) {
 // ────────────────────────────────────────────────────────────────────────────
 
 function escapeHtml(str) {
-  return String(str || '')
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;')
 }
 
 function fechaCorta(d) {
@@ -251,12 +243,23 @@ function fechaLarga(d) {
   return date.getDate() + ' ' + MESES_ES[date.getMonth()] + ' ' + date.getFullYear()
 }
 
-function hoyISO() {
-  return new Date().toISOString().split('T')[0]
+function fechaConDiaSemana(d) {
+  if (!d) return ''
+  const date = new Date(d + 'T12:00:00')
+  const dias = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado']
+  return dias[date.getDay()] + ' ' + date.getDate() + ' de ' + MESES_ES[date.getMonth()]
+}
+
+function tiempoRelativo(iso) {
+  if (!iso) return ''
+  const ms = Date.now() - new Date(iso).getTime()
+  if (ms < 60000) return 'hace un momento'
+  if (ms < 3600000) return 'hace ' + Math.floor(ms/60000) + ' min'
+  if (ms < 86400000) return 'hace ' + Math.floor(ms/3600000) + ' h'
+  return 'hace ' + Math.floor(ms/86400000) + ' días'
 }
 
 function cambiarVista(nueva) {
-  state.vista = nueva
   $$('.view').forEach(v => v.classList.remove('active'))
   const el = $('#view-' + nueva)
   if (el) el.classList.add('active')
@@ -265,137 +268,137 @@ function cambiarVista(nueva) {
   if (content) content.scrollTop = 0
 }
 
-function showToast(msg, tipo) {
-  const t = $('#toast')
-  if (!t) return
-  t.textContent = msg
-  t.className = 'toast show' + (tipo ? ' ' + tipo : '')
-  setTimeout(() => { t.className = 'toast' }, 2800)
+// ────────────────────────────────────────────────────────────────────────────
+// INDICADOR DE GUARDADO POR CAMPO
+// ────────────────────────────────────────────────────────────────────────────
+
+const SAVE_STATES = {
+  empty:  { cls: '',         text: 'Sin guardar' },
+  saving: { cls: 'saving',   text: 'Escribiendo...' },
+  saved:  { cls: 'saved',    text: '' },  // se calcula con tiempoRelativo
+  error:  { cls: 'error',    text: 'Error al guardar' }
 }
 
-// debounce simple para auto-guardado
-function debounce(fn, ms) {
-  let timer = null
-  return (...args) => {
-    clearTimeout(timer)
-    timer = setTimeout(() => fn(...args), ms)
+function setSaveIndicator(indicatorId, status, isoTime) {
+  const el = $('#' + indicatorId)
+  if (!el) return
+  const s = SAVE_STATES[status] || SAVE_STATES.empty
+  el.className = 'save-indicator ' + s.cls + (el.classList.contains('mini') ? ' mini' : '')
+  let text = s.text
+  if (status === 'saved') {
+    text = 'Guardado · ' + tiempoRelativo(isoTime || new Date().toISOString())
+  } else if (status === 'saved' && el.classList.contains('mini')) {
+    text = 'Guardado'
   }
+  el.innerHTML = '<span class="save-indicator-dot"></span><span>' + text + '</span>'
 }
 
 // ────────────────────────────────────────────────────────────────────────────
-// VISTA: SETUP
+// VISTA: ONBOARDING (primera vez, sin semanas generadas)
 // ────────────────────────────────────────────────────────────────────────────
 
-function initSetup() {
-  // Poblar el selector de día de inicio de semana
-  const sel = $('#setup-dia-inicio')
-  if (sel) {
+function renderOnboarding() {
+  // Poblar el select del día de inicio
+  const sel = $('#onb-dia-inicio')
+  if (sel && !sel.options.length) {
     sel.innerHTML = DIAS_SEMANA.map(d =>
       '<option value="' + d.v + '"' + (d.v === 1 ? ' selected' : '') + '>' + d.label + '</option>'
     ).join('')
   }
 
-  // Si hay vector activo, mostramos sus fechas y prellenamos
+  // Prefill de fechas
+  let desde, hasta
   if (state.vector) {
-    $('#setup-con-vector').style.display = 'block'
-    $('#setup-sin-vector').style.display = 'none'
-    $('#setup-vector-meta').textContent = state.vector.meta
-    $('#setup-vector-fechas').textContent =
+    desde = state.vector.fecha_inicio
+    hasta = state.vector.fecha_fin
+    $('#onb-vector-info').style.display = 'flex'
+    $('#onb-vector-meta').textContent = state.vector.meta
+    $('#onb-vector-fechas').textContent =
       fechaLarga(state.vector.fecha_inicio) + ' → ' + fechaLarga(state.vector.fecha_fin)
-    $('#setup-desde').value = state.vector.fecha_inicio
-    $('#setup-hasta').value = state.vector.fecha_fin
+    $('#onb-desde').readOnly = true
+    $('#onb-hasta').readOnly = true
+    $('#onb-sin-vector-info').style.display = 'none'
   } else {
-    $('#setup-con-vector').style.display = 'none'
-    $('#setup-sin-vector').style.display = 'block'
-    // default: desde hoy, 1 año adelante
     const hoy = new Date()
-    const enUnAnio = new Date(hoy.getFullYear() + 1, hoy.getMonth(), hoy.getDate())
-    $('#setup-desde').value = hoy.toISOString().split('T')[0]
-    $('#setup-hasta').value = enUnAnio.toISOString().split('T')[0]
+    desde = hoy.toISOString().split('T')[0]
+    const en3 = new Date(hoy.getFullYear() + 3, hoy.getMonth(), hoy.getDate())
+    hasta = en3.toISOString().split('T')[0]
+    $('#onb-vector-info').style.display = 'none'
+    $('#onb-sin-vector-info').style.display = 'flex'
+    $('#onb-desde').readOnly = false
+    $('#onb-hasta').readOnly = false
   }
 
-  // Resetear estado del botón cada vez que entramos a Setup
-  // (por si quedó deshabilitado tras un error previo)
-  const btn = $('#btn-generar-semanas')
-  if (btn) {
-    btn.disabled = false
-    btn.innerHTML = '<i data-lucide="play"></i><span>Generar las semanas</span>'
-    if (window.lucide) lucide.createIcons()
-    // Enganchar el listener UNA sola vez
-    if (!btn.dataset.bound) {
-      btn.addEventListener('click', onGenerarSemanas)
-      btn.dataset.bound = '1'
-    }
-  }
+  $('#onb-desde').value = desde
+  $('#onb-hasta').value = hasta
+  actualizarBotonRondas()
+
+  $('#onb-desde').addEventListener('input', actualizarBotonRondas)
+  $('#onb-hasta').addEventListener('input', actualizarBotonRondas)
 }
 
-async function onGenerarSemanas() {
-  const desde = $('#setup-desde').value
-  const hasta = $('#setup-hasta').value
-  const diaInicio = parseInt($('#setup-dia-inicio').value, 10)
+function actualizarBotonRondas() {
+  const n = estimarRondas($('#onb-desde').value, $('#onb-hasta').value)
+  const btnText = $('#btn-onb-generar-text')
+  if (btnText) btnText.textContent = 'Generar mis ' + n + ' rondas'
+}
 
-  if (!desde || !hasta) {
-    showToast('Define las fechas de inicio y fin', 'error')
-    return
-  }
-  if (hasta <= desde) {
-    showToast('La fecha de fin debe ser posterior al inicio', 'error')
-    return
-  }
+async function onGenerarPrimerVez() {
+  const desde = $('#onb-desde').value
+  const hasta = $('#onb-hasta').value
+  const diaInicio = parseInt($('#onb-dia-inicio').value, 10)
 
-  const btn = $('#btn-generar-semanas')
+  if (!desde || !hasta) return
+  if (hasta <= desde) return
+
+  const btn = $('#btn-onb-generar')
   btn.disabled = true
-  btn.innerHTML = '<div class="spinner"></div><span>Generando semanas...</span>'
+  const originalHTML = btn.innerHTML
+  btn.innerHTML = '<div class="spinner-sm"></div><span>Generando rondas...</span>'
 
-  // 1. Guardar la config (día de inicio de semana)
-  const config = await guardarConfig(state.org.id, diaInicio)
-  if (!config) {
-    btn.disabled = false
-    btn.innerHTML = '<i data-lucide="play"></i><span>Generar las semanas</span>'
-    if (window.lucide) lucide.createIcons()
-    showToast('No se pudo guardar la configuración', 'error')
-    return
-  }
-  state.config = config
+  // Guardar config
+  await guardarConfig(state.org.id, diaInicio)
 
-  // 2. Generar las semanas vía RPC
+  // Generar (la RPC es idempotente, si ya hubiera semanas devuelve 0)
   const res = await generarSemanas(
     state.org.id, desde, hasta, state.vector ? state.vector.id : null
   )
-  if (res.error) {
+
+  if (res.error || !res.creadas) {
     btn.disabled = false
-    btn.innerHTML = '<i data-lucide="play"></i><span>Generar las semanas</span>'
+    btn.innerHTML = originalHTML
     if (window.lucide) lucide.createIcons()
-    showToast('Error al generar las semanas', 'error')
+    alert('No se pudieron generar las semanas. Si ya tienes semanas previas, usa Admin → Regenerar.')
     return
   }
 
-  showToast(res.creadas + ' semanas generadas', 'success')
-
-  // 3. Recargar y pasar a la vista de la semana en curso
-  await cargarSemanaYDecorar()
+  // Cargar la semana en curso y mostrarla
+  await cargarYRenderSemana()
 }
 
 // ────────────────────────────────────────────────────────────────────────────
-// VISTA: LA SEMANA EN CURSO
+// VISTA: LA SEMANA (corazón)
 // ────────────────────────────────────────────────────────────────────────────
 
-async function cargarSemanaYDecorar() {
+async function cargarYRenderSemana() {
   const semanaCurso = await loadSemanaEnCurso(state.org.id)
 
   if (!semanaCurso) {
-    // No hay semana que cubra hoy. Puede ser que el horizonte ya pasó
-    // o que aún no empieza. Mostramos setup de nuevo con aviso.
-    cambiarVista('setup')
-    initSetup()
-    showToast('No hay una semana en curso para hoy', 'error')
+    renderEmptyEntreVectores()
+    cambiarVista('empty')
     return
   }
 
-  // Cargar la semana completa (con datos del round) + sus tareas
   const semanaFull = await loadSemanaConRound(semanaCurso.id)
   state.semanaActual = semanaFull || semanaCurso
   state.tareas = await loadTareas(state.semanaActual.id)
+
+  // Historial (en paralelo, no bloqueante)
+  loadHistorial(state.org.id, state.semanaActual.id).then(async hist => {
+    state.historial = hist
+    state.conteoHistorial = await loadConteoTareas(hist.map(s => s.id))
+    renderHistorial()
+  })
 
   renderSemana()
   cambiarVista('semana')
@@ -405,9 +408,8 @@ function renderSemana() {
   const s = state.semanaActual
   if (!s) return
 
-  // ── Chips de contexto ──
-  // Round del Vector (si está vinculada)
-  const chipRound = $('#semana-chip-round')
+  // Chips arriba
+  const chipRound = $('#chip-round')
   if (s.vector_trimestres) {
     const r = s.vector_trimestres
     chipRound.style.display = 'inline-flex'
@@ -416,45 +418,34 @@ function renderSemana() {
   } else {
     chipRound.style.display = 'none'
   }
-
-  $('#semana-chip-ronda').querySelector('.chip-text').textContent =
-    'Ronda ' + s.numero_ronda
-  $('#semana-chip-fechas').querySelector('.chip-text').textContent =
+  $('#chip-ronda .chip-text').textContent = 'Ronda ' + s.numero_ronda
+  $('#chip-fechas .chip-text').textContent =
     fechaCorta(s.fecha_inicio) + ' – ' + fechaCorta(s.fecha_fin)
+  $('#chip-cruza').style.display = s.cruza_de_mes ? 'inline-flex' : 'none'
 
-  // Aviso de cruce de mes
-  const avisoMes = $('#semana-aviso-mes')
-  if (s.cruza_de_mes) {
-    avisoMes.style.display = 'flex'
-    const dIni = new Date(s.fecha_inicio + 'T12:00:00')
-    const dFin = new Date(s.fecha_fin + 'T12:00:00')
-    avisoMes.querySelector('.aviso-text').textContent =
-      'Esta semana cruza de mes: cierras ' + MESES_ES[dIni.getMonth()] +
-      ' y arrancas ' + MESES_ES[dFin.getMonth()] + '.'
-  } else {
-    avisoMes.style.display = 'none'
-  }
+  // Banner protagonista — depende del estado del ritual
+  renderBanner()
 
-  // Estado del ritual
-  const statusEl = $('#semana-status')
-  if (s.estado === 'completado' || s.estado === 'cerrada') {
-    statusEl.className = 'semana-status done'
-    statusEl.innerHTML = '<span class="dot"></span> Ritual completado'
-  } else {
-    statusEl.className = 'semana-status pending'
-    statusEl.innerHTML = '<span class="dot"></span> Ritual pendiente'
-  }
-
-  // ── Objetivo de la semana ──
-  $('#objetivo-input').value = s.objetivo || ''
-
-  // ── Las 4 preguntas ──
+  // Objetivo + 4 preguntas
+  $('#objetivo-textarea').value = s.objetivo || ''
   $('#ritual-retos').value = s.ritual_retos || ''
   $('#ritual-actividades').value = s.ritual_actividades || ''
   $('#ritual-metricas').value = s.ritual_metricas || ''
   $('#ritual-ajustes').value = s.ritual_ajustes || ''
 
-  // ── Link al round del Vector ──
+  // Indicadores iniciales: si hay contenido + ritual ya cerrado, "Guardado"
+  ;['save-objetivo','save-retos','save-actividades','save-metricas','save-ajustes']
+    .forEach(id => {
+      const inputId = id.replace('save-', 'ritual-').replace('ritual-objetivo','objetivo-textarea')
+      const valor = $('#' + inputId)?.value
+      if (valor && s.updated_at) {
+        setSaveIndicator(id, 'saved', s.updated_at)
+      } else {
+        setSaveIndicator(id, 'empty')
+      }
+    })
+
+  // Link al round del Vector
   const roundLink = $('#round-link')
   if (s.vector_round_id) {
     roundLink.style.display = 'inline-flex'
@@ -466,23 +457,161 @@ function renderSemana() {
   renderTareas()
 }
 
+function renderBanner() {
+  const s = state.semanaActual
+  const banner = $('#ritual-banner')
+  const cierre = $('#cierre-card')
+
+  if (s.estado === 'completado' || s.estado === 'cerrada') {
+    // Banner verde tranquilo
+    banner.className = 'ritual-banner done'
+    banner.innerHTML =
+      '<div class="ritual-banner-icon"><i data-lucide="check"></i></div>' +
+      '<div class="ritual-banner-body">' +
+        '<div class="ritual-banner-title">Ritual completado el ' +
+          fechaConDiaSemana((s.ritual_completado_en || '').split('T')[0]) + '</div>' +
+        '<div class="ritual-banner-text">La semana corre del ' +
+          fechaCorta(s.fecha_inicio) + ' al ' + fechaCorta(s.fecha_fin) + '.</div>' +
+      '</div>' +
+      '<div class="ritual-banner-btn-wrap">' +
+        '<button class="btn btn-ghost btn-sm" id="btn-reabrir-ritual">' +
+          '<i data-lucide="rotate-ccw"></i> Reabrir</button>' +
+      '</div>'
+    $('#btn-reabrir-ritual')?.addEventListener('click', onReabrirRitual)
+
+    // Cierre escondido
+    if (cierre) cierre.style.display = 'none'
+    // Tareas visibles
+    $('#tareas-section').style.display = 'block'
+  } else {
+    // Banner ámbar protagonista
+    banner.className = 'ritual-banner pending'
+    banner.innerHTML =
+      '<div class="ritual-banner-icon"><i data-lucide="clipboard-list"></i></div>' +
+      '<div class="ritual-banner-body">' +
+        '<div class="ritual-banner-title">Tienes el ritual semanal pendiente</div>' +
+        '<div class="ritual-banner-text">Tómate 15 minutos para responder las 4 preguntas y fijar el objetivo de los próximos 7 días. Es el acto que abre tu semana.</div>' +
+      '</div>' +
+      '<div class="ritual-banner-btn-wrap">' +
+        '<button class="btn btn-primary large" id="btn-scroll-ritual">' +
+          '<i data-lucide="arrow-down"></i> Hacer el ritual</button>' +
+      '</div>'
+    $('#btn-scroll-ritual')?.addEventListener('click', () => {
+      $('#objetivo-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+
+    if (cierre) cierre.style.display = 'flex'
+    // Tareas escondidas hasta cerrar el ritual
+    $('#tareas-section').style.display = 'none'
+  }
+
+  if (window.lucide) lucide.createIcons()
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// AUTO-GUARDADO POR CAMPO (con indicador permanente)
+// ────────────────────────────────────────────────────────────────────────────
+
+const CAMPOS_RITUAL = [
+  { input: 'objetivo-textarea', column: 'objetivo',           indicator: 'save-objetivo'     },
+  { input: 'ritual-retos',      column: 'ritual_retos',       indicator: 'save-retos'        },
+  { input: 'ritual-actividades',column: 'ritual_actividades', indicator: 'save-actividades'  },
+  { input: 'ritual-metricas',   column: 'ritual_metricas',    indicator: 'save-metricas'     },
+  { input: 'ritual-ajustes',    column: 'ritual_ajustes',     indicator: 'save-ajustes'      }
+]
+
+function attachAutoSave() {
+  CAMPOS_RITUAL.forEach(c => {
+    const el = $('#' + c.input)
+    if (!el) return
+    el.addEventListener('input', () => {
+      setSaveIndicator(c.indicator, 'saving')
+      clearTimeout(state.saveTimers[c.input])
+      state.saveTimers[c.input] = setTimeout(async () => {
+        if (!state.semanaActual) return
+        const payload = {}
+        payload[c.column] = (el.value || '').trim() || null
+        const updated = await guardarRitualParcial(state.semanaActual.id, payload)
+        if (updated) {
+          state.semanaActual = { ...state.semanaActual, ...updated }
+          setSaveIndicator(c.indicator, 'saved', updated.updated_at)
+        } else {
+          setSaveIndicator(c.indicator, 'error')
+        }
+      }, 900)
+    })
+  })
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// CIERRE EXPLÍCITO DEL RITUAL
+// ────────────────────────────────────────────────────────────────────────────
+
+async function onCerrarRitual() {
+  if (!state.semanaActual) return
+
+  // Validación mínima: que al menos el objetivo esté escrito
+  const objetivo = $('#objetivo-textarea').value.trim()
+  if (!objetivo) {
+    alert('Antes de cerrar el ritual, escribe el objetivo de esta semana.')
+    $('#objetivo-textarea').focus()
+    return
+  }
+
+  const btn = $('#btn-cerrar-ritual')
+  btn.disabled = true
+  const orig = btn.innerHTML
+  btn.innerHTML = '<div class="spinner-sm"></div><span>Cerrando...</span>'
+
+  const updated = await cerrarRitual(state.semanaActual.id)
+  btn.disabled = false
+  btn.innerHTML = orig
+  if (window.lucide) lucide.createIcons()
+
+  if (!updated) {
+    alert('No se pudo cerrar el ritual. Reintenta.')
+    return
+  }
+
+  state.semanaActual = { ...state.semanaActual, ...updated }
+  renderBanner()
+  // Scroll al banner para que vea la confirmación
+  $('#ritual-banner')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
+
+async function onReabrirRitual() {
+  if (!confirm('¿Reabrir el ritual de esta semana? Podrás editar las respuestas de nuevo.')) return
+  const updated = await reabrirRitual(state.semanaActual.id)
+  if (updated) {
+    state.semanaActual = { ...state.semanaActual, ...updated }
+    renderBanner()
+  }
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// TAREAS (solo visibles tras cerrar el ritual)
+// ────────────────────────────────────────────────────────────────────────────
+
 function renderTareas() {
   const cont = $('#tarea-list')
-  const filtro = state.filtroTareas
-  let tareas = state.tareas
-  if (filtro === 'plan') tareas = tareas.filter(t => t.origen === 'plan')
-  if (filtro === 'impulso') tareas = tareas.filter(t => t.origen === 'impulso')
+  if (!cont) return
 
-  // Conteo en el título
+  let tareas = state.tareas
+  if (state.filtroTareas === 'plan')    tareas = tareas.filter(t => t.origen === 'plan')
+  if (state.filtroTareas === 'impulso') tareas = tareas.filter(t => t.origen === 'impulso')
+
   const total = state.tareas.length
   const hechas = state.tareas.filter(t => t.completada).length
-  $('#tareas-count').textContent = total + (total === 1 ? ' tarea · ' : ' tareas · ') + hechas + ' hechas'
+  const countEl = $('#tareas-count')
+  if (countEl) {
+    countEl.textContent = total + (total === 1 ? ' tarea · ' : ' tareas · ') + hechas + ' hechas'
+  }
 
   if (!tareas.length) {
     cont.innerHTML = '<div class="tarea-empty">' +
-      (filtro === 'impulso'
+      (state.filtroTareas === 'impulso'
         ? 'Aún no hay impulsos del día. Surgirán del Pulso (la reunión diaria).'
-        : filtro === 'plan'
+        : state.filtroTareas === 'plan'
           ? 'Aún no hay tareas del plan. Agrega la primera abajo.'
           : 'Aún no hay tareas esta semana. Agrega la primera abajo.') +
       '</div>'
@@ -492,8 +621,9 @@ function renderTareas() {
   cont.innerHTML = tareas.map(t => {
     const esImpulso = t.origen === 'impulso'
     return '<div class="tarea-card ' + (esImpulso ? 'is-impulso' : 'is-plan') +
-      (t.completada ? ' completed' : '') + '" data-id="' + t.id + '">' +
-      '<div class="tarea-check' + (t.completada ? ' done' : '') + '" data-action="toggle" data-id="' + t.id + '">' +
+      (t.completada ? ' completed' : '') + '">' +
+      '<div class="tarea-check' + (t.completada ? ' done' : '') +
+        '" data-action="toggle" data-id="' + t.id + '">' +
         '<i data-lucide="check"></i>' +
       '</div>' +
       '<div class="tarea-body">' +
@@ -503,12 +633,10 @@ function renderTareas() {
           '<span class="tarea-title">' + escapeHtml(t.titulo) + '</span>' +
         '</div>' +
         '<div class="tarea-meta">' +
-          (t.responsable
-            ? '<span class="tarea-meta-item"><i data-lucide="user"></i> <strong>' +
-              escapeHtml(t.responsable) + '</strong></span>' : '') +
-          (t.fecha_objetivo
-            ? '<span class="tarea-meta-item"><i data-lucide="calendar"></i> ' +
-              fechaCorta(t.fecha_objetivo) + '</span>' : '') +
+          (t.responsable ? '<span class="tarea-meta-item"><i data-lucide="user"></i> ' +
+            escapeHtml(t.responsable) + '</span>' : '') +
+          (t.fecha_objetivo ? '<span class="tarea-meta-item"><i data-lucide="calendar"></i> ' +
+            fechaCorta(t.fecha_objetivo) + '</span>' : '') +
         '</div>' +
       '</div>' +
       '<button class="tarea-del" data-action="del" data-id="' + t.id + '" title="Eliminar">' +
@@ -519,167 +647,154 @@ function renderTareas() {
   if (window.lucide) lucide.createIcons()
 }
 
-// Auto-guardado del objetivo y las 4 preguntas
-const guardarRitualDebounced = debounce(async () => {
-  if (!state.semanaActual) return
-  const payload = {
-    objetivo: $('#objetivo-input').value.trim() || null,
-    ritual_retos: $('#ritual-retos').value.trim() || null,
-    ritual_actividades: $('#ritual-actividades').value.trim() || null,
-    ritual_metricas: $('#ritual-metricas').value.trim() || null,
-    ritual_ajustes: $('#ritual-ajustes').value.trim() || null
-  }
-  // Si hay objetivo y el ritual estaba pendiente, lo marcamos completado
-  if (payload.objetivo && state.semanaActual.estado === 'pendiente') {
-    payload.estado = 'completado'
-  }
-  const updated = await guardarRitual(state.semanaActual.id, payload)
-  if (updated) {
-    state.semanaActual = { ...state.semanaActual, ...updated }
-    // refrescar el badge de estado
-    const statusEl = $('#semana-status')
-    if (updated.estado === 'completado' || updated.estado === 'cerrada') {
-      statusEl.className = 'semana-status done'
-      statusEl.innerHTML = '<span class="dot"></span> Ritual completado'
-    }
-    showToast('Guardado', 'success')
-  }
-}, 900)
-
 async function onAgregarTarea() {
   const input = $('#add-tarea-input')
   const titulo = input.value.trim()
-  if (!titulo) {
-    input.focus()
-    return
-  }
+  if (!titulo) { input.focus(); return }
   if (!state.semanaActual) return
 
   const nueva = await crearTarea({
     organizacion_id: state.org.id,
     semana_id: state.semanaActual.id,
-    titulo: titulo,
-    origen: 'plan',
+    titulo, origen: 'plan',
     orden: state.tareas.length
   })
-  if (!nueva) {
-    showToast('No se pudo agregar la tarea', 'error')
-    return
-  }
+  if (!nueva) return
   state.tareas.push(nueva)
   input.value = ''
   renderTareas()
-  showToast('Tarea agregada', 'success')
 }
 
 async function onToggleTarea(tareaId) {
-  const tarea = state.tareas.find(t => t.id === tareaId)
-  if (!tarea) return
-  const nuevoEstado = !tarea.completada
-  // optimista
-  tarea.completada = nuevoEstado
+  const t = state.tareas.find(x => x.id === tareaId)
+  if (!t) return
+  const nuevo = !t.completada
+  t.completada = nuevo  // optimista
   renderTareas()
-  const updated = await toggleTarea(tareaId, nuevoEstado)
-  if (!updated) {
-    // revertir
-    tarea.completada = !nuevoEstado
+  const r = await toggleTarea(tareaId, nuevo)
+  if (!r) {
+    t.completada = !nuevo
     renderTareas()
-    showToast('No se pudo actualizar', 'error')
   }
 }
 
 async function onEliminarTarea(tareaId) {
   const ok = await eliminarTarea(tareaId)
-  if (!ok) {
-    showToast('No se pudo eliminar', 'error')
-    return
-  }
+  if (!ok) return
   state.tareas = state.tareas.filter(t => t.id !== tareaId)
   renderTareas()
-  showToast('Tarea eliminada', 'success')
 }
 
 // ────────────────────────────────────────────────────────────────────────────
-// VISTA: HISTORIAL
+// HISTORIAL COLAPSABLE
 // ────────────────────────────────────────────────────────────────────────────
 
-async function cargarHistorial() {
-  const exceptoId = state.semanaActual ? state.semanaActual.id : null
-  state.historial = await loadHistorial(state.org.id, exceptoId)
-  const conteo = await loadConteoTareas(state.historial.map(s => s.id))
-  renderHistorial(conteo)
-}
+function renderHistorial() {
+  const list = $('#historial-list')
+  const sub = $('#historial-subtitle')
+  if (!list) return
 
-function renderHistorial(conteo) {
-  const cont = $('#historial-list')
-  if (!state.historial.length) {
-    cont.innerHTML = '<div class="tarea-empty">Aún no hay rondas anteriores. ' +
-      'Tu primera ronda es la semana en curso.</div>'
+  const count = state.historial.length
+  const completadas = state.historial.filter(s => s.estado === 'completado' || s.estado === 'cerrada').length
+
+  if (sub) {
+    if (count === 0) {
+      sub.textContent = 'Aún no hay rondas anteriores. Tu primera ronda es la semana en curso.'
+    } else {
+      sub.textContent = completadas + ' rondas completadas — el músculo que llevas construido'
+    }
+  }
+
+  if (!count) {
+    list.innerHTML = ''
     return
   }
 
-  cont.innerHTML = state.historial.map(s => {
-    const c = conteo[s.id]
-    let statHtml
+  list.innerHTML = state.historial.map(s => {
+    const c = state.conteoHistorial[s.id]
+    let stat
     if (s.estado === 'pendiente') {
-      statHtml = '<span class="semana-hist-stat pending">' +
-        '<i data-lucide="circle-dashed"></i> Sin ritual</span>'
+      stat = '<span class="hist-stat pending"><i data-lucide="circle-dashed"></i> Sin ritual</span>'
     } else if (c && c.total > 0) {
-      statHtml = '<span class="semana-hist-stat">' +
-        '<i data-lucide="check-circle-2"></i> ' + c.hechas + '/' + c.total + ' tareas</span>'
+      stat = '<span class="hist-stat"><i data-lucide="check-circle-2"></i> ' +
+        c.hechas + '/' + c.total + ' tareas</span>'
     } else {
-      statHtml = '<span class="semana-hist-stat">' +
-        '<i data-lucide="check-circle-2"></i> Ritual hecho</span>'
+      stat = '<span class="hist-stat"><i data-lucide="check-circle-2"></i> Ritual hecho</span>'
     }
-
-    return '<div class="semana-hist-row">' +
-      '<div class="semana-hist-week">Ronda ' + s.numero_ronda + '</div>' +
-      '<div class="semana-hist-obj">' +
-        (s.objetivo ? escapeHtml(s.objetivo)
-          : '<span style="color:var(--text-4)">Sin objetivo definido</span>') +
-        '<div class="semana-hist-fechas">' + fechaCorta(s.fecha_inicio) + ' – ' +
+    return '<div class="hist-row">' +
+      '<div class="hist-week">Ronda ' + s.numero_ronda + '</div>' +
+      '<div class="hist-obj">' +
+        (s.objetivo ? escapeHtml(s.objetivo) :
+          '<span style="color:var(--text-4)">Sin objetivo definido</span>') +
+        '<div class="hist-fechas">' + fechaCorta(s.fecha_inicio) + ' – ' +
           fechaCorta(s.fecha_fin) +
           (s.cruza_de_mes ? ' · cruza de mes' : '') + '</div>' +
       '</div>' +
-      statHtml +
+      stat +
     '</div>'
   }).join('')
 
   if (window.lucide) lucide.createIcons()
 }
 
-// ────────────────────────────────────────────────────────────────────────────
-// NAV ENTRE VISTAS (switcher)
-// ────────────────────────────────────────────────────────────────────────────
-
-function setupSwitcher() {
-  $$('.view-switcher button').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const target = btn.dataset.view
-      $$('.view-switcher button').forEach(b => b.classList.remove('active'))
-      btn.classList.add('active')
-
-      if (target === 'semana') {
-        if (state.semanaActual) {
-          cambiarVista('semana')
-        } else {
-          await cargarSemanaYDecorar()
-        }
-      } else if (target === 'historial') {
-        cambiarVista('historial')
-        await cargarHistorial()
-      } else if (target === 'setup') {
-        initSetup()
-        cambiarVista('setup')
-      } else {
-        cambiarVista(target)
-      }
-    })
+function setupHistorialToggle() {
+  const toggle = $('#historial-toggle')
+  if (!toggle || toggle.dataset.bound) return
+  toggle.addEventListener('click', () => {
+    toggle.classList.toggle('open')
+    if (window.lucide) lucide.createIcons()
   })
+  toggle.dataset.bound = '1'
 }
 
 // ────────────────────────────────────────────────────────────────────────────
-// TEMA
+// EMPTY STATE (entre vectores)
+// ────────────────────────────────────────────────────────────────────────────
+
+function renderEmptyEntreVectores() {
+  // Por si en algún punto no hay semana que cubra hoy (entre vectores, error de horizonte)
+  // La vista #view-empty ya está en el HTML.
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// ADMIN: REGENERAR (con confirm)
+// ────────────────────────────────────────────────────────────────────────────
+
+async function onAdminRegenerar() {
+  const ok = confirm(
+    'ATENCIÓN: Regenerar las semanas borrará TODAS tus semanas actuales y sus tareas.\n\n' +
+    'Esto solo se usa si configuraste mal el horizonte o el día de inicio.\n\n' +
+    '¿Continuar?'
+  )
+  if (!ok) return
+
+  // Pedir nuevas fechas (con prefill del horizonte actual)
+  const desdeActual = state.semanaActual?.fecha_inicio
+    || state.vector?.fecha_inicio
+    || new Date().toISOString().split('T')[0]
+  const desde = prompt('Fecha de inicio (YYYY-MM-DD):', desdeActual)
+  if (!desde) return
+  const hastaDefault = state.vector?.fecha_fin
+    || new Date(new Date().getFullYear() + 3, 0, 1).toISOString().split('T')[0]
+  const hasta = prompt('Fecha de fin (YYYY-MM-DD):', hastaDefault)
+  if (!hasta) return
+
+  const res = await regenerarSemanas(
+    state.org.id, desde, hasta, state.vector ? state.vector.id : null
+  )
+  if (res.error) {
+    alert('No se pudieron regenerar las semanas. Revisa la consola.')
+    return
+  }
+  alert('Listo: ' + res.creadas + ' semanas regeneradas.')
+  // Reset y recarga
+  state.semanaActual = null
+  state.tareas = []
+  await cargarYRenderSemana()
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// TEMA + LOGOUT
 // ────────────────────────────────────────────────────────────────────────────
 
 window.toggleTheme = function() {
@@ -693,31 +808,28 @@ window.toggleTheme = function() {
     if (window.lucide) lucide.createIcons()
   }
 }
-
 const savedTheme = localStorage.getItem('scalex-theme')
 if (savedTheme) document.documentElement.dataset.theme = savedTheme
-
 window.logout = signOut
 
 // ────────────────────────────────────────────────────────────────────────────
-// LISTENERS DE LA VISTA SEMANA (delegación)
+// LISTENERS
 // ────────────────────────────────────────────────────────────────────────────
 
-function setupSemanaListeners() {
-  // auto-guardado del ritual
-  ;['#objetivo-input', '#ritual-retos', '#ritual-actividades',
-    '#ritual-metricas', '#ritual-ajustes'].forEach(sel => {
-    const el = $(sel)
-    if (el) el.addEventListener('input', guardarRitualDebounced)
-  })
+function setupListeners() {
+  // Onboarding
+  $('#btn-onb-generar')?.addEventListener('click', onGenerarPrimerVez)
 
-  // agregar tarea
+  // Cerrar ritual
+  $('#btn-cerrar-ritual')?.addEventListener('click', onCerrarRitual)
+
+  // Tareas: agregar
   $('#btn-add-tarea')?.addEventListener('click', onAgregarTarea)
   $('#add-tarea-input')?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') onAgregarTarea()
   })
 
-  // filtros de tareas
+  // Tareas: filtros
   $$('.tareas-filter button').forEach(btn => {
     btn.addEventListener('click', () => {
       $$('.tareas-filter button').forEach(b => b.classList.remove('active'))
@@ -727,19 +839,22 @@ function setupSemanaListeners() {
     })
   })
 
-  // delegación: toggle / eliminar tareas
+  // Tareas: toggle/eliminar por delegación
   $('#tarea-list')?.addEventListener('click', (e) => {
-    const toggleBtn = e.target.closest('[data-action="toggle"]')
-    if (toggleBtn) {
-      onToggleTarea(toggleBtn.dataset.id)
-      return
-    }
-    const delBtn = e.target.closest('[data-action="del"]')
-    if (delBtn) {
-      onEliminarTarea(delBtn.dataset.id)
-      return
-    }
+    const t = e.target.closest('[data-action="toggle"]')
+    if (t) return onToggleTarea(t.dataset.id)
+    const d = e.target.closest('[data-action="del"]')
+    if (d) return onEliminarTarea(d.dataset.id)
   })
+
+  // Auto-save de los 5 campos
+  attachAutoSave()
+
+  // Admin
+  $('#btn-admin')?.addEventListener('click', onAdminRegenerar)
+
+  // Historial toggle
+  setupHistorialToggle()
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -760,42 +875,28 @@ async function init() {
 
     // Cargar config + vector en paralelo
     const [config, vector] = await Promise.all([
-      loadConfig(org.id),
-      loadVectorActivo(org.id)
+      loadConfig(org.id), loadVectorActivo(org.id)
     ])
     state.config = config
     state.vector = vector
 
-    // ¿Ya hay semanas generadas? Buscamos la semana en curso.
-    const semanaCurso = await loadSemanaEnCurso(org.id)
+    // Decisión: ¿tiene semanas generadas?
+    const tieneSemanas = await loadTieneSemanas(org.id)
 
-    if (semanaCurso) {
-      // Hay semanas: cargar la actual y mostrarla
-      const semanaFull = await loadSemanaConRound(semanaCurso.id)
-      state.semanaActual = semanaFull || semanaCurso
-      state.tareas = await loadTareas(state.semanaActual.id)
-      renderSemana()
-      cambiarVista('semana')
-      // marcar el switcher en "semana"
-      $$('.view-switcher button').forEach(b => b.classList.remove('active'))
-      const btnSemana = $$('.view-switcher button').find(b => b.dataset.view === 'semana')
-      if (btnSemana) btnSemana.classList.add('active')
+    setupListeners()
+
+    if (!tieneSemanas) {
+      // Onboarding (una sola vez)
+      renderOnboarding()
+      cambiarVista('onboarding')
     } else {
-      // No hay semanas todavía: setup
-      initSetup()
-      cambiarVista('setup')
-      $$('.view-switcher button').forEach(b => b.classList.remove('active'))
-      const btnSetup = $$('.view-switcher button').find(b => b.dataset.view === 'setup')
-      if (btnSetup) btnSetup.classList.add('active')
+      // Cargar y mostrar la semana
+      await cargarYRenderSemana()
     }
 
-    setupSwitcher()
-    setupSemanaListeners()
-
     if (window.lucide) lucide.createIcons()
-
   } catch (err) {
-    console.error('[ritmo-semanal] init error:', err)
+    console.error('[ritmo-semanal v2] init error:', err)
   }
 }
 
