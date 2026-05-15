@@ -91,11 +91,18 @@ async function loadSemanaEnCurso(orgId) {
   const { data, error } = await supabase
     .rpc('ritmo_semana_en_curso', { p_organizacion_id: orgId })
   if (error) { console.error('[ritmo] semana en curso', error); return null }
-  if (Array.isArray(data)) return data[0] || null
-  return data || null
+  // La RPC puede devolver un row vacio (objeto con id=null) en lugar de null.
+  // Validar explicitamente que tenga id real, si no, no hay semana en curso.
+  const row = Array.isArray(data) ? data[0] : data
+  if (!row || !row.id) return null
+  return row
 }
 
 async function loadSemanaConRound(semanaId) {
+  if (!semanaId) {
+    console.error('[ritmo] load semana llamado sin id')
+    return null
+  }
   const { data, error } = await supabase
     .from('ritmo_semanas')
     .select('*, vector_trimestres(numero, anio, trimestre_anio)')
