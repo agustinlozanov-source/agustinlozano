@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCALEx Portal - Ritmo · Ritual Semanal</title>
+  <link rel="icon" type="image/png" href="/logos/SX Icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script type="module" src="/assets/js/auth-guard.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal: #1aab99; --teal-light: rgba(26,171,153,0.12);
+      --indigo: #3533cd; --indigo-light: rgba(53,51,205,0.12);
+      --gradient: linear-gradient(135deg, #1aab99, #3533cd);
+      --green: #00c853; --green-light: rgba(0,200,83,0.12);
+      --amber: #ff9500; --amber-light: rgba(255,149,0,0.12);
+      --red: #ff3b30; --red-light: rgba(255,59,48,0.12);
+      --purple: #7c3aed; --purple-light: rgba(124,58,237,0.12);
+      --radius-xl: 28px; --radius-lg: 20px; --radius: 14px; --radius-sm: 9px;
+      --sidebar-w: 80px;
+      font-family: 'Inter', sans-serif; line-height: 1.6;
+    }
+    [data-theme="dark"] {
+      --bg-page: #0a0a0c; --bg-shell: #141416; --bg-card: #1c1c1e; --bg-card-2: #242426;
+      --bg-input: #0d0d10;
+      --surface: rgba(255,255,255,0.04); --surface-hover: rgba(255,255,255,0.07);
+      --border: rgba(255,255,255,0.08); --border-strong: rgba(255,255,255,0.13);
+      --text: #fff; --text-2: #c7c7cc; --text-3: #8e8e93; --text-4: #48484a;
+      --sidebar-bg: #050506;
+    }
+    [data-theme="light"] {
+      --bg-page: #eef0f5; --bg-shell: #fff; --bg-card: #f5f5f7; --bg-card-2: #ebebef;
+      --bg-input: #fff;
+      --surface: rgba(0,0,0,0.03); --surface-hover: rgba(0,0,0,0.055);
+      --border: rgba(0,0,0,0.08); --border-strong: rgba(0,0,0,0.14);
+      --text: #070708; --text-2: #3a3a3c; --text-3: #6e6e73; --text-4: #c7c7cc;
+      --sidebar-bg: #0a0a0c;
+    }
+
+    body { background: var(--bg-page); color: var(--text); min-height: 100vh; overflow: hidden; transition: background .3s, color .3s; }
+    .app-layout { display: flex; min-height: 100vh; padding: 16px; gap: 16px; }
+
+    /* SIDEBAR */
+    .sidebar { width: var(--sidebar-w); background: var(--sidebar-bg); border-radius: var(--radius-xl); padding: 20px 0; display: flex; flex-direction: column; align-items: center; gap: 8px; flex-shrink: 0; position: sticky; top: 16px; height: calc(100vh - 32px); }
+    .sidebar-logo { width: 44px; height: auto; display: block; margin-bottom: 16px; text-decoration: none; }
+    .sidebar-logo img { width: 100%; height: auto; display: block; }
+    .sidebar-divider { width: 28px; height: 1px; background: rgba(255,255,255,0.08); margin: 4px 0; }
+    .sidebar-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all .2s; color: rgba(255,255,255,0.5); position: relative; text-decoration: none; background: none; border: none; }
+    .sidebar-icon:hover { background: rgba(255,255,255,0.06); color: white; }
+    .sidebar-icon.active { background: var(--gradient); color: white; }
+    .sidebar-icon.active::before { content: ''; position: absolute; left: -16px; top: 50%; transform: translateY(-50%); width: 3px; height: 24px; background: var(--teal); border-radius: 0 3px 3px 0; }
+    .sidebar-icon svg { width: 20px; height: 20px; }
+    .sidebar-bottom { margin-top: auto; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+
+    /* SHELL */
+    .shell { flex: 1; background: var(--bg-shell); border-radius: var(--radius-xl); overflow: hidden; display: flex; flex-direction: column; height: calc(100vh - 32px); }
+    .topbar { padding: 18px 28px; display: flex; align-items: center; gap: 16px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .topbar-back { width: 36px; height: 36px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-2); text-decoration: none; }
+    .topbar-back:hover { background: var(--surface-hover); color: var(--text); }
+    .topbar-back svg { width: 16px; height: 16px; }
+    .topbar-title-block { flex: 1; min-width: 0; }
+    .topbar-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--teal); }
+    .topbar-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; font-weight: 800; color: var(--text); letter-spacing: -0.3px; margin-top: 2px; }
+
+    .view-switcher { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 50px; padding: 4px; }
+    .view-switcher button { padding: 6px 14px; border-radius: 50px; background: transparent; border: none; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11.5px; font-weight: 700; color: var(--text-3); cursor: pointer; }
+    .view-switcher button.active { background: var(--gradient); color: white; }
+
+    .content { flex: 1; overflow-y: auto; padding: 28px 32px; }
+    .content::-webkit-scrollbar { width: 8px; }
+    .content::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 50px; }
+
+    .view { display: none; }
+    .view.active { display: block; animation: fadeIn .3s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+
+    .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin .7s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 20px; gap: 16px; color: var(--text-3); }
+    .loading-wrap .spinner { width: 28px; height: 28px; border-color: var(--border-strong); border-top-color: var(--teal); }
+
+    /* PAGE HEADER */
+    .page-header { margin-bottom: 24px; max-width: 720px; }
+    .page-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--teal); margin-bottom: 8px; }
+    .page-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 30px; font-weight: 800; line-height: 1.15; letter-spacing: -0.8px; color: var(--text); margin-bottom: 10px; }
+    .page-title span { background: var(--gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .page-sub { font-size: 14.5px; color: var(--text-3); line-height: 1.6; }
+
+    /* BTN */
+    .btn { padding: 12px 22px; border-radius: 50px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 8px; transition: all .2s; }
+    .btn svg { width: 16px; height: 16px; }
+    .btn-primary { background: var(--gradient); color: white; }
+    .btn-primary:hover { transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+    .btn-primary.large { padding: 14px 28px; font-size: 15px; }
+    .btn-ghost { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
+    .btn-ghost:hover { background: var(--surface-hover); }
+    .btn-sm { padding: 8px 14px; font-size: 12px; }
+
+    /* SECTION TITLE */
+    .section-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 17px; font-weight: 800; color: var(--text); letter-spacing: -0.3px; margin: 28px 0 14px; display: flex; align-items: center; gap: 10px; }
+    .section-title svg { width: 18px; height: 18px; color: var(--teal); }
+    .section-title .count { font-size: 12px; font-weight: 700; color: var(--text-3); background: var(--surface); padding: 2px 10px; border-radius: 50px; }
+
+    /* ════════════ SETUP ════════════ */
+    .setup-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 26px 30px; margin-bottom: 18px; }
+    .setup-card-head { display: flex; align-items: center; gap: 11px; margin-bottom: 8px; }
+    .setup-card-icon { width: 36px; height: 36px; border-radius: 10px; background: var(--teal-light); color: var(--teal); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .setup-card-icon svg { width: 17px; height: 17px; }
+    .setup-card-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 800; color: var(--text); }
+    .setup-card-desc { font-size: 13px; color: var(--text-3); line-height: 1.55; margin-bottom: 16px; }
+
+    .vector-banner { background: linear-gradient(135deg, var(--indigo-light), transparent); border: 1px solid var(--indigo); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 16px; }
+    .vector-banner-label { font-size: 10.5px; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; color: var(--indigo); margin-bottom: 5px; }
+    .vector-banner-meta { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 700; color: var(--text); line-height: 1.3; margin-bottom: 4px; }
+    .vector-banner-fechas { font-size: 12px; color: var(--text-3); }
+
+    .info-line { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 13px 16px; font-size: 12.5px; color: var(--text-2); line-height: 1.5; margin-bottom: 16px; display: flex; gap: 10px; align-items: flex-start; }
+    .info-line svg { width: 15px; height: 15px; color: var(--teal); flex-shrink: 0; margin-top: 2px; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+    .form-group { margin-bottom: 14px; }
+    .form-label { display: block; font-size: 11.5px; font-weight: 700; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px; }
+    .form-input, .form-select { width: 100%; background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 11px 14px; color: var(--text); font-size: 14px; font-family: inherit; transition: border-color .15s; }
+    .form-input:focus, .form-select:focus { outline: none; border-color: var(--teal); }
+    .form-hint { font-size: 11.5px; color: var(--text-3); margin-top: 5px; line-height: 1.5; }
+
+    /* ════════════ SEMANA HERO ════════════ */
+    .semana-hero { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 26px 30px; margin-bottom: 22px; }
+    .semana-hero-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+    .semana-chip-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .semana-chip { display: inline-flex; align-items: center; gap: 6px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11.5px; font-weight: 700; padding: 6px 12px; border-radius: 50px; }
+    .semana-chip svg { width: 12px; height: 12px; }
+    .semana-chip.round { background: var(--indigo-light); color: var(--indigo); }
+    .semana-chip.ronda { background: var(--teal-light); color: var(--teal); }
+    .semana-chip.fechas { background: var(--surface); color: var(--text-3); }
+    .semana-status { display: inline-flex; align-items: center; gap: 7px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; font-weight: 700; }
+    .semana-status .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .semana-status.done { color: var(--green); }
+    .semana-status.done .dot { background: var(--green); }
+    .semana-status.pending { color: var(--amber); }
+    .semana-status.pending .dot { background: var(--amber); }
+
+    .aviso-mes { display: flex; align-items: center; gap: 9px; background: var(--amber-light); border: 1px solid var(--amber); border-radius: var(--radius-sm); padding: 9px 14px; margin-bottom: 16px; font-size: 12.5px; color: var(--text-2); }
+    .aviso-mes svg { width: 14px; height: 14px; color: var(--amber); flex-shrink: 0; }
+
+    .objetivo-label { font-size: 11px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: var(--teal); margin-bottom: 8px; }
+    .objetivo-input { background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; width: 100%; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; color: var(--text); resize: none; outline: none; line-height: 1.3; }
+    .objetivo-input:focus { border-color: var(--teal); }
+    .objetivo-input::placeholder { color: var(--text-4); }
+    .objetivo-hint { font-size: 12px; color: var(--text-3); margin-top: 10px; font-style: italic; }
+
+    .round-link { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--text-3); text-decoration: none; margin-top: 14px; padding: 7px 12px; background: var(--surface); border-radius: 50px; transition: all .15s; }
+    .round-link:hover { color: var(--indigo); background: var(--indigo-light); }
+    .round-link svg { width: 12px; height: 12px; }
+
+    /* 4 PREGUNTAS */
+    .ritual-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .ritual-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px 22px; }
+    .ritual-card-head { display: flex; align-items: center; gap: 11px; margin-bottom: 12px; }
+    .ritual-num { width: 28px; height: 28px; border-radius: 8px; background: var(--gradient); color: white; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .ritual-q { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 700; color: var(--text); line-height: 1.35; }
+    .ritual-textarea { width: 100%; background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; color: var(--text); font-size: 13.5px; font-family: inherit; line-height: 1.55; resize: vertical; min-height: 92px; outline: none; transition: border-color .15s; }
+    .ritual-textarea:focus { border-color: var(--teal); }
+    .ritual-textarea::placeholder { color: var(--text-4); }
+
+    /* TAREAS */
+    .tareas-toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+    .tareas-filter { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 50px; padding: 4px; }
+    .tareas-filter button { padding: 6px 14px; border-radius: 50px; background: transparent; border: none; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11.5px; font-weight: 700; color: var(--text-3); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+    .tareas-filter button svg { width: 12px; height: 12px; }
+    .tareas-filter button.active { background: var(--gradient); color: white; }
+
+    .tarea-list { display: flex; flex-direction: column; gap: 10px; }
+    .tarea-empty { background: var(--bg-card); border: 1px dashed var(--border-strong); border-radius: var(--radius); padding: 22px; text-align: center; font-size: 13px; color: var(--text-3); }
+    .tarea-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 15px 18px; display: flex; gap: 14px; align-items: flex-start; transition: all .15s; }
+    .tarea-card:hover { border-color: var(--border-strong); }
+    .tarea-card.is-impulso { border-left: 3px solid var(--amber); }
+    .tarea-card.is-plan { border-left: 3px solid var(--teal); }
+    .tarea-check { width: 22px; height: 22px; border-radius: 7px; border: 2px solid var(--border-strong); background: var(--bg-input); cursor: pointer; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; transition: all .15s; }
+    .tarea-check svg { width: 13px; height: 13px; color: white; opacity: 0; }
+    .tarea-check.done { background: var(--green); border-color: var(--green); }
+    .tarea-check.done svg { opacity: 1; }
+    .tarea-body { flex: 1; min-width: 0; }
+    .tarea-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .tarea-tag { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 9.5px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; padding: 3px 8px; border-radius: 50px; }
+    .tarea-tag.plan { background: var(--teal-light); color: var(--teal); }
+    .tarea-tag.impulso { background: var(--amber-light); color: var(--amber); }
+    .tarea-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14.5px; font-weight: 700; color: var(--text); line-height: 1.35; }
+    .tarea-card.completed .tarea-title { text-decoration: line-through; color: var(--text-3); }
+    .tarea-meta { display: flex; align-items: center; gap: 14px; margin-top: 7px; flex-wrap: wrap; }
+    .tarea-meta-item { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--text-3); font-weight: 500; }
+    .tarea-meta-item svg { width: 12px; height: 12px; }
+    .tarea-meta-item strong { color: var(--text-2); font-weight: 700; }
+    .tarea-del { width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text-4); cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all .15s; }
+    .tarea-del:hover { color: var(--red); border-color: var(--red); background: var(--red-light); }
+    .tarea-del svg { width: 13px; height: 13px; }
+
+    .add-tarea-row { display: flex; gap: 10px; margin-top: 12px; }
+    .add-tarea-input { flex: 1; background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 11px 14px; color: var(--text); font-size: 13.5px; font-family: inherit; outline: none; }
+    .add-tarea-input:focus { border-color: var(--teal); }
+    .add-tarea-input::placeholder { color: var(--text-4); }
+
+    /* GANCHO PULSO */
+    .impulso-hook { background: linear-gradient(135deg, rgba(255,149,0,0.07), rgba(255,149,0,0.02)); border: 1px dashed var(--amber); border-radius: var(--radius-lg); padding: 20px 24px; display: flex; align-items: center; gap: 16px; }
+    .impulso-hook-icon { width: 44px; height: 44px; border-radius: 12px; background: var(--amber-light); color: var(--amber); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .impulso-hook-icon svg { width: 22px; height: 22px; }
+    .impulso-hook-body { flex: 1; }
+    .impulso-hook-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 800; color: var(--text); margin-bottom: 3px; }
+    .impulso-hook-text { font-size: 12.5px; color: var(--text-3); line-height: 1.5; }
+
+    /* HISTORIAL */
+    .semana-history { display: flex; flex-direction: column; gap: 8px; }
+    .semana-hist-row { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 18px; display: flex; align-items: center; gap: 16px; transition: all .15s; }
+    .semana-hist-row:hover { border-color: var(--border-strong); }
+    .semana-hist-week { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 800; color: var(--teal); flex-shrink: 0; min-width: 86px; }
+    .semana-hist-obj { flex: 1; font-size: 13px; color: var(--text-2); font-weight: 500; min-width: 0; }
+    .semana-hist-fechas { font-size: 11px; color: var(--text-4); margin-top: 3px; }
+    .semana-hist-stat { font-size: 11.5px; color: var(--text-3); font-weight: 600; display: inline-flex; align-items: center; gap: 5px; flex-shrink: 0; }
+    .semana-hist-stat svg { width: 12px; height: 12px; }
+    .semana-hist-stat.pending { color: var(--amber); }
+
+    .empty-state-big { text-align: center; padding: 80px 20px; color: var(--text-3); }
+    .empty-state-big h2 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; color: var(--text); margin-bottom: 8px; }
+
+    /* TOAST */
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--bg-card); border: 1px solid var(--border-strong); color: var(--text); padding: 12px 22px; border-radius: 50px; font-size: 13px; font-weight: 600; box-shadow: 0 8px 30px rgba(0,0,0,0.3); opacity: 0; transition: all .3s; z-index: 1000; }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .toast.success { border-color: var(--green); }
+    .toast.error { border-color: var(--red); }
+
+    @media (max-width: 1000px) {
+      .ritual-grid { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .app-layout { padding: 10px; gap: 10px; }
+      .content { padding: 20px 18px; }
+      .topbar { padding: 14px 18px; flex-wrap: wrap; }
+      .page-title { font-size: 24px; }
+      .objetivo-input { font-size: 19px; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+
+  <aside class="sidebar">
+    <a href="/portal/dashboard.html" class="sidebar-logo">
+      <img src="/logos/SX Isp.png" alt="SCALEx" onerror="this.style.display='none'">
+    </a>
+    <a href="/portal/dashboard.html" class="sidebar-icon" title="Dashboard">
+      <i data-lucide="layout-dashboard"></i>
+    </a>
+    <a href="/portal/opsp.html" class="sidebar-icon" title="OPSP">
+      <i data-lucide="map"></i>
+    </a>
+    <a href="/portal/rituales.html" class="sidebar-icon" title="Rituales">
+      <i data-lucide="repeat"></i>
+    </a>
+
+    <div class="sidebar-divider"></div>
+
+    <a href="/portal/reflejo.html" class="sidebar-icon" title="Reflejo">
+      <i data-lucide="eye"></i>
+    </a>
+    <a href="/portal/vector.html" class="sidebar-icon" title="Vector">
+      <i data-lucide="compass"></i>
+    </a>
+    <a href="/portal/ritmo-semanal.html" class="sidebar-icon active" title="Ritmo">
+      <i data-lucide="activity"></i>
+    </a>
+    <a href="/portal/costeo.html" class="sidebar-icon" title="Costeo">
+      <i data-lucide="calculator"></i>
+    </a>
+
+    <div class="sidebar-bottom">
+      <button class="sidebar-icon" title="Cambiar tema" onclick="toggleTheme()">
+        <i data-lucide="sun" id="theme-icon"></i>
+      </button>
+      <button class="sidebar-icon" title="Cerrar sesion" onclick="logout()">
+        <i data-lucide="log-out"></i>
+      </button>
+    </div>
+  </aside>
+
+  <main class="shell">
+
+    <div class="topbar">
+      <a href="/portal/dashboard.html" class="topbar-back">
+        <i data-lucide="arrow-left"></i>
+      </a>
+      <div class="topbar-title-block">
+        <div class="topbar-eyebrow">Pilar 4 · Ritmo · Ejecución</div>
+        <div class="topbar-title">Ritual Semanal de Planeación</div>
+      </div>
+      <div class="view-switcher">
+        <button data-view="setup">Setup</button>
+        <button data-view="semana">La semana</button>
+        <button data-view="historial">Historial</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ═══════════ LOADING ═══════════ -->
+      <div class="view active" id="view-loading">
+        <div class="loading-wrap">
+          <div class="spinner"></div>
+          <span>Cargando tu ritmo...</span>
+        </div>
+      </div>
+
+      <!-- ═══════════ SETUP ═══════════ -->
+      <div class="view" id="view-setup">
+        <div class="page-header">
+          <div class="page-eyebrow">Pilar 4 · Ritmo</div>
+          <h1 class="page-title">Configura tu <span>ritmo semanal</span></h1>
+          <p class="page-sub">El sistema generará las semanas reales del calendario — cada una de 7 días — sobre las que harás el Ritual Semanal. Es la base del Ritmo: 3 años son ~150 rondas de planificación, ejecución y evaluación.</p>
+        </div>
+
+        <!-- Si hay vector activo -->
+        <div id="setup-con-vector" style="display:none;">
+          <div class="setup-card">
+            <div class="setup-card-head">
+              <div class="setup-card-icon"><i data-lucide="compass"></i></div>
+              <div class="setup-card-title">Tu Vector activo marca el horizonte</div>
+            </div>
+            <div class="setup-card-desc">Las semanas se generarán cubriendo exactamente el horizonte de tu Vector, y cada una quedará vinculada a su round correspondiente.</div>
+            <div class="vector-banner">
+              <div class="vector-banner-label">Vector activo</div>
+              <div class="vector-banner-meta" id="setup-vector-meta">—</div>
+              <div class="vector-banner-fechas" id="setup-vector-fechas">—</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Si NO hay vector -->
+        <div id="setup-sin-vector" style="display:none;">
+          <div class="info-line">
+            <i data-lucide="info"></i>
+            <span>Aún no tienes un Vector activo. No hay problema: el Ritmo funciona igual. Define tú las fechas del horizonte. Si más adelante creas tu Vector, podrás re-generar las semanas para vincularlas a los rounds.</span>
+          </div>
+        </div>
+
+        <div class="setup-card">
+          <div class="setup-card-head">
+            <div class="setup-card-icon"><i data-lucide="calendar-cog"></i></div>
+            <div class="setup-card-title">Configuración de las semanas</div>
+          </div>
+          <div class="setup-card-desc">Define cuándo arranca tu semana laboral y el rango de fechas a generar. Cada semana tendrá siempre 7 días.</div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Desde</label>
+              <input type="date" class="form-input" id="setup-desde">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Hasta</label>
+              <input type="date" class="form-input" id="setup-hasta">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">¿Qué día arranca tu semana?</label>
+            <select class="form-select" id="setup-dia-inicio"></select>
+            <div class="form-hint">Por default lunes. Cámbialo si tu empresa arranca otro día por su ciclo de facturación u operación. La primera semana arrancará en la fecha "Desde" y de ahí correrán bloques de 7 días.</div>
+          </div>
+
+          <button class="btn btn-primary large" id="btn-generar-semanas">
+            <i data-lucide="play"></i><span>Generar las semanas</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ═══════════ LA SEMANA ═══════════ -->
+      <div class="view" id="view-semana">
+
+        <!-- Hero: objetivo de la semana -->
+        <div class="semana-hero">
+          <div class="semana-hero-top">
+            <div class="semana-chip-row">
+              <span class="semana-chip round" id="semana-chip-round" style="display:none;">
+                <i data-lucide="compass"></i><span class="chip-text"></span>
+              </span>
+              <span class="semana-chip ronda" id="semana-chip-ronda">
+                <i data-lucide="git-commit"></i><span class="chip-text"></span>
+              </span>
+              <span class="semana-chip fechas" id="semana-chip-fechas">
+                <i data-lucide="calendar"></i><span class="chip-text"></span>
+              </span>
+            </div>
+            <div class="semana-status pending" id="semana-status">
+              <span class="dot"></span> Ritual pendiente
+            </div>
+          </div>
+
+          <div class="aviso-mes" id="semana-aviso-mes" style="display:none;">
+            <i data-lucide="alert-triangle"></i>
+            <span class="aviso-text"></span>
+          </div>
+
+          <div class="objetivo-label">El objetivo de esta semana</div>
+          <textarea class="objetivo-input" id="objetivo-input" rows="2"
+            placeholder="Una sola cosa clara. ¿Qué resultado específico debe lograrse en estos 7 días?"></textarea>
+          <div class="objetivo-hint">Una sola cosa clara. Si la semana termina y esto se logró, la semana valió.</div>
+
+          <a href="#" class="round-link" id="round-link" style="display:none;">
+            <i data-lucide="link"></i> Ver el round del Vector al que pertenece esta semana
+          </a>
+        </div>
+
+        <!-- Las 4 preguntas -->
+        <div class="section-title">
+          <i data-lucide="clipboard-list"></i> El ritual — 4 preguntas, siempre las mismas
+        </div>
+        <div class="ritual-grid">
+          <div class="ritual-card">
+            <div class="ritual-card-head">
+              <div class="ritual-num">1</div>
+              <div class="ritual-q">¿Cuáles son los retos de esta semana?</div>
+            </div>
+            <textarea class="ritual-textarea" id="ritual-retos"
+              placeholder="Lo que el equipo enfrenta de aquí al próximo ritual..."></textarea>
+          </div>
+          <div class="ritual-card">
+            <div class="ritual-card-head">
+              <div class="ritual-num">2</div>
+              <div class="ritual-q">¿Qué actividades clave no podemos dejar pasar?</div>
+            </div>
+            <textarea class="ritual-textarea" id="ritual-actividades"
+              placeholder="Lo innegociable de la semana..."></textarea>
+          </div>
+          <div class="ritual-card">
+            <div class="ritual-card-head">
+              <div class="ritual-num">3</div>
+              <div class="ritual-q">¿Qué métricas nos dirán si avanzamos?</div>
+            </div>
+            <textarea class="ritual-textarea" id="ritual-metricas"
+              placeholder="Los números que miden esta semana..."></textarea>
+          </div>
+          <div class="ritual-card">
+            <div class="ritual-card-head">
+              <div class="ritual-num">4</div>
+              <div class="ritual-q">¿Qué ajustamos respecto a la semana pasada?</div>
+            </div>
+            <textarea class="ritual-textarea" id="ritual-ajustes"
+              placeholder="Lo aprendido de la semana anterior..."></textarea>
+          </div>
+        </div>
+
+        <!-- Tareas de la semana -->
+        <div class="section-title">
+          <i data-lucide="list-checks"></i> Tareas de la semana
+          <span class="count" id="tareas-count">0 tareas</span>
+        </div>
+        <div class="tareas-toolbar">
+          <div class="tareas-filter">
+            <button class="active" data-filtro="todas"><i data-lucide="layers"></i> Todas</button>
+            <button data-filtro="plan"><i data-lucide="clipboard-check"></i> Del plan</button>
+            <button data-filtro="impulso"><i data-lucide="zap"></i> Impulsos del día</button>
+          </div>
+        </div>
+        <div class="tarea-list" id="tarea-list"></div>
+        <div class="add-tarea-row">
+          <input class="add-tarea-input" id="add-tarea-input"
+            placeholder="Agregar una tarea del plan a esta semana...">
+          <button class="btn btn-primary btn-sm" id="btn-add-tarea">
+            <i data-lucide="plus"></i> Agregar
+          </button>
+        </div>
+
+        <!-- Gancho al Pulso -->
+        <div class="section-title"><i data-lucide="activity"></i> El día a día</div>
+        <div class="impulso-hook">
+          <div class="impulso-hook-icon"><i data-lucide="zap"></i></div>
+          <div class="impulso-hook-body">
+            <div class="impulso-hook-title">Los impulsos del día nacen en el Pulso</div>
+            <div class="impulso-hook-text">
+              Cada día, la reunión diaria —el Pulso— revisa este objetivo y de ahí surgen los impulsos:
+              tareas catalizadoras que aceleran el plan. Se suman aquí automáticamente, marcadas en ámbar.
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ═══════════ HISTORIAL ═══════════ -->
+      <div class="view" id="view-historial">
+        <div class="page-header">
+          <div class="page-eyebrow">Pilar 4 · Ritmo</div>
+          <h1 class="page-title">El <span>historial</span> de tus rondas</h1>
+          <p class="page-sub">Cada semana es una ronda. En 3 años son ~150 rondas de planificación, ejecución y evaluación. Aquí ves el músculo que vas construyendo.</p>
+        </div>
+        <div class="section-title"><i data-lucide="history"></i> Rondas anteriores</div>
+        <div class="semana-history" id="historial-list"></div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>lucide.createIcons();</script>
+<script type="module" src="/assets/js/ritmo-semanal.js"></script>
+
+</body>
+</html>
