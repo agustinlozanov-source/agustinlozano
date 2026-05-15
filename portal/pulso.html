@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCALEx Portal · El Pulso</title>
+  <link rel="icon" type="image/png" href="/logos/SX Icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script type="module" src="/assets/js/auth-guard.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --teal: #1aab99; --teal-light: rgba(26,171,153,0.12);
+      --indigo: #3533cd; --indigo-light: rgba(53,51,205,0.12);
+      --gradient: linear-gradient(135deg, #1aab99, #3533cd);
+      --green: #00c853; --green-light: rgba(0,200,83,0.12);
+      --amber: #ff9500; --amber-light: rgba(255,149,0,0.12);
+      --red: #ff3b30; --red-light: rgba(255,59,48,0.12);
+      --purple: #7c3aed; --purple-light: rgba(124,58,237,0.12);
+      --radius-xl: 28px; --radius-lg: 20px; --radius: 14px; --radius-sm: 9px;
+      --sidebar-w: 80px;
+      font-family: 'Inter', sans-serif; line-height: 1.6;
+    }
+    [data-theme="dark"] {
+      --bg-page: #0a0a0c; --bg-shell: #141416; --bg-card: #1c1c1e; --bg-card-2: #242426;
+      --bg-input: #0d0d10;
+      --surface: rgba(255,255,255,0.04); --surface-hover: rgba(255,255,255,0.07);
+      --border: rgba(255,255,255,0.08); --border-strong: rgba(255,255,255,0.13);
+      --text: #fff; --text-2: #c7c7cc; --text-3: #8e8e93; --text-4: #48484a;
+      --sidebar-bg: #050506;
+    }
+    [data-theme="light"] {
+      --bg-page: #eef0f5; --bg-shell: #fff; --bg-card: #f5f5f7; --bg-card-2: #ebebef;
+      --bg-input: #fff;
+      --surface: rgba(0,0,0,0.03); --surface-hover: rgba(0,0,0,0.055);
+      --border: rgba(0,0,0,0.08); --border-strong: rgba(0,0,0,0.14);
+      --text: #070708; --text-2: #3a3a3c; --text-3: #6e6e73; --text-4: #c7c7cc;
+      --sidebar-bg: #0a0a0c;
+    }
+
+    body { background: var(--bg-page); color: var(--text); min-height: 100vh; overflow: hidden; transition: background .3s, color .3s; }
+    .app-layout { display: flex; min-height: 100vh; padding: 16px; gap: 16px; }
+
+    .sidebar { width: var(--sidebar-w); background: var(--sidebar-bg); border-radius: var(--radius-xl); padding: 20px 0; display: flex; flex-direction: column; align-items: center; gap: 8px; flex-shrink: 0; position: sticky; top: 16px; height: calc(100vh - 32px); }
+    .sidebar-logo { width: 44px; height: auto; display: block; margin-bottom: 16px; text-decoration: none; }
+    .sidebar-logo img { width: 100%; height: auto; display: block; }
+    .sidebar-divider { width: 28px; height: 1px; background: rgba(255,255,255,0.08); margin: 4px 0; }
+    .sidebar-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all .2s; color: rgba(255,255,255,0.5); position: relative; text-decoration: none; background: none; border: none; }
+    .sidebar-icon:hover { background: rgba(255,255,255,0.06); color: white; }
+    .sidebar-icon.active { background: var(--gradient); color: white; }
+    .sidebar-icon.active::before { content: ''; position: absolute; left: -16px; top: 50%; transform: translateY(-50%); width: 3px; height: 24px; background: var(--teal); border-radius: 0 3px 3px 0; }
+    .sidebar-icon svg { width: 20px; height: 20px; }
+    .sidebar-bottom { margin-top: auto; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+
+    .shell { flex: 1; background: var(--bg-shell); border-radius: var(--radius-xl); overflow: hidden; display: flex; flex-direction: column; height: calc(100vh - 32px); }
+    .topbar { padding: 18px 28px; display: flex; align-items: center; gap: 16px; border-bottom: 1px solid var(--border); flex-shrink: 0; flex-wrap: wrap; }
+    .topbar-back { width: 36px; height: 36px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-2); text-decoration: none; }
+    .topbar-back svg { width: 16px; height: 16px; }
+    .topbar-title-block { flex: 1; min-width: 0; }
+    .topbar-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--teal); }
+    .topbar-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; font-weight: 800; color: var(--text); letter-spacing: -0.3px; margin-top: 2px; }
+    .topbar-action { padding: 8px 14px; border-radius: 50px; background: var(--surface); border: 1px solid var(--border); color: var(--text-2); cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
+    .topbar-action:hover { background: var(--surface-hover); color: var(--text); }
+    .topbar-action svg { width: 13px; height: 13px; }
+
+    .content { flex: 1; overflow-y: auto; padding: 28px 32px; }
+    .content::-webkit-scrollbar { width: 8px; }
+    .content::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 50px; }
+
+    .view { display: none; }
+    .view.active { display: block; animation: fadeIn .3s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+
+    .spinner-sm { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.4); border-top-color: white; border-radius: 50%; animation: spin .7s linear infinite; display: inline-block; }
+    .loading-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 20px; gap: 16px; color: var(--text-3); }
+    .loading-wrap .spinner-sm { width: 28px; height: 28px; border-color: var(--border-strong); border-top-color: var(--teal); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .btn { padding: 12px 22px; border-radius: 50px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 8px; transition: all .2s; }
+    .btn svg { width: 16px; height: 16px; }
+    .btn-primary { background: var(--gradient); color: white; }
+    .btn-primary:hover { transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .btn-primary.large { padding: 14px 28px; font-size: 15px; }
+    .btn-primary.xlarge { padding: 20px 40px; font-size: 17px; }
+    .btn-ghost { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
+    .btn-ghost:hover { background: var(--surface-hover); }
+    .btn-sm { padding: 8px 14px; font-size: 12px; }
+    .empty-state-big { text-align: center; padding: 80px 20px; color: var(--text-3); }
+    .empty-state-big h2 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; color: var(--text); margin-bottom: 8px; }
+
+    /* ════════════ ONBOARDING ════════════ */
+    .onb { display: flex; align-items: center; justify-content: center; min-height: 70vh; padding: 40px 20px; }
+    .onb-card { max-width: 720px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 48px 44px; position: relative; overflow: hidden; }
+    .onb-card::before { content: ''; position: absolute; top: -80px; right: -80px; width: 280px; height: 280px; background: radial-gradient(circle, rgba(26,171,153,0.12), transparent 70%); border-radius: 50%; pointer-events: none; }
+    .onb-icon { width: 72px; height: 72px; border-radius: 20px; background: var(--gradient); color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto 22px; box-shadow: 0 10px 30px rgba(26,171,153,0.3); position: relative; }
+    .onb-icon svg { width: 32px; height: 32px; }
+    .onb-eyebrow { font-size: 11px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; color: var(--teal); margin-bottom: 10px; position: relative; text-align: center; }
+    .onb-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 30px; font-weight: 800; line-height: 1.2; letter-spacing: -0.7px; margin-bottom: 14px; position: relative; text-align: center; }
+    .onb-title span { background: var(--gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .onb-text { font-size: 14.5px; color: var(--text-2); line-height: 1.65; margin-bottom: 32px; position: relative; text-align: center; }
+    .onb-text strong { color: var(--text); }
+    .onb-quote { background: linear-gradient(135deg, rgba(255,149,0,0.06), transparent); border-left: 3px solid var(--amber); padding: 14px 18px; margin-bottom: 26px; font-style: italic; font-size: 13.5px; color: var(--text-2); line-height: 1.55; position: relative; border-radius: 0 var(--radius) var(--radius) 0; }
+    .onb-section { background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 24px; margin-bottom: 18px; position: relative; }
+    .onb-section-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 800; color: var(--text); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .onb-section-title svg { width: 15px; height: 15px; color: var(--teal); }
+    .onb-section-desc { font-size: 12.5px; color: var(--text-3); margin-bottom: 14px; line-height: 1.5; }
+    .onb-section-desc strong { color: var(--text-2); }
+    .onb-input { width: 100%; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; color: var(--text); font-size: 14px; font-family: inherit; }
+    .onb-input.hora { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; font-weight: 800; letter-spacing: 1px; text-align: center; padding: 14px; }
+    .onb-input:focus { outline: none; border-color: var(--teal); }
+    .onb-hint { font-size: 11.5px; color: var(--text-3); margin-top: 6px; font-style: italic; }
+    .onb-row-double { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    .dias-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+    .dia-chip { padding: 9px 14px; border-radius: 50px; border: 1.5px solid var(--border-strong); background: var(--bg-card); color: var(--text-3); cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; font-weight: 700; transition: all .15s; }
+    .dia-chip:hover { border-color: var(--teal); color: var(--text); }
+    .dia-chip.active { background: var(--teal); border-color: var(--teal); color: white; }
+
+    .roles-list { display: flex; flex-direction: column; gap: 10px; }
+    .rol-row { display: flex; align-items: center; gap: 10px; }
+    .rol-icon { width: 32px; height: 32px; border-radius: 9px; background: var(--surface); color: var(--text-3); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .rol-icon svg { width: 14px; height: 14px; }
+    .rol-input { flex: 1; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 9px 12px; color: var(--text); font-size: 13.5px; font-family: inherit; }
+    .rol-input:focus { outline: none; border-color: var(--teal); }
+    .rol-del { width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text-4); cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .rol-del:hover { color: var(--red); border-color: var(--red); background: var(--red-light); }
+    .rol-del svg { width: 12px; height: 12px; }
+    .rol-add { background: transparent; border: 1px dashed var(--border-strong); color: var(--text-3); cursor: pointer; font-family: inherit; font-size: 12.5px; padding: 9px 12px; border-radius: var(--radius-sm); width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .rol-add svg { width: 13px; height: 13px; }
+    .rol-add:hover { color: var(--teal); border-color: var(--teal); }
+
+    .onb-warning { background: var(--amber-light); border: 1px solid var(--amber); border-radius: var(--radius); padding: 13px 16px; margin: 22px 0; display: flex; gap: 10px; align-items: flex-start; font-size: 12.5px; color: var(--text-2); line-height: 1.5; }
+    .onb-warning svg { width: 16px; height: 16px; color: var(--amber); flex-shrink: 0; margin-top: 2px; }
+    .onb-warning strong { color: var(--amber); }
+    .onb-actions { text-align: center; margin-top: 28px; }
+
+    /* ════════════ HEADER COMÚN DEL DÍA ════════════ */
+    .day-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+    .day-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .day-chip { display: inline-flex; align-items: center; gap: 6px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11.5px; font-weight: 700; padding: 6px 12px; border-radius: 50px; background: var(--surface); color: var(--text-3); }
+    .day-chip svg { width: 12px; height: 12px; }
+    .day-chip.ronda { background: var(--teal-light); color: var(--teal); }
+    .day-chip.objetivo { background: var(--indigo-light); color: var(--indigo); }
+
+    /* ════════════ ANTES DEL PULSO ════════════ */
+    .preplay-hero { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 40px 36px; margin-bottom: 22px; text-align: center; position: relative; overflow: hidden; }
+    .preplay-hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 50% 0%, rgba(26,171,153,0.08), transparent 70%); pointer-events: none; }
+    .preplay-eyebrow { font-size: 11px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: var(--teal); margin-bottom: 14px; position: relative; }
+    .preplay-hora-pactada { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 64px; font-weight: 900; letter-spacing: -2px; line-height: 1; background: var(--gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; position: relative; }
+    .preplay-hora-label { font-size: 12px; color: var(--text-3); margin-bottom: 28px; position: relative; }
+    .preplay-cuenta { font-size: 14px; color: var(--text-2); margin-bottom: 28px; position: relative; }
+    .preplay-cuenta strong { color: var(--text); font-weight: 700; }
+    .preplay-btn-wrap { position: relative; }
+    .preplay-btn-hint { font-size: 12px; color: var(--text-4); margin-top: 12px; position: relative; }
+
+    /* ════════════ EN CURSO ════════════ */
+    .live-banner { background: linear-gradient(135deg, rgba(0,200,83,0.10), rgba(26,171,153,0.05)); border: 1.5px solid var(--green); border-radius: var(--radius-xl); padding: 22px 28px; margin-bottom: 22px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+    .live-icon { width: 52px; height: 52px; border-radius: 14px; background: var(--green); color: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative; }
+    .live-icon::after { content: ''; position: absolute; inset: -4px; border: 2px solid var(--green); border-radius: 18px; opacity: 0.4; animation: pulseRing 1.6s ease-out infinite; }
+    @keyframes pulseRing { 0% { transform: scale(1); opacity: 0.5; } 100% { transform: scale(1.4); opacity: 0; } }
+    .live-icon svg { width: 22px; height: 22px; }
+    .live-body { flex: 1; min-width: 200px; }
+    .live-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; font-weight: 800; color: var(--text); letter-spacing: -0.3px; margin-bottom: 4px; }
+    .live-meta { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; font-size: 12.5px; color: var(--text-2); }
+    .live-meta-item { display: inline-flex; align-items: center; gap: 5px; }
+    .live-meta-item svg { width: 13px; height: 13px; color: var(--green); }
+    .live-meta-item strong { color: var(--text); font-weight: 700; }
+    .live-delta { padding: 4px 10px; border-radius: 50px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11px; font-weight: 800; }
+    .live-delta.ontime { background: var(--green-light); color: var(--green); }
+    .live-delta.tarde { background: var(--amber-light); color: var(--amber); }
+    .live-delta.adelantado { background: var(--indigo-light); color: var(--indigo); }
+    .live-cronometro { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 28px; font-weight: 900; letter-spacing: -0.5px; color: var(--text); padding: 4px 14px; background: var(--surface); border-radius: 14px; flex-shrink: 0; min-width: 100px; text-align: center; }
+
+    /* Roles del día */
+    .roles-hoy { display: flex; gap: 10px; margin-bottom: 22px; flex-wrap: wrap; }
+    .rol-card { flex: 1; min-width: 160px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; display: flex; align-items: center; gap: 12px; }
+    .rol-card-icon { width: 36px; height: 36px; border-radius: 10px; background: var(--surface); color: var(--text-2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .rol-card-icon svg { width: 16px; height: 16px; }
+    .rol-card-info { flex: 1; min-width: 0; }
+    .rol-card-label { font-size: 10px; font-weight: 800; color: var(--text-3); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 2px; }
+    .rol-card-name { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13.5px; font-weight: 700; color: var(--text); }
+
+    /* 3 BLOQUES */
+    .bloques { display: flex; flex-direction: column; gap: 14px; margin-bottom: 22px; }
+    .bloque { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px 24px; }
+    .bloque-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+    .bloque-head-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .bloque-num { width: 32px; height: 32px; border-radius: 9px; background: var(--gradient); color: white; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 900; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .bloque-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; font-weight: 800; color: var(--text); letter-spacing: -0.3px; }
+    .bloque-hint { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+    .bloque-textarea { width: 100%; background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; color: var(--text); font-size: 13.5px; font-family: inherit; line-height: 1.55; resize: vertical; min-height: 80px; outline: none; }
+    .bloque-textarea:focus { border-color: var(--teal); }
+    .bloque-textarea::placeholder { color: var(--text-4); }
+    .bloque.numero .bloque-input-grande { width: 100%; background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; font-size: 30px; font-weight: 900; letter-spacing: -0.6px; outline: none; }
+    .bloque.numero .bloque-input-grande:focus { border-color: var(--teal); }
+    .bloque.numero .bloque-input-grande::placeholder { color: var(--text-4); font-weight: 700; }
+    .bloque-numero-context { display: flex; align-items: center; gap: 10px; margin-top: 10px; font-size: 12px; color: var(--text-3); }
+    .bloque-numero-context strong { color: var(--text-2); font-weight: 700; }
+
+    /* Indicador de guardado por bloque */
+    .save-indicator { display: inline-flex; align-items: center; gap: 7px; font-size: 11.5px; font-weight: 600; color: var(--text-3); padding: 4px 10px; border-radius: 50px; background: var(--surface); white-space: nowrap; transition: all .15s; }
+    .save-indicator.saved { color: var(--green); background: var(--green-light); }
+    .save-indicator.saving { color: var(--amber); background: var(--amber-light); }
+    .save-indicator.error { color: var(--red); background: var(--red-light); }
+    .save-indicator-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-4); }
+    .save-indicator.saving .save-indicator-dot { background: var(--amber); animation: pulse 1.2s ease-in-out infinite; }
+    .save-indicator.saved .save-indicator-dot { background: var(--green); }
+    .save-indicator.error .save-indicator-dot { background: var(--red); }
+    @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+
+    /* IMPULSOS */
+    .impulsos-live { background: linear-gradient(135deg, rgba(255,149,0,0.06), transparent); border: 1px dashed var(--amber); border-radius: var(--radius-lg); padding: 18px 22px; margin-top: 14px; }
+    .impulsos-live-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+    .impulsos-live-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 800; color: var(--amber); display: inline-flex; align-items: center; gap: 7px; }
+    .impulsos-live-title svg { width: 14px; height: 14px; }
+    .impulsos-live-hint { font-size: 11.5px; color: var(--text-3); }
+    .impulso-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 8px; }
+    .impulso-row-icon { color: var(--amber); flex-shrink: 0; }
+    .impulso-row-icon svg { width: 13px; height: 13px; }
+    .impulso-row-text { flex: 1; font-size: 13px; color: var(--text); }
+    .impulso-row-meta { font-size: 11px; color: var(--text-4); white-space: nowrap; }
+    .impulso-del { width: 22px; height: 22px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-4); cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .impulso-del:hover { color: var(--red); border-color: var(--red); background: var(--red-light); }
+    .impulso-del svg { width: 11px; height: 11px; }
+    .impulso-add-row { display: grid; grid-template-columns: 1fr 130px auto; gap: 8px; align-items: center; }
+    .impulso-add-input { background: var(--bg-input); border: 1px dashed var(--border-strong); border-radius: var(--radius-sm); padding: 9px 12px; color: var(--text); font-size: 12.5px; font-family: inherit; outline: none; }
+    .impulso-add-input:focus { border-style: solid; border-color: var(--amber); }
+    .impulso-add-input::placeholder { color: var(--text-4); }
+    .impulso-add-btn { background: var(--amber); color: white; border: none; padding: 9px 12px; border-radius: var(--radius-sm); font-family: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
+    .impulso-add-btn svg { width: 12px; height: 12px; }
+
+    .cierre-pulso { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 22px 26px; margin-top: 18px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+    .cierre-pulso-body { flex: 1; min-width: 220px; }
+    .cierre-pulso-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 800; color: var(--text); margin-bottom: 3px; }
+    .cierre-pulso-text { font-size: 12.5px; color: var(--text-3); line-height: 1.5; }
+
+    /* ════════════ CERRADO ════════════ */
+    .done-banner { background: linear-gradient(135deg, rgba(0,200,83,0.07), transparent); border: 1px solid var(--green); border-radius: var(--radius-xl); padding: 18px 26px; margin-bottom: 22px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+    .done-icon { width: 40px; height: 40px; border-radius: 12px; background: var(--green-light); color: var(--green); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .done-icon svg { width: 18px; height: 18px; }
+    .done-body { flex: 1; min-width: 200px; }
+    .done-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 800; color: var(--green); margin-bottom: 4px; }
+    .done-text { font-size: 13px; color: var(--text-2); }
+    .done-stats { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+    .done-stat { text-align: center; }
+    .done-stat-num { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; font-weight: 900; color: var(--text); line-height: 1; }
+    .done-stat-label { font-size: 10.5px; color: var(--text-3); margin-top: 4px; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; }
+    .done-actions { margin-left: auto; }
+
+    .resumen-grid { display: flex; flex-direction: column; gap: 12px; }
+    .resumen-bloque { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; }
+    .resumen-bloque-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .resumen-bloque-num { width: 24px; height: 24px; border-radius: 7px; background: var(--gradient); color: white; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11px; font-weight: 900; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .resumen-bloque-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 800; color: var(--text); }
+    .resumen-bloque-text { font-size: 13px; color: var(--text-2); line-height: 1.55; padding-left: 34px; white-space: pre-wrap; }
+    .resumen-bloque-numero { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 24px; font-weight: 900; color: var(--text); padding-left: 34px; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+    .resumen-bloque-numero-sub { font-size: 12px; color: var(--text-3); font-weight: 500; }
+
+    /* ════════════ STRIP DE SEMANA ════════════ */
+    .pulsos-week { margin-top: 28px; padding-top: 22px; border-top: 1px solid var(--border); }
+    .pulsos-week-head { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 800; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .pulsos-week-head svg { width: 15px; height: 15px; color: var(--teal); }
+    .pulsos-strip { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+    .pulso-day { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 8px; text-align: center; }
+    .pulso-day.today { border-color: var(--teal); background: var(--teal-light); }
+    .pulso-day.done { border-color: var(--green); }
+    .pulso-day.strike { border-color: var(--red); background: var(--red-light); }
+    .pulso-day.en-curso { border-color: var(--amber); background: var(--amber-light); }
+    .pulso-day.no-laborable { opacity: 0.4; }
+    .pulso-day-dia { font-size: 10px; font-weight: 800; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px; }
+    .pulso-day-num { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; font-weight: 900; color: var(--text); line-height: 1; margin-bottom: 6px; }
+    .pulso-day-status { font-size: 9.5px; color: var(--text-3); font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
+    .pulso-day.done .pulso-day-status { color: var(--green); }
+    .pulso-day.strike .pulso-day-status { color: var(--red); }
+    .pulso-day.today .pulso-day-status { color: var(--teal); }
+    .pulso-day.en-curso .pulso-day-status { color: var(--amber); }
+    .pulso-day.no-laborable .pulso-day-status { color: var(--text-4); }
+
+    .strikes-summary { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 50px; margin-top: 16px; font-size: 12px; color: var(--text-3); }
+    .strikes-summary.warn { background: var(--amber-light); border-color: var(--amber); color: var(--amber); }
+    .strikes-summary.crit { background: var(--red-light); border-color: var(--red); color: var(--red); }
+    .strikes-summary strong { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; }
+    .strikes-summary svg { width: 13px; height: 13px; }
+
+    /* ════════════ NO PULSO ════════════ */
+    .nopulso-hero { display: flex; align-items: center; justify-content: center; min-height: 50vh; padding: 40px 20px; }
+    .nopulso-card { max-width: 500px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 40px 36px; text-align: center; }
+    .nopulso-icon { width: 56px; height: 56px; border-radius: 14px; background: var(--surface); color: var(--text-3); display: flex; align-items: center; justify-content: center; margin: 0 auto 18px; }
+    .nopulso-icon svg { width: 24px; height: 24px; }
+    .nopulso-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 10px; }
+    .nopulso-text { font-size: 14px; color: var(--text-3); line-height: 1.6; margin-bottom: 20px; }
+    .nopulso-text strong { color: var(--text-2); }
+    .nopulso-prox { font-size: 12.5px; color: var(--text-2); padding: 10px 16px; background: var(--surface); border-radius: 50px; display: inline-flex; align-items: center; gap: 6px; }
+    .nopulso-prox svg { width: 13px; height: 13px; color: var(--teal); }
+
+    @media (max-width: 900px) {
+      .roles-hoy { flex-direction: column; }
+      .day-header { flex-direction: column; align-items: flex-start; }
+      .impulso-add-row { grid-template-columns: 1fr; }
+      .live-banner { flex-direction: column; align-items: flex-start; }
+      .live-cronometro { align-self: stretch; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+
+  <aside class="sidebar">
+    <a href="/portal/dashboard.html" class="sidebar-logo">
+      <img src="/logos/SX Isp.png" alt="SCALEx" onerror="this.style.display='none'">
+    </a>
+    <a href="/portal/dashboard.html" class="sidebar-icon" title="Dashboard">
+      <i data-lucide="layout-dashboard"></i>
+    </a>
+    <a href="/portal/opsp.html" class="sidebar-icon" title="OPSP">
+      <i data-lucide="map"></i>
+    </a>
+    <a href="/portal/rituales.html" class="sidebar-icon" title="Rituales">
+      <i data-lucide="repeat"></i>
+    </a>
+
+    <div class="sidebar-divider"></div>
+
+    <a href="/portal/reflejo.html" class="sidebar-icon" title="Reflejo">
+      <i data-lucide="eye"></i>
+    </a>
+    <a href="/portal/vector.html" class="sidebar-icon" title="Vector">
+      <i data-lucide="compass"></i>
+    </a>
+    <a href="/portal/ritmo-semanal.html" class="sidebar-icon active" title="Ritmo">
+      <i data-lucide="activity"></i>
+    </a>
+    <a href="/portal/costeo.html" class="sidebar-icon" title="Costeo">
+      <i data-lucide="calculator"></i>
+    </a>
+
+    <div class="sidebar-bottom">
+      <button class="sidebar-icon" title="Cambiar tema" onclick="toggleTheme()">
+        <i data-lucide="sun" id="theme-icon"></i>
+      </button>
+      <button class="sidebar-icon" title="Cerrar sesion" onclick="logout()">
+        <i data-lucide="log-out"></i>
+      </button>
+    </div>
+  </aside>
+
+  <main class="shell">
+
+    <div class="topbar">
+      <a href="/portal/ritmo-semanal.html" class="topbar-back">
+        <i data-lucide="arrow-left"></i>
+      </a>
+      <div class="topbar-title-block">
+        <div class="topbar-eyebrow">Pilar 4 · Ritmo · Herramienta 2</div>
+        <div class="topbar-title">El Pulso · Reunión diaria</div>
+      </div>
+      <button class="topbar-action" id="btn-config-pulso" title="Reconfigurar">
+        <i data-lucide="settings"></i><span>Config</span>
+      </button>
+    </div>
+
+    <div class="content">
+
+      <!-- LOADING -->
+      <div class="view active" id="view-loading">
+        <div class="loading-wrap">
+          <div class="spinner-sm"></div>
+          <span>Cargando el Pulso...</span>
+        </div>
+      </div>
+
+      <!-- ONBOARDING -->
+      <div class="view" id="view-onboarding">
+        <div class="onb">
+          <div class="onb-card">
+            <div class="onb-icon"><i data-lucide="activity"></i></div>
+            <div class="onb-eyebrow">Bienvenido al Pulso</div>
+            <h1 class="onb-title">Define <span>el latido</span> de tu empresa</h1>
+            <p class="onb-text">
+              El Pulso es la reunión diaria que sostiene la semana. Breve, fija, inexorable.
+              No es para castigo — es para <strong>encontrar el enfoque del día</strong> antes de que el día te lo robe.
+            </p>
+
+            <div class="onb-quote">
+              "Reunirse diariamente ya es un reto. Con estructura, es un reto mayor. Con estructura, resultados y cultura, ya es todo un concepto. ¿Para qué hacerlo más complejo?"
+            </div>
+
+            <div class="onb-section">
+              <div class="onb-section-title"><i data-lucide="clock"></i> Hora pactada</div>
+              <div class="onb-section-desc">
+                Una hora rara, específica, fija. <strong>7:55, 6:43, 8:17.</strong> La rareza la vuelve memorable; la fijeza la vuelve sagrada.
+              </div>
+              <input type="time" class="onb-input hora" id="onb-hora" value="07:55">
+              <div class="onb-hint">El Pulso siempre será a esta hora. Si la cambias después, todo el equipo lo verá.</div>
+            </div>
+
+            <div class="onb-section">
+              <div class="onb-section-title"><i data-lucide="calendar-days"></i> Días con Pulso</div>
+              <div class="onb-section-desc">
+                Marca los días en que tu equipo se reúne. Los demás días no esperarán Pulso ni contarán como strike.
+              </div>
+              <div class="dias-chips">
+                <button class="dia-chip" data-dia="1">L</button>
+                <button class="dia-chip" data-dia="2">M</button>
+                <button class="dia-chip" data-dia="3">M</button>
+                <button class="dia-chip" data-dia="4">J</button>
+                <button class="dia-chip" data-dia="5">V</button>
+                <button class="dia-chip" data-dia="6">S</button>
+                <button class="dia-chip" data-dia="7">D</button>
+              </div>
+              <div class="onb-hint">Default: lunes a viernes. Tu empresa decide.</div>
+            </div>
+
+            <div class="onb-section">
+              <div class="onb-section-title"><i data-lucide="users"></i> El círculo del Pulso</div>
+              <div class="onb-section-desc">
+                Las personas que asisten al Pulso. Líder + círculo cercano. Los <strong>3 roles rotativos</strong> (dirige · apunta · facilita el tiempo) se asignan automáticamente cada día.
+              </div>
+              <div class="roles-list" id="circulo-list">
+                <div class="rol-row">
+                  <div class="rol-icon"><i data-lucide="user"></i></div>
+                  <input class="rol-input rol-nombre" placeholder="Nombre">
+                  <input class="rol-input rol-desc" placeholder="Rol (opcional)">
+                  <button class="rol-del"><i data-lucide="x"></i></button>
+                </div>
+                <div class="rol-row">
+                  <div class="rol-icon"><i data-lucide="user"></i></div>
+                  <input class="rol-input rol-nombre" placeholder="Nombre">
+                  <input class="rol-input rol-desc" placeholder="Rol (opcional)">
+                  <button class="rol-del"><i data-lucide="x"></i></button>
+                </div>
+                <div class="rol-row">
+                  <div class="rol-icon"><i data-lucide="user"></i></div>
+                  <input class="rol-input rol-nombre" placeholder="Nombre">
+                  <input class="rol-input rol-desc" placeholder="Rol (opcional)">
+                  <button class="rol-del"><i data-lucide="x"></i></button>
+                </div>
+              </div>
+              <button class="rol-add" id="btn-add-circulo" style="margin-top:10px;">
+                <i data-lucide="plus"></i> Agregar otra persona al círculo
+              </button>
+              <div class="onb-hint">Mínimo 3 personas para que la rotación de los 3 roles tenga sentido.</div>
+            </div>
+
+            <div class="onb-section">
+              <div class="onb-section-title"><i data-lucide="globe"></i> Zona horaria y ventana del Play</div>
+              <div class="onb-row-double">
+                <div>
+                  <label class="onb-hint" style="margin: 0 0 5px; display:block;">Zona horaria</label>
+                  <select class="onb-input" id="onb-tz">
+                    <option value="America/Mexico_City">América/CDMX (UTC-6)</option>
+                    <option value="America/Monterrey">América/Monterrey (UTC-6)</option>
+                    <option value="America/Bogota">América/Bogotá (UTC-5)</option>
+                    <option value="America/Lima">América/Lima (UTC-5)</option>
+                    <option value="America/Santiago">América/Santiago (UTC-3)</option>
+                    <option value="America/Argentina/Buenos_Aires">América/Buenos Aires (UTC-3)</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="onb-hint" style="margin: 0 0 5px; display:block;">Min antes para activar Play</label>
+                  <input type="number" class="onb-input" id="onb-ventana" value="10" min="0" max="60">
+                </div>
+              </div>
+            </div>
+
+            <div class="onb-warning">
+              <i data-lucide="alert-triangle"></i>
+              <div><strong>El Pulso no es para castigo.</strong> Si un día no se hizo, el sistema marca <em>strike del sistema</em> — no del líder. Tres strikes seguidos significa que algo está mal de fondo: páralo y revisa.</div>
+            </div>
+
+            <div class="onb-actions">
+              <button class="btn btn-primary xlarge" id="btn-activar-pulso">
+                <i data-lucide="play"></i> Activar el Pulso
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ANTES DEL PULSO -->
+      <div class="view" id="view-antes">
+        <div class="day-header">
+          <div class="day-meta" id="day-meta-container"></div>
+        </div>
+
+        <div class="preplay-hero">
+          <div class="preplay-eyebrow">Hora pactada del Pulso</div>
+          <div class="preplay-hora-pactada" id="preplay-hora">--:--</div>
+          <div class="preplay-hora-label">hora rara, fija, inexorable</div>
+          <div class="preplay-cuenta" id="preplay-cuenta">—</div>
+          <div class="preplay-btn-wrap">
+            <button class="btn btn-primary xlarge" id="btn-start-pulso" disabled>
+              <i data-lucide="play"></i> Empezar el Pulso
+            </button>
+            <div class="preplay-btn-hint">El botón se activa minutos antes de la hora pactada</div>
+          </div>
+        </div>
+
+        <div class="roles-hoy roles-hoy-container"></div>
+
+        <div class="pulsos-week">
+          <div class="pulsos-week-head"><i data-lucide="history"></i> Esta semana</div>
+          <div class="pulsos-strip pulsos-strip-container"></div>
+          <div class="strikes-summary-container"></div>
+        </div>
+      </div>
+
+      <!-- EN CURSO -->
+      <div class="view" id="view-en_curso">
+        <div class="day-header">
+          <div class="day-meta" id="day-meta-container-2"></div>
+        </div>
+
+        <div class="live-banner">
+          <div class="live-icon"><i data-lucide="activity"></i></div>
+          <div class="live-body">
+            <div class="live-title">Pulso en curso</div>
+            <div class="live-meta">
+              <span class="live-meta-item"><i data-lucide="clock"></i> Pactado <strong id="live-hora-pactada">--:--</strong></span>
+              <span class="live-meta-item"><i data-lucide="play-circle"></i> Inició <strong id="live-hora-inicio">--:--</strong></span>
+              <span class="live-delta" id="live-delta" style="display:none;">—</span>
+            </div>
+          </div>
+          <div class="live-cronometro" id="live-crono">00:00</div>
+        </div>
+
+        <div class="roles-hoy roles-hoy-container"></div>
+
+        <div class="bloques">
+
+          <div class="bloque">
+            <div class="bloque-head">
+              <div class="bloque-head-left">
+                <div class="bloque-num">1</div>
+                <div>
+                  <div class="bloque-title">Lo que avanzó</div>
+                  <div class="bloque-hint">¿Qué progreso real hubo desde ayer?</div>
+                </div>
+              </div>
+              <span class="save-indicator" id="save-avanzo">
+                <span class="save-indicator-dot"></span><span>Sin guardar</span>
+              </span>
+            </div>
+            <textarea class="bloque-textarea" id="bloque-avanzo"
+              placeholder="Ej: Diana cerró Madero. Mario terminó el onboarding del cliente nuevo."></textarea>
+          </div>
+
+          <div class="bloque numero">
+            <div class="bloque-head">
+              <div class="bloque-head-left">
+                <div class="bloque-num">2</div>
+                <div>
+                  <div class="bloque-title">El número de hoy</div>
+                  <div class="bloque-hint">UN solo número que mida si hoy nos acerca al objetivo semanal</div>
+                </div>
+              </div>
+              <span class="save-indicator" id="save-numero">
+                <span class="save-indicator-dot"></span><span>Sin guardar</span>
+              </span>
+            </div>
+            <input type="text" class="bloque-input-grande" id="bloque-numero"
+              placeholder="ej: 14 leads · $45,000 · 3 cierres">
+            <div class="bloque-numero-context" id="numero-context" style="display:none;"></div>
+          </div>
+
+          <div class="bloque">
+            <div class="bloque-head">
+              <div class="bloque-head-left">
+                <div class="bloque-num">3</div>
+                <div>
+                  <div class="bloque-title">Lo que traba</div>
+                  <div class="bloque-hint">El obstáculo, no la persona. ¿Qué impide avanzar hoy?</div>
+                </div>
+              </div>
+              <span class="save-indicator" id="save-traba">
+                <span class="save-indicator-dot"></span><span>Sin guardar</span>
+              </span>
+            </div>
+            <textarea class="bloque-textarea" id="bloque-traba"
+              placeholder="Ej: El CRM se cayó anoche. Diana sin acceso a leads históricos."></textarea>
+
+            <div class="impulsos-live">
+              <div class="impulsos-live-head">
+                <span class="impulsos-live-title"><i data-lucide="zap"></i> Impulsos del día</span>
+                <span class="impulsos-live-hint">Tareas catalizadoras que nacen aquí — irán a tu semana en ámbar</span>
+              </div>
+              <div id="impulsos-list"></div>
+              <div class="impulso-add-row">
+                <input class="impulso-add-input" id="impulso-input" placeholder="Agregar un impulso del día...">
+                <input class="impulso-add-input" id="impulso-responsable" placeholder="Responsable">
+                <button class="impulso-add-btn" id="btn-add-impulso"><i data-lucide="plus"></i> Agregar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="cierre-pulso">
+          <div class="cierre-pulso-body">
+            <div class="cierre-pulso-title">Cierra el Pulso cuando terminen</div>
+            <div class="cierre-pulso-text">Esto sella el Pulso de hoy y los impulsos del día se quedan vinculados a tu Ritual Semanal.</div>
+          </div>
+          <button class="btn btn-primary" id="btn-cerrar-pulso">
+            <i data-lucide="check-circle-2"></i> Cerrar el Pulso de hoy
+          </button>
+        </div>
+      </div>
+
+      <!-- CERRADO -->
+      <div class="view" id="view-cerrado">
+        <div class="day-header">
+          <div class="day-meta" id="day-meta-container-3"></div>
+        </div>
+
+        <div class="done-banner">
+          <div class="done-icon"><i data-lucide="check"></i></div>
+          <div class="done-body">
+            <div class="done-title" id="done-title">Pulso cerrado</div>
+            <div class="done-text" id="done-text">—</div>
+          </div>
+          <div class="done-stats">
+            <div class="done-stat">
+              <div class="done-stat-num" id="done-stat-impulsos">0</div>
+              <div class="done-stat-label">Impulsos</div>
+            </div>
+            <div class="done-stat">
+              <div class="done-stat-num" id="done-stat-numero">—</div>
+              <div class="done-stat-label">Número de hoy</div>
+            </div>
+          </div>
+          <div class="done-actions">
+            <button class="btn btn-ghost btn-sm" id="btn-reabrir-pulso" style="display:none;">
+              <i data-lucide="rotate-ccw"></i> Reabrir
+            </button>
+          </div>
+        </div>
+
+        <div class="resumen-grid">
+          <div class="resumen-bloque">
+            <div class="resumen-bloque-head">
+              <div class="resumen-bloque-num">1</div>
+              <div class="resumen-bloque-title">Lo que avanzó</div>
+            </div>
+            <div class="resumen-bloque-text" id="resumen-avanzo">—</div>
+          </div>
+          <div class="resumen-bloque">
+            <div class="resumen-bloque-head">
+              <div class="resumen-bloque-num">2</div>
+              <div class="resumen-bloque-title">El número de hoy</div>
+            </div>
+            <div class="resumen-bloque-numero">
+              <span id="resumen-numero">—</span>
+              <span class="resumen-bloque-numero-sub" id="resumen-numero-context"></span>
+            </div>
+          </div>
+          <div class="resumen-bloque">
+            <div class="resumen-bloque-head">
+              <div class="resumen-bloque-num">3</div>
+              <div class="resumen-bloque-title">Lo que traba</div>
+            </div>
+            <div class="resumen-bloque-text" id="resumen-traba">—</div>
+          </div>
+        </div>
+
+        <div class="pulsos-week">
+          <div class="pulsos-week-head"><i data-lucide="history"></i> Esta semana</div>
+          <div class="pulsos-strip pulsos-strip-container"></div>
+          <div class="strikes-summary-container"></div>
+        </div>
+      </div>
+
+      <!-- NO PULSO -->
+      <div class="view" id="view-no_pulso">
+        <div class="day-header">
+          <div class="day-meta" id="day-meta-container-4"></div>
+        </div>
+        <div class="nopulso-hero">
+          <div class="nopulso-card">
+            <div class="nopulso-icon"><i data-lucide="moon"></i></div>
+            <div class="nopulso-title">Hoy no hay Pulso</div>
+            <div class="nopulso-text">
+              Configuraste que tu empresa no tiene Pulso hoy. <strong>No es strike.</strong> Sin Pulso, sin obligación.
+            </div>
+            <div class="nopulso-prox" id="nopulso-proximo">
+              <i data-lucide="clock"></i>
+              Calculando próximo Pulso...
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>lucide.createIcons();</script>
+<script type="module" src="/assets/js/pulso.js"></script>
+
+</body>
+</html>
