@@ -314,7 +314,19 @@ function initSetup() {
     $('#setup-hasta').value = enUnAnio.toISOString().split('T')[0]
   }
 
-  $('#btn-generar-semanas')?.addEventListener('click', onGenerarSemanas)
+  // Resetear estado del botón cada vez que entramos a Setup
+  // (por si quedó deshabilitado tras un error previo)
+  const btn = $('#btn-generar-semanas')
+  if (btn) {
+    btn.disabled = false
+    btn.innerHTML = '<i data-lucide="play"></i><span>Generar las semanas</span>'
+    if (window.lucide) lucide.createIcons()
+    // Enganchar el listener UNA sola vez
+    if (!btn.dataset.bound) {
+      btn.addEventListener('click', onGenerarSemanas)
+      btn.dataset.bound = '1'
+    }
+  }
 }
 
 async function onGenerarSemanas() {
@@ -656,6 +668,9 @@ function setupSwitcher() {
       } else if (target === 'historial') {
         cambiarVista('historial')
         await cargarHistorial()
+      } else if (target === 'setup') {
+        initSetup()
+        cambiarVista('setup')
       } else {
         cambiarVista(target)
       }
