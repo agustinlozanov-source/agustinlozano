@@ -34,6 +34,14 @@ function injectStyles() {
   const style = document.createElement('style')
   style.id = 'portal-shell-styles'
   style.textContent = `
+    /* ── Sidebar scrollable (absorbe iconos extra sin overflow visible) ── */
+    .sidebar {
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+    }
+    .sidebar::-webkit-scrollbar { display: none; }
+    .sidebar { scrollbar-width: none; }
+
     /* ── User Badge ── */
     .user-badge {
       display: flex; align-items: center; gap: 10px;
