@@ -38,11 +38,11 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "geolocation=(), microphone=(), camera=()"
 
-# Cache para JS estático (que cambia poco)
+# JS del portal — nunca cachear (cambia frecuentemente)
 [[headers]]
   for = "/assets/js/*"
   [headers.values]
-    Cache-Control = "public, max-age=3600"
+    Cache-Control = "no-cache, no-store, must-revalidate"
 
 # Las páginas HTML del portal NO se cachean (data dinámica)
 [[headers]]
