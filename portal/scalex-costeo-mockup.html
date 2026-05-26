@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCALEx — Mockup Herramienta de Costeo</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --teal: #1aab99; --teal-light: rgba(26,171,153,0.12);
+    --indigo: #3533cd; --indigo-light: rgba(53,51,205,0.12);
+    --gradient: linear-gradient(135deg, #1aab99, #3533cd);
+    --gradient-soft: linear-gradient(135deg, rgba(26,171,153,0.15), rgba(53,51,205,0.15));
+    --green: #00c853; --green-light: rgba(0,200,83,0.12);
+    --amber: #ff9500; --amber-light: rgba(255,149,0,0.12);
+    --red: #ff3b30; --red-light: rgba(255,59,48,0.12);
+    --purple: #7c3aed; --purple-light: rgba(124,58,237,0.12);
+    --radius-xl: 28px; --radius-lg: 20px; --radius: 14px; --radius-sm: 9px;
+    --sidebar-w: 80px;
+    font-family: 'Inter', sans-serif; line-height: 1.6;
+  }
+  [data-theme="dark"] {
+    --bg-page: #0a0a0c; --bg-shell: #141416; --bg-card: #1c1c1e; --bg-card-2: #242426;
+    --bg-input: #0d0d10;
+    --surface: rgba(255,255,255,0.04); --surface-hover: rgba(255,255,255,0.07);
+    --border: rgba(255,255,255,0.08); --border-strong: rgba(255,255,255,0.13);
+    --text: #fff; --text-2: #c7c7cc; --text-3: #8e8e93; --text-4: #48484a;
+    --sidebar-bg: #050506;
+  }
+  [data-theme="light"] {
+    --bg-page: #eef0f5; --bg-shell: #fff; --bg-card: #f5f5f7; --bg-card-2: #ebebef;
+    --bg-input: #fff;
+    --surface: rgba(0,0,0,0.03); --surface-hover: rgba(0,0,0,0.055);
+    --border: rgba(0,0,0,0.08); --border-strong: rgba(0,0,0,0.14);
+    --text: #070708; --text-2: #3a3a3c; --text-3: #6e6e73; --text-4: #c7c7cc;
+    --sidebar-bg: #0a0a0c;
+  }
+
+  body { background: var(--bg-page); color: var(--text); min-height: 100vh; transition: background .3s, color .3s; }
+  .app-layout { display: flex; min-height: 100vh; padding: 16px; gap: 16px; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: var(--sidebar-w); background: var(--sidebar-bg);
+    border-radius: var(--radius-xl); padding: 20px 0;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    flex-shrink: 0; position: sticky; top: 16px; height: calc(100vh - 32px);
+  }
+  .sidebar-logo {
+    width: 44px; height: 44px; border-radius: 12px; background: var(--gradient);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 900; font-size: 18px; color: white;
+    margin-bottom: 16px; letter-spacing: -0.5px;
+  }
+  .sidebar-divider { width: 28px; height: 1px; background: rgba(255,255,255,0.08); margin: 4px 0; }
+  .sidebar-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all .2s;
+    color: rgba(255,255,255,0.5); position: relative;
+    background: none; border: none;
+  }
+  .sidebar-icon:hover { background: rgba(255,255,255,0.06); color: white; }
+  .sidebar-icon.active { background: var(--gradient); color: white; }
+  .sidebar-icon.active::before {
+    content: ''; position: absolute; left: -16px; top: 50%; transform: translateY(-50%);
+    width: 3px; height: 24px; background: var(--teal); border-radius: 0 3px 3px 0;
+  }
+  .sidebar-icon svg { width: 20px; height: 20px; }
+  .sidebar-bottom { margin-top: auto; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+
+  /* SHELL */
+  .shell {
+    flex: 1; background: var(--bg-shell); border-radius: var(--radius-xl);
+    overflow: hidden; display: flex; flex-direction: column;
+    height: calc(100vh - 32px);
+  }
+
+  /* TOPBAR */
+  .topbar {
+    padding: 18px 28px; display: flex; align-items: center; gap: 16px;
+    border-bottom: 1px solid var(--border); flex-shrink: 0;
+  }
+  .topbar-title-block { flex: 1; min-width: 0; }
+  .topbar-eyebrow {
+    font-size: 11px; font-weight: 700; letter-spacing: 1.2px;
+    text-transform: uppercase; color: var(--teal);
+  }
+  .topbar-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 18px; font-weight: 800; color: var(--text);
+    letter-spacing: -0.3px; margin-top: 2px;
+  }
+  .topbar-actions { display: flex; align-items: center; gap: 10px; }
+
+  .btn {
+    padding: 10px 18px; border-radius: 50px;
+    font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 700;
+    cursor: pointer; border: none;
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: all .2s; text-decoration: none;
+  }
+  .btn svg { width: 14px; height: 14px; }
+  .btn-primary { background: var(--gradient); color: white; }
+  .btn-primary:hover { transform: translateY(-1px); }
+  .btn-ghost { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
+  .btn-ghost:hover { background: var(--surface-hover); }
+
+  /* TABS internas */
+  .subnav {
+    padding: 16px 28px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex; gap: 4px; flex-shrink: 0;
+    overflow-x: auto;
+  }
+  .subnav-item {
+    padding: 12px 20px; cursor: pointer;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13.5px; font-weight: 600; color: var(--text-3);
+    background: transparent; border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: all .2s;
+    white-space: nowrap;
+  }
+  .subnav-item svg { width: 14px; height: 14px; }
+  .subnav-item:hover { color: var(--text-2); }
+  .subnav-item.active { color: var(--text); border-bottom-color: var(--teal); font-weight: 700; }
+  .subnav-badge {
+    font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 50px;
+    background: var(--surface); color: var(--text-3);
+  }
+  .subnav-item.active .subnav-badge { background: var(--teal-light); color: var(--teal); }
+
+  .content {
+    flex: 1; overflow-y: auto;
+    padding: 28px 32px;
+  }
+  .content::-webkit-scrollbar { width: 8px; }
+  .content::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 50px; }
+
+  .page-header { margin-bottom: 24px; }
+  .page-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 24px; font-weight: 800; line-height: 1.2;
+    letter-spacing: -0.5px; color: var(--text); margin-bottom: 6px;
+  }
+  .page-sub { font-size: 13.5px; color: var(--text-3); }
+
+  /* VIEWS */
+  .view { display: none; }
+  .view.active { display: block; animation: fadeIn .3s ease; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+
+  /* CARDS */
+  .card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 22px;
+    margin-bottom: 16px;
+  }
+  .card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .card-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 16px; font-weight: 700; color: var(--text);
+    letter-spacing: -0.2px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card-title svg { width: 16px; height: 16px; color: var(--teal); }
+
+  /* KPI GRID */
+  .kpi-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 14px; margin-bottom: 24px;
+  }
+  .kpi-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 18px;
+  }
+  .kpi-card.featured { background: var(--gradient); border: none; }
+  .kpi-card.featured .kpi-label,
+  .kpi-card.featured .kpi-sub { color: rgba(255,255,255,0.85); }
+  .kpi-card.featured .kpi-value { color: white; }
+  .kpi-icon {
+    width: 32px; height: 32px; border-radius: 9px;
+    background: var(--surface); color: var(--teal);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 12px;
+  }
+  .kpi-card.featured .kpi-icon { background: rgba(255,255,255,0.18); color: white; }
+  .kpi-icon svg { width: 16px; height: 16px; }
+  .kpi-label {
+    font-size: 11px; font-weight: 600; color: var(--text-3);
+    margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.4px;
+  }
+  .kpi-value {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 22px; font-weight: 800; color: var(--text);
+    letter-spacing: -0.5px; line-height: 1.1;
+  }
+  .kpi-sub { font-size: 11.5px; color: var(--text-3); margin-top: 4px; }
+
+  /* TABLE */
+  .table-wrap {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); overflow: hidden;
+  }
+  .table {
+    width: 100%; border-collapse: separate; border-spacing: 0;
+  }
+  .table thead th {
+    text-align: left; padding: 14px 18px;
+    font-size: 11px; font-weight: 700; color: var(--text-3);
+    text-transform: uppercase; letter-spacing: 0.6px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-card-2);
+  }
+  .table tbody td {
+    padding: 14px 18px; font-size: 13.5px; color: var(--text-2);
+    border-bottom: 1px solid var(--border);
+  }
+  .table tbody tr:last-child td { border-bottom: none; }
+  .table tbody tr:hover { background: var(--surface); cursor: pointer; }
+  .table-cat {
+    display: inline-block; padding: 2px 8px; border-radius: 50px;
+    font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.4px;
+  }
+  .table-cat.abarrotes { background: var(--amber-light); color: var(--amber); }
+  .table-cat.vegetales { background: var(--green-light); color: var(--green); }
+  .table-cat.proteinas { background: var(--red-light); color: var(--red); }
+  .table-cat.lacteos   { background: var(--indigo-light); color: var(--indigo); }
+  .table-cat.panaderia { background: var(--purple-light); color: var(--purple); }
+  .table-money {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700; color: var(--text);
+  }
+  .table-actions { display: flex; gap: 6px; }
+  .icon-btn {
+    width: 28px; height: 28px; border-radius: 7px;
+    background: var(--surface); border: 1px solid var(--border);
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--text-3); transition: all .2s;
+  }
+  .icon-btn:hover { background: var(--surface-hover); color: var(--text); }
+  .icon-btn svg { width: 12px; height: 12px; }
+
+  /* SEARCH + FILTERS */
+  .filters-row {
+    display: flex; gap: 12px; margin-bottom: 16px;
+    align-items: center;
+  }
+  .search-box {
+    flex: 1; max-width: 400px;
+    background: var(--bg-input); border: 1px solid var(--border);
+    border-radius: 50px; padding: 9px 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .search-box svg { width: 14px; height: 14px; color: var(--text-3); }
+  .search-box input {
+    flex: 1; background: transparent; border: none; outline: none;
+    color: var(--text); font-size: 13px; font-family: inherit;
+  }
+  .filter-chip {
+    padding: 8px 14px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 50px;
+    font-size: 12px; font-weight: 600; color: var(--text-2);
+    cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .filter-chip.active { background: var(--teal-light); color: var(--teal); border-color: var(--teal); }
+  .filter-chip svg { width: 12px; height: 12px; }
+
+  /* GASTOS — input list */
+  .input-list { display: flex; flex-direction: column; gap: 10px; }
+  .input-row {
+    display: grid; grid-template-columns: 1fr 160px 100px;
+    gap: 10px; align-items: center;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+  }
+  .input-row label {
+    font-size: 13px; color: var(--text-2);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .input-row label svg { width: 14px; height: 14px; color: var(--text-3); }
+  .input-row input {
+    background: transparent; border: none; outline: none;
+    color: var(--text); font-size: 13px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 600; text-align: right;
+  }
+  .input-row .unit {
+    font-size: 11px; color: var(--text-3); text-align: right;
+  }
+  .input-row.total {
+    background: var(--gradient-soft);
+    border-color: var(--teal);
+  }
+  .input-row.total label,
+  .input-row.total input {
+    font-size: 14px; font-weight: 700; color: var(--text);
+  }
+
+  /* PRODUCTO DETAIL — capas de costo */
+  .producto-detail-grid {
+    display: grid; grid-template-columns: 1fr 320px;
+    gap: 16px;
+  }
+  .layer {
+    background: var(--bg-input); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+  .layer-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .layer-name {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12px; font-weight: 700; color: var(--text);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .layer-icon {
+    width: 24px; height: 24px; border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .layer-icon svg { width: 12px; height: 12px; }
+  .layer-icon.l1 { background: var(--green-light); color: var(--green); }
+  .layer-icon.l2 { background: var(--amber-light); color: var(--amber); }
+  .layer-icon.l3 { background: var(--purple-light); color: var(--purple); }
+  .layer-icon.l4 { background: var(--indigo-light); color: var(--indigo); }
+  .layer-total {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px; font-weight: 800; color: var(--text);
+  }
+  .layer-items { display: flex; flex-direction: column; gap: 6px; }
+  .layer-item {
+    display: grid; grid-template-columns: 1fr 80px 80px 80px;
+    gap: 8px; align-items: center;
+    font-size: 12.5px; color: var(--text-2);
+    padding: 6px 0;
+  }
+  .layer-item-name { font-weight: 500; color: var(--text); }
+  .layer-item-meta { color: var(--text-3); font-size: 11px; }
+  .layer-item-money {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700; color: var(--text); text-align: right;
+  }
+
+  /* SIDEBAR DETAIL */
+  .detail-side {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 22px;
+    position: sticky; top: 16px; align-self: flex-start;
+  }
+  .detail-side-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12px; font-weight: 700; color: var(--text-3);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin-bottom: 12px;
+  }
+  .price-input-wrap {
+    background: var(--bg-input); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px;
+    margin-bottom: 14px;
+  }
+  .price-label {
+    font-size: 11px; font-weight: 600; color: var(--text-3);
+    text-transform: uppercase; letter-spacing: 0.4px;
+    margin-bottom: 6px;
+  }
+  .price-input {
+    background: transparent; border: none; outline: none;
+    color: var(--text);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 28px; font-weight: 900;
+    letter-spacing: -0.5px; width: 100%;
+  }
+  .summary-row {
+    display: flex; justify-content: space-between;
+    padding: 10px 0; font-size: 13px;
+    border-bottom: 1px solid var(--border);
+  }
+  .summary-row:last-of-type { border-bottom: none; }
+  .summary-row.total {
+    padding-top: 14px; margin-top: 6px;
+    border-top: 2px solid var(--teal);
+    border-bottom: none;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 16px; font-weight: 800;
+  }
+  .summary-row.profit {
+    color: var(--green); font-weight: 700;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+  .summary-row.loss {
+    color: var(--red); font-weight: 700;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+  .summary-label { color: var(--text-3); }
+  .summary-value {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: var(--text); font-weight: 700;
+  }
+  .margin-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px; border-radius: 50px;
+    font-size: 12px; font-weight: 700;
+    margin-top: 10px;
+  }
+  .margin-pill.good { background: var(--green-light); color: var(--green); }
+  .margin-pill.warn { background: var(--amber-light); color: var(--amber); }
+  .margin-pill.bad  { background: var(--red-light); color: var(--red); }
+  .margin-pill svg { width: 12px; height: 12px; }
+
+  /* RANKING */
+  .ranking-item {
+    display: grid; grid-template-columns: 32px 1fr 100px 100px 90px;
+    gap: 12px; align-items: center;
+    padding: 12px 0; border-bottom: 1px solid var(--border);
+  }
+  .ranking-item:last-child { border-bottom: none; }
+  .ranking-num {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: var(--surface);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 11px; font-weight: 800; color: var(--text-3);
+  }
+  .ranking-item.gold .ranking-num { background: var(--amber-light); color: var(--amber); }
+  .ranking-item.silver .ranking-num { background: var(--surface); color: var(--text-2); }
+  .ranking-item.bronze .ranking-num { background: var(--red-light); color: var(--red); }
+  .ranking-name {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13.5px; font-weight: 700; color: var(--text);
+  }
+  .ranking-cat {
+    font-size: 11px; color: var(--text-3);
+    margin-top: 2px;
+  }
+  .ranking-money {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px; font-weight: 700;
+    text-align: right;
+  }
+  .ranking-bar-wrap {
+    height: 6px; background: var(--surface);
+    border-radius: 3px; overflow: hidden;
+  }
+  .ranking-bar { height: 100%; border-radius: 3px; }
+  .ranking-bar.green { background: var(--green); }
+  .ranking-bar.amber { background: var(--amber); }
+  .ranking-bar.red { background: var(--red); }
+
+  /* EQUILIBRIO */
+  .equilibrio-card {
+    background: var(--gradient); color: white;
+    border-radius: var(--radius-lg); padding: 24px;
+    position: relative; overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .equilibrio-card::before {
+    content: ''; position: absolute;
+    top: -40px; right: -40px; width: 180px; height: 180px;
+    background: radial-gradient(circle, rgba(255,255,255,0.15), transparent 70%);
+    border-radius: 50%;
+  }
+  .equilibrio-label {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.2px; text-transform: uppercase;
+    opacity: 0.85; margin-bottom: 8px;
+  }
+  .equilibrio-value {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 36px; font-weight: 900;
+    letter-spacing: -1px; margin-bottom: 8px;
+  }
+  .equilibrio-sub { font-size: 13px; opacity: 0.95; }
+
+  .scenario-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px; margin-top: 20px;
+  }
+  .scenario-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px;
+  }
+  .scenario-name {
+    font-size: 11px; font-weight: 700; color: var(--text-3);
+    text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px;
+  }
+  .scenario-value {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 20px; font-weight: 800; color: var(--text);
+    margin-bottom: 4px;
+  }
+  .scenario-delta {
+    font-size: 11px; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .scenario-delta svg { width: 11px; height: 11px; }
+  .scenario-delta.up { color: var(--green); }
+  .scenario-delta.down { color: var(--red); }
+
+  /* CHART placeholder */
+  .chart-placeholder {
+    height: 160px;
+    background: var(--bg-input); border: 1px solid var(--border);
+    border-radius: var(--radius); margin-top: 12px;
+    display: flex; align-items: flex-end; padding: 14px 16px;
+    gap: 8px;
+  }
+  .bar {
+    flex: 1; background: var(--gradient);
+    border-radius: 4px 4px 0 0; min-height: 20px;
+    position: relative;
+  }
+  .bar-label {
+    position: absolute; bottom: -22px; left: 0; right: 0;
+    text-align: center; font-size: 10px; color: var(--text-3);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 1100px) {
+    .producto-detail-grid { grid-template-columns: 1fr; }
+    .kpi-grid { grid-template-columns: 1fr 1fr; }
+    .detail-side { position: static; }
+    .scenario-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 700px) {
+    .app-layout { padding: 8px; gap: 8px; }
+    .topbar { padding: 14px 18px; }
+    .content { padding: 20px 18px; }
+    .subnav { padding: 12px 18px 0; }
+    .kpi-grid { grid-template-columns: 1fr; }
+    .table thead th, .table tbody td { padding: 10px 12px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">Sx</div>
+
+    <button class="sidebar-icon" title="Dashboard">
+      <i data-lucide="layout-dashboard"></i>
+    </button>
+    <button class="sidebar-icon" title="OPSP">
+      <i data-lucide="map"></i>
+    </button>
+    <button class="sidebar-icon" title="Rituales">
+      <i data-lucide="repeat"></i>
+    </button>
+
+    <div class="sidebar-divider"></div>
+
+    <button class="sidebar-icon active" title="Costeo · FLUJO">
+      <i data-lucide="calculator"></i>
+    </button>
+
+    <div class="sidebar-bottom">
+      <button class="sidebar-icon" title="Tema" onclick="toggleTheme()">
+        <i data-lucide="sun" id="theme-icon"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- SHELL -->
+  <main class="shell">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-title-block">
+        <div class="topbar-eyebrow">Pilar 5 · Flujo</div>
+        <div class="topbar-title">Herramienta de Costeo</div>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost">
+          <i data-lucide="download"></i>
+          Exportar
+        </button>
+        <button class="btn btn-primary">
+          <i data-lucide="plus"></i>
+          Nuevo producto
+        </button>
+      </div>
+    </div>
+
+    <!-- SUBNAV (tabs internas) -->
+    <div class="subnav">
+      <button class="subnav-item active" onclick="showView('dashboard')">
+        <i data-lucide="trending-up"></i>
+        Resumen
+      </button>
+      <button class="subnav-item" onclick="showView('gastos')">
+        <i data-lucide="wallet"></i>
+        Gastos fijos
+      </button>
+      <button class="subnav-item" onclick="showView('costos')">
+        <i data-lucide="package"></i>
+        Insumos
+        <span class="subnav-badge">12</span>
+      </button>
+      <button class="subnav-item" onclick="showView('productos')">
+        <i data-lucide="shopping-bag"></i>
+        Productos
+        <span class="subnav-badge">4</span>
+      </button>
+      <button class="subnav-item" onclick="showView('detail')">
+        <i data-lucide="layers"></i>
+        Receta · Capas
+      </button>
+      <button class="subnav-item" onclick="showView('equilibrio')">
+        <i data-lucide="scale"></i>
+        Punto de equilibrio
+      </button>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- ════════════ VIEW: DASHBOARD/RESUMEN ════════════ -->
+      <div class="view active" id="view-dashboard">
+
+        <div class="page-header">
+          <h1 class="page-title">Resumen de costos y rentabilidad</h1>
+          <p class="page-sub">Visión general de tu operación. Datos del mes actual.</p>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-card featured">
+            <div class="kpi-icon"><i data-lucide="trending-up"></i></div>
+            <div class="kpi-label">Margen promedio</div>
+            <div class="kpi-value">38%</div>
+            <div class="kpi-sub">+4.2% vs mes anterior</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon" style="background:var(--green-light);color:var(--green)"><i data-lucide="dollar-sign"></i></div>
+            <div class="kpi-label">Productos rentables</div>
+            <div class="kpi-value">3 de 4</div>
+            <div class="kpi-sub">75% del catálogo</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon" style="background:var(--amber-light);color:var(--amber)"><i data-lucide="alert-triangle"></i></div>
+            <div class="kpi-label">En zona de alerta</div>
+            <div class="kpi-value">1</div>
+            <div class="kpi-sub">Margen < 20%</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon" style="background:var(--indigo-light);color:var(--indigo)"><i data-lucide="scale"></i></div>
+            <div class="kpi-label">Punto de equilibrio</div>
+            <div class="kpi-value">$48k</div>
+            <div class="kpi-sub">por mes en ventas</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i data-lucide="trophy"></i>
+              Ranking de rentabilidad
+            </div>
+            <span style="font-size:12px;color:var(--text-3)">Ordenado por margen</span>
+          </div>
+
+          <div class="ranking-item gold">
+            <div class="ranking-num">1</div>
+            <div>
+              <div class="ranking-name">Pizza Margherita</div>
+              <div class="ranking-cat">Pizzas · 12 ingredientes</div>
+            </div>
+            <div class="ranking-money" style="color:var(--green)">62%</div>
+            <div class="ranking-money">$ 174</div>
+            <div class="ranking-bar-wrap">
+              <div class="ranking-bar green" style="width:90%"></div>
+            </div>
+          </div>
+
+          <div class="ranking-item silver">
+            <div class="ranking-num">2</div>
+            <div>
+              <div class="ranking-name">Pasta Carbonara</div>
+              <div class="ranking-cat">Pastas · 8 ingredientes</div>
+            </div>
+            <div class="ranking-money" style="color:var(--green)">48%</div>
+            <div class="ranking-money">$ 152</div>
+            <div class="ranking-bar-wrap">
+              <div class="ranking-bar green" style="width:70%"></div>
+            </div>
+          </div>
+
+          <div class="ranking-item bronze">
+            <div class="ranking-num">3</div>
+            <div>
+              <div class="ranking-name">Ensalada César</div>
+              <div class="ranking-cat">Entradas · 6 ingredientes</div>
+            </div>
+            <div class="ranking-money" style="color:var(--amber)">31%</div>
+            <div class="ranking-money">$ 84</div>
+            <div class="ranking-bar-wrap">
+              <div class="ranking-bar amber" style="width:45%"></div>
+            </div>
+          </div>
+
+          <div class="ranking-item">
+            <div class="ranking-num">4</div>
+            <div>
+              <div class="ranking-name">Tiramisu</div>
+              <div class="ranking-cat">Postres · 7 ingredientes</div>
+            </div>
+            <div class="ranking-money" style="color:var(--red)">18%</div>
+            <div class="ranking-money">$ 36</div>
+            <div class="ranking-bar-wrap">
+              <div class="ranking-bar red" style="width:25%"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ════════════ VIEW: GASTOS FIJOS ════════════ -->
+      <div class="view" id="view-gastos">
+
+        <div class="page-header">
+          <h1 class="page-title">Gastos fijos mensuales</h1>
+          <p class="page-sub">Lo que pagas pase lo que pase. Esto define tu punto de equilibrio.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i data-lucide="home"></i>
+              Estructura fija
+            </div>
+            <button class="btn btn-ghost" style="padding:6px 12px;font-size:12px">
+              <i data-lucide="plus"></i>
+              Agregar concepto
+            </button>
+          </div>
+
+          <div class="input-list">
+            <div class="input-row">
+              <label><i data-lucide="building"></i> Renta del local</label>
+              <input type="text" value="18,000" />
+              <span class="unit">MXN / mes</span>
+            </div>
+            <div class="input-row">
+              <label><i data-lucide="users"></i> Nómina total</label>
+              <input type="text" value="42,500" />
+              <span class="unit">MXN / mes</span>
+            </div>
+            <div class="input-row">
+              <label><i data-lucide="zap"></i> Energía eléctrica</label>
+              <input type="text" value="3,800" />
+              <span class="unit">MXN / mes</span>
+            </div>
+            <div class="input-row">
+              <label><i data-lucide="flame"></i> Gas</label>
+              <input type="text" value="2,100" />
+              <span class="unit">MXN / mes</span>
+            </div>
+            <div class="input-row">
+              <label><i data-lucide="droplet"></i> Agua</label>
+              <input type="text" value="950" />
+              <span class="unit">MXN / mes</span>
+            </div>
+            <div class="input-row">
+              <label><i data-lucide="wifi"></i> Internet y telefonía</label>
+              <input type="text" value="1,200" />
+              <span class="unit">MXN / mes</span>
+            </div>
+            <div class="input-row">
+              <label><i data-lucide="receipt"></i> Software y suscripciones</label>
+              <input type="text" value="2,400" />
+              <span class="unit">MXN / mes</span>
+            </div>
+            <div class="input-row total">
+              <label><i data-lucide="check-circle"></i> Total gastos fijos</label>
+              <input type="text" value="70,950" disabled />
+              <span class="unit">MXN / mes</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ════════════ VIEW: COSTOS/INSUMOS ════════════ -->
+      <div class="view" id="view-costos">
+
+        <div class="page-header">
+          <h1 class="page-title">Catálogo de insumos</h1>
+          <p class="page-sub">Materias primas que usas. Mantén actualizado el costo de compra.</p>
+        </div>
+
+        <div class="filters-row">
+          <div class="search-box">
+            <i data-lucide="search"></i>
+            <input type="text" placeholder="Buscar insumo..." />
+          </div>
+          <button class="filter-chip active">Todos · 12</button>
+          <button class="filter-chip">Abarrotes · 4</button>
+          <button class="filter-chip">Vegetales · 2</button>
+          <button class="filter-chip">Proteínas · 3</button>
+          <button class="filter-chip">Lácteos · 2</button>
+        </div>
+
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th style="width:120px">Categoría</th>
+                <th>Insumo</th>
+                <th style="text-align:right">Costo compra</th>
+                <th style="width:80px">Unidad</th>
+                <th style="text-align:right;width:100px">$ / unidad</th>
+                <th style="width:80px">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="table-cat panaderia">Panadería</span></td>
+                <td>Harina trigo blanca</td>
+                <td style="text-align:right" class="table-money">$ 420.00</td>
+                <td>15,000 gr</td>
+                <td style="text-align:right" class="table-money">$ 0.028</td>
+                <td>
+                  <div class="table-actions">
+                    <button class="icon-btn"><i data-lucide="edit-2"></i></button>
+                    <button class="icon-btn"><i data-lucide="trash-2"></i></button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><span class="table-cat lacteos">Lácteos</span></td>
+                <td>Mozzarella fresca</td>
+                <td style="text-align:right" class="table-money">$ 380.00</td>
+                <td>2,000 gr</td>
+                <td style="text-align:right" class="table-money">$ 0.190</td>
+                <td>
+                  <div class="table-actions">
+                    <button class="icon-btn"><i data-lucide="edit-2"></i></button>
+                    <button class="icon-btn"><i data-lucide="trash-2"></i></button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><span class="table-cat vegetales">Vegetales</span></td>
+                <td>Tomate cherry</td>
+                <td style="text-align:right" class="table-money">$ 85.00</td>
+                <td>1,000 gr</td>
+                <td style="text-align:right" class="table-money">$ 0.085</td>
+                <td>
+                  <div class="table-actions">
+                    <button class="icon-btn"><i data-lucide="edit-2"></i></button>
+                    <button class="icon-btn"><i data-lucide="trash-2"></i></button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><span class="table-cat abarrotes">Abarrotes</span></td>
+                <td>Aceite de oliva extra virgen</td>
+                <td style="text-align:right" class="table-money">$ 320.00</td>
+                <td>750 ml</td>
+                <td style="text-align:right" class="table-money">$ 0.427</td>
+                <td>
+                  <div class="table-actions">
+                    <button class="icon-btn"><i data-lucide="edit-2"></i></button>
+                    <button class="icon-btn"><i data-lucide="trash-2"></i></button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><span class="table-cat vegetales">Vegetales</span></td>
+                <td>Albahaca fresca</td>
+                <td style="text-align:right" class="table-money">$ 45.00</td>
+                <td>100 gr</td>
+                <td style="text-align:right" class="table-money">$ 0.450</td>
+                <td>
+                  <div class="table-actions">
+                    <button class="icon-btn"><i data-lucide="edit-2"></i></button>
+                    <button class="icon-btn"><i data-lucide="trash-2"></i></button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><span class="table-cat abarrotes">Abarrotes</span></td>
+                <td>Sal de mar</td>
+                <td style="text-align:right" class="table-money">$ 28.00</td>
+                <td>500 gr</td>
+                <td style="text-align:right" class="table-money">$ 0.056</td>
+                <td>
+                  <div class="table-actions">
+                    <button class="icon-btn"><i data-lucide="edit-2"></i></button>
+                    <button class="icon-btn"><i data-lucide="trash-2"></i></button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <!-- ════════════ VIEW: PRODUCTOS ════════════ -->
+      <div class="view" id="view-productos">
+
+        <div class="page-header">
+          <h1 class="page-title">Tus productos</h1>
+          <p class="page-sub">Cada producto con su receta, su costo real y su margen.</p>
+        </div>
+
+        <div class="filters-row">
+          <div class="search-box">
+            <i data-lucide="search"></i>
+            <input type="text" placeholder="Buscar producto..." />
+          </div>
+          <button class="filter-chip active">Todos · 4</button>
+          <button class="filter-chip" style="background:var(--green-light);color:var(--green);border-color:var(--green)">Rentables · 3</button>
+          <button class="filter-chip" style="background:var(--red-light);color:var(--red);border-color:var(--red)">En riesgo · 1</button>
+        </div>
+
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th style="text-align:right">Precio</th>
+                <th style="text-align:right">Costo</th>
+                <th style="text-align:right">Utilidad</th>
+                <th style="text-align:right;width:90px">Margen</th>
+                <th style="width:80px">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr onclick="showView('detail')">
+                <td>
+                  <div style="font-weight:700;color:var(--text)">Pizza Margherita</div>
+                  <div style="font-size:11px;color:var(--text-3);margin-top:2px">12 ingredientes · 18 min producción</div>
+                </td>
+                <td style="text-align:right" class="table-money">$ 280</td>
+                <td style="text-align:right" class="table-money">$ 106</td>
+                <td style="text-align:right" class="table-money" style="color:var(--green)">$ 174</td>
+                <td style="text-align:right">
+                  <span style="font-family:'Plus Jakarta Sans';font-weight:800;color:var(--green)">62%</span>
+                </td>
+                <td>
+                  <div class="table-actions">
+                    <button class="icon-btn"><i data-lucide="arrow-right"></i></button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="font-weight:700;color:var(--text)">Pasta Carbonara</div>
+                  <div style="font-size:11px;color:var(--text-3);margin-top:2px">8 ingredientes · 14 min producción</div>
+                </td>
+                <td style="text-align:right" class="table-money">$ 320</td>
+                <td style="text-align:right" class="table-money">$ 168</td>
+                <td style="text-align:right" class="table-money" style="color:var(--green)">$ 152</td>
+                <td style="text-align:right">
+                  <span style="font-family:'Plus Jakarta Sans';font-weight:800;color:var(--green)">48%</span>
+                </td>
+                <td>
+                  <div class="table-actions">
+                    <button class="icon-btn"><i data-lucide="arrow-right"></i></button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="font-weight:700;color:var(--text)">Ensalada César</div>
+                  <div style="font-size:11px;color:var(--text-3);margin-top:2px">6 ingredientes · 8 min producción</div>
+                </td>
+                <td style="text-align:right" class="table-money">$ 180</td>
+                <td style="text-align:right" class="table-money">$ 96</td>
+                <td style="text-align:right" class="table-money">$ 84</td>
+                <td style="text-align:right">
+                  <span style="font-family:'Plus Jakarta Sans';font-weight:800;color:var(--amber)">31%</span>
+                </td>
+                <td>
+                  <div class="table-actions">
+                    <button class="icon-btn"><i data-lucide="arrow-right"></i></button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="font-weight:700;color:var(--text)">Tiramisu</div>
+                  <div style="font-size:11px;color:var(--text-3);margin-top:2px">7 ingredientes · 35 min producción</div>
+                </td>
+                <td style="text-align:right" class="table-money">$ 110</td>
+                <td style="text-align:right" class="table-money">$ 74</td>
+                <td style="text-align:right" class="table-money">$ 36</td>
+                <td style="text-align:right">
+                  <span style="font-family:'Plus Jakarta Sans';font-weight:800;color:var(--red)">18%</span>
+                </td>
+                <td>
+                  <div class="table-actions">
+                    <button class="icon-btn"><i data-lucide="arrow-right"></i></button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <!-- ════════════ VIEW: PRODUCTO DETAIL — CAPAS ════════════ -->
+      <div class="view" id="view-detail">
+
+        <div class="page-header" style="display:flex;align-items:center;gap:12px">
+          <button class="icon-btn" onclick="showView('productos')" style="width:36px;height:36px;border-radius:10px">
+            <i data-lucide="arrow-left"></i>
+          </button>
+          <div>
+            <h1 class="page-title">Pizza Margherita</h1>
+            <p class="page-sub">Receta detallada · capas de costo</p>
+          </div>
+        </div>
+
+        <div class="producto-detail-grid">
+
+          <div>
+
+            <!-- CAPA 1: INSUMOS DIRECTOS -->
+            <div class="layer">
+              <div class="layer-header">
+                <div class="layer-name">
+                  <div class="layer-icon l1"><i data-lucide="package"></i></div>
+                  Capa 1 · Insumos directos
+                </div>
+                <div class="layer-total">$ 42.50</div>
+              </div>
+              <div class="layer-items">
+                <div class="layer-item">
+                  <div>
+                    <div class="layer-item-name">Harina trigo blanca</div>
+                    <div class="layer-item-meta">$ 0.028 / gr</div>
+                  </div>
+                  <div class="layer-item-meta">280 gr</div>
+                  <div class="layer-item-meta">×</div>
+                  <div class="layer-item-money">$ 7.84</div>
+                </div>
+                <div class="layer-item">
+                  <div>
+                    <div class="layer-item-name">Mozzarella fresca</div>
+                    <div class="layer-item-meta">$ 0.190 / gr</div>
+                  </div>
+                  <div class="layer-item-meta">150 gr</div>
+                  <div class="layer-item-meta">×</div>
+                  <div class="layer-item-money">$ 28.50</div>
+                </div>
+                <div class="layer-item">
+                  <div>
+                    <div class="layer-item-name">Tomate cherry</div>
+                    <div class="layer-item-meta">$ 0.085 / gr</div>
+                  </div>
+                  <div class="layer-item-meta">60 gr</div>
+                  <div class="layer-item-meta">×</div>
+                  <div class="layer-item-money">$ 5.10</div>
+                </div>
+                <div class="layer-item">
+                  <div>
+                    <div class="layer-item-name">Albahaca fresca</div>
+                    <div class="layer-item-meta">$ 0.450 / gr</div>
+                  </div>
+                  <div class="layer-item-meta">2 gr</div>
+                  <div class="layer-item-meta">×</div>
+                  <div class="layer-item-money">$ 0.90</div>
+                </div>
+                <div class="layer-item">
+                  <div>
+                    <div class="layer-item-name">Aceite de oliva</div>
+                    <div class="layer-item-meta">$ 0.427 / ml</div>
+                  </div>
+                  <div class="layer-item-meta">1 ml</div>
+                  <div class="layer-item-meta">×</div>
+                  <div class="layer-item-money">$ 0.16</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- CAPA 2: SUB-RECETA -->
+            <div class="layer">
+              <div class="layer-header">
+                <div class="layer-name">
+                  <div class="layer-icon l2"><i data-lucide="layers"></i></div>
+                  Capa 2 · Sub-recetas (componentes)
+                </div>
+                <div class="layer-total">$ 18.40</div>
+              </div>
+              <div class="layer-items">
+                <div class="layer-item">
+                  <div>
+                    <div class="layer-item-name">Salsa de tomate base</div>
+                    <div class="layer-item-meta">Rinde 800 gr · costo $73.60</div>
+                  </div>
+                  <div class="layer-item-meta">200 gr</div>
+                  <div class="layer-item-meta">×</div>
+                  <div class="layer-item-money">$ 18.40</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- CAPA 3: MANO DE OBRA -->
+            <div class="layer">
+              <div class="layer-header">
+                <div class="layer-name">
+                  <div class="layer-icon l3"><i data-lucide="users"></i></div>
+                  Capa 3 · Mano de obra
+                </div>
+                <div class="layer-total">$ 28.50</div>
+              </div>
+              <div class="layer-items">
+                <div class="layer-item">
+                  <div>
+                    <div class="layer-item-name">Tiempo de producción</div>
+                    <div class="layer-item-meta">Costo / min: $ 1.58</div>
+                  </div>
+                  <div class="layer-item-meta">18 min</div>
+                  <div class="layer-item-meta">×</div>
+                  <div class="layer-item-money">$ 28.50</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- CAPA 4: COSTOS FIJOS PRORRATEADOS -->
+            <div class="layer">
+              <div class="layer-header">
+                <div class="layer-name">
+                  <div class="layer-icon l4"><i data-lucide="building"></i></div>
+                  Capa 4 · Costos fijos prorrateados
+                </div>
+                <div class="layer-total">$ 16.60</div>
+              </div>
+              <div class="layer-items">
+                <div class="layer-item">
+                  <div>
+                    <div class="layer-item-name">Renta + servicios + energía</div>
+                    <div class="layer-item-meta">Asignación por minuto: $0.92</div>
+                  </div>
+                  <div class="layer-item-meta">18 min</div>
+                  <div class="layer-item-meta">×</div>
+                  <div class="layer-item-money">$ 16.60</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- DETAIL SIDE -->
+          <div class="detail-side">
+            <div class="detail-side-title">Análisis</div>
+
+            <div class="price-input-wrap">
+              <div class="price-label">Precio de venta</div>
+              <input class="price-input" value="$ 280" />
+            </div>
+
+            <div class="summary-row">
+              <span class="summary-label">Insumos directos</span>
+              <span class="summary-value">$ 42.50</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-label">Sub-recetas</span>
+              <span class="summary-value">$ 18.40</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-label">Mano de obra</span>
+              <span class="summary-value">$ 28.50</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-label">Costos fijos</span>
+              <span class="summary-value">$ 16.60</span>
+            </div>
+            <div class="summary-row total">
+              <span>Costo total</span>
+              <span>$ 106</span>
+            </div>
+            <div class="summary-row profit">
+              <span>Utilidad</span>
+              <span>$ 174</span>
+            </div>
+
+            <div class="margin-pill good">
+              <i data-lucide="trending-up"></i>
+              Margen del 62% · saludable
+            </div>
+
+            <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+              <div class="detail-side-title" style="margin-bottom:8px">Simulador</div>
+              <div style="font-size:12px;color:var(--text-3);line-height:1.6">
+                Si la harina sube 15%, tu margen baja a <strong style="color:var(--text)">60.6%</strong>.
+                Si bajas precio a $250, tu margen es <strong style="color:var(--text)">57.6%</strong>.
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ════════════ VIEW: PUNTO DE EQUILIBRIO ════════════ -->
+      <div class="view" id="view-equilibrio">
+
+        <div class="page-header">
+          <h1 class="page-title">Punto de equilibrio</h1>
+          <p class="page-sub">Cuánto necesitas vender para no perder dinero.</p>
+        </div>
+
+        <div class="equilibrio-card">
+          <div class="equilibrio-label">Ventas mensuales mínimas</div>
+          <div class="equilibrio-value">$ 186,710</div>
+          <div class="equilibrio-sub">Con tu margen promedio del 38%, necesitas vender esto para cubrir tus $70,950 de gastos fijos.</div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i data-lucide="bar-chart-3"></i>
+              ¿Cuántas unidades necesitas vender?
+            </div>
+          </div>
+
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th style="text-align:right">Utilidad por unidad</th>
+                <th style="text-align:right">Unidades / mes</th>
+                <th style="text-align:right">Unidades / día</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Pizza Margherita</strong></td>
+                <td style="text-align:right" class="table-money">$ 174</td>
+                <td style="text-align:right" class="table-money">408</td>
+                <td style="text-align:right" class="table-money">14</td>
+              </tr>
+              <tr>
+                <td><strong>Pasta Carbonara</strong></td>
+                <td style="text-align:right" class="table-money">$ 152</td>
+                <td style="text-align:right" class="table-money">467</td>
+                <td style="text-align:right" class="table-money">16</td>
+              </tr>
+              <tr>
+                <td><strong>Ensalada César</strong></td>
+                <td style="text-align:right" class="table-money">$ 84</td>
+                <td style="text-align:right" class="table-money">845</td>
+                <td style="text-align:right" class="table-money">28</td>
+              </tr>
+              <tr>
+                <td><strong>Tiramisu</strong></td>
+                <td style="text-align:right" class="table-money">$ 36</td>
+                <td style="text-align:right" class="table-money">1,971</td>
+                <td style="text-align:right" class="table-money">66</td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="margin-top:12px;font-size:12px;color:var(--text-3);font-style:italic;padding:12px;background:var(--surface);border-radius:var(--radius)">
+            <strong style="color:var(--text)">Lectura:</strong> si solo vendieras Pizza Margherita, necesitas 14 al día. Si solo vendieras Tiramisu, necesitas 66 al día. <strong style="color:var(--text)">El mix de tu menú determina qué tan fácil es alcanzar el equilibrio.</strong>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i data-lucide="sparkles"></i>
+              Simulador de escenarios
+            </div>
+          </div>
+
+          <div class="scenario-grid">
+            <div class="scenario-card">
+              <div class="scenario-name">Si subo precios 10%</div>
+              <div class="scenario-value">$ 142,000</div>
+              <div class="scenario-delta down"><i data-lucide="arrow-down"></i> $ 44,710 menos venta requerida</div>
+            </div>
+            <div class="scenario-card">
+              <div class="scenario-name">Si reduzco gastos 15%</div>
+              <div class="scenario-value">$ 158,600</div>
+              <div class="scenario-delta down"><i data-lucide="arrow-down"></i> $ 28,110 menos venta requerida</div>
+            </div>
+            <div class="scenario-card">
+              <div class="scenario-name">Si insumos suben 20%</div>
+              <div class="scenario-value">$ 234,500</div>
+              <div class="scenario-delta up"><i data-lucide="arrow-up"></i> $ 47,790 más venta requerida</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+  lucide.createIcons();
+
+  function showView(name) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.subnav-item').forEach(t => t.classList.remove('active'));
+    document.getElementById('view-' + name).classList.add('active');
+
+    // Activar tab correspondiente
+    const tabMap = {
+      'dashboard': 0, 'gastos': 1, 'costos': 2,
+      'productos': 3, 'detail': 4, 'equilibrio': 5
+    };
+    const tabs = document.querySelectorAll('.subnav-item');
+    if (tabs[tabMap[name]]) tabs[tabMap[name]].classList.add('active');
+
+    document.querySelector('.content').scrollTop = 0;
+    lucide.createIcons();
+  }
+
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.dataset.theme === 'dark' ? 'light' : 'dark';
+    html.dataset.theme = next;
+    const icon = document.getElementById('theme-icon');
+    if (icon) {
+      icon.setAttribute('data-lucide', next === 'dark' ? 'sun' : 'moon');
+      lucide.createIcons();
+    }
+  }
+</script>
+
+</body>
+</html>

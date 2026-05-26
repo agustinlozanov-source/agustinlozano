@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCALEx Portal — Admin · Consultores</title>
+  <link rel="icon" type="image/png" href="/logos/SX Icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script type="module" src="/assets/js/auth-guard.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal: #1aab99; --teal-light: rgba(26,171,153,0.12);
+      --indigo: #3533cd; --indigo-light: rgba(53,51,205,0.12);
+      --gradient: linear-gradient(135deg, #1aab99, #3533cd);
+      --gradient-soft: linear-gradient(135deg, rgba(26,171,153,0.15), rgba(53,51,205,0.15));
+      --green: #00c853; --green-light: rgba(0,200,83,0.12);
+      --amber: #ff9500; --amber-light: rgba(255,149,0,0.12);
+      --red: #ff3b30; --red-light: rgba(255,59,48,0.12);
+      --purple: #7c3aed; --purple-light: rgba(124,58,237,0.12);
+      --gold: #d4a256; --gold-light: rgba(212,162,86,0.12);
+      --radius-xl: 28px; --radius-lg: 20px; --radius: 14px; --radius-sm: 9px;
+      --sidebar-w: 80px;
+      font-family: 'Inter', sans-serif; line-height: 1.6;
+    }
+
+    [data-theme="dark"] {
+      --bg-page: #0a0a0c; --bg-shell: #141416; --bg-card: #1c1c1e; --bg-card-2: #242426;
+      --surface: rgba(255,255,255,0.04); --surface-hover: rgba(255,255,255,0.07);
+      --border: rgba(255,255,255,0.08); --border-strong: rgba(255,255,255,0.13);
+      --text: #ffffff; --text-2: #c7c7cc; --text-3: #8e8e93; --text-4: #48484a;
+      --sidebar-bg: #050506;
+    }
+    [data-theme="light"] {
+      --bg-page: #eef0f5; --bg-shell: #ffffff; --bg-card: #f5f5f7; --bg-card-2: #ebebef;
+      --surface: rgba(0,0,0,0.03); --surface-hover: rgba(0,0,0,0.055);
+      --border: rgba(0,0,0,0.08); --border-strong: rgba(0,0,0,0.14);
+      --text: #070708; --text-2: #3a3a3c; --text-3: #6e6e73; --text-4: #c7c7cc;
+      --sidebar-bg: #0a0a0c;
+    }
+
+    body { background: var(--bg-page); color: var(--text); min-height: 100vh; overflow: hidden; transition: background 0.3s, color 0.3s; }
+
+    .app-layout { display: flex; min-height: 100vh; padding: 16px; gap: 16px; }
+
+    .sidebar {
+      width: var(--sidebar-w); background: var(--sidebar-bg); border-radius: var(--radius-xl);
+      padding: 20px 0; display: flex; flex-direction: column; align-items: center; gap: 8px;
+      flex-shrink: 0; position: sticky; top: 16px; height: calc(100vh - 32px);
+    }
+    .sidebar-logo { width: 44px; height: auto; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+    .sidebar-logo img { width: 100%; height: auto; display: block; }
+    .sidebar-divider { width: 28px; height: 1px; background: rgba(255,255,255,0.08); margin: 4px 0; }
+    .sidebar-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.2s;
+      color: rgba(255,255,255,0.5); position: relative;
+      text-decoration: none; background: none; border: none;
+    }
+    .sidebar-icon:hover { background: rgba(255,255,255,0.06); color: white; }
+    .sidebar-icon.active { background: var(--gradient); color: white; }
+    .sidebar-icon svg { width: 20px; height: 20px; }
+    .sidebar-bottom { margin-top: auto; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+
+    .shell {
+      flex: 1; background: var(--bg-shell); border-radius: var(--radius-xl);
+      overflow: hidden; display: flex; flex-direction: column; height: calc(100vh - 32px);
+    }
+
+    .topbar {
+      padding: 20px 32px; display: flex; align-items: center; gap: 20px;
+      border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .topbar-title { flex: 1; }
+    .topbar-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--teal); margin-bottom: 2px; }
+    .topbar-h { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; font-weight: 800; color: var(--text); letter-spacing: -0.3px; }
+    .topbar-actions { display: flex; align-items: center; gap: 10px; }
+    .topbar-icon-btn {
+      width: 40px; height: 40px; border-radius: 12px; background: var(--surface);
+      border: 1px solid var(--border); display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.2s; color: var(--text-2);
+    }
+    .topbar-icon-btn:hover { background: var(--surface-hover); color: var(--text); }
+    .topbar-icon-btn svg { width: 16px; height: 16px; }
+
+    .content { flex: 1; overflow-y: auto; padding: 32px; }
+    .content::-webkit-scrollbar { width: 8px; }
+    .content::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 50px; }
+
+    /* ACCESS BLOCKED */
+    .access-blocked {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      height: 100%; gap: 16px; padding: 40px; text-align: center;
+    }
+    .access-blocked-icon {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: var(--red-light); color: var(--red);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .access-blocked-icon svg { width: 32px; height: 32px; }
+    .access-blocked h2 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; font-weight: 800; color: var(--text); }
+    .access-blocked p { font-size: 14px; color: var(--text-3); max-width: 360px; }
+
+    /* TABLA */
+    .tabla-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .tabla-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; font-weight: 800; color: var(--text); }
+    .tabla-count { font-size: 13px; color: var(--text-3); }
+
+    .tabla-wrap { overflow-x: auto; }
+    .tabla {
+      width: 100%; border-collapse: collapse; font-size: 13px;
+    }
+    .tabla thead th {
+      text-align: left; padding: 10px 14px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
+      text-transform: uppercase; color: var(--text-3);
+      border-bottom: 1px solid var(--border);
+    }
+    .tabla tbody tr { transition: background 0.15s; }
+    .tabla tbody tr:hover { background: var(--surface); }
+    .tabla tbody td {
+      padding: 14px; border-bottom: 1px solid var(--border);
+      color: var(--text-2); vertical-align: middle;
+    }
+    .tabla-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--gradient);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 12px; font-weight: 800; color: white;
+      overflow: hidden; flex-shrink: 0;
+    }
+    .tabla-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+    .user-cell { display: flex; align-items: center; gap: 12px; }
+    .user-cell-info { display: flex; flex-direction: column; gap: 2px; }
+    .user-cell-name { font-weight: 600; color: var(--text); font-size: 13.5px; }
+    .user-cell-email { font-size: 11.5px; color: var(--text-3); }
+
+    .nivel-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 10px; border-radius: 50px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.3px;
+    }
+    .nivel-badge.junior { background: var(--teal-light); color: var(--teal); }
+    .nivel-badge.senior { background: var(--indigo-light); color: var(--indigo); }
+    .nivel-badge.master { background: var(--purple-light); color: var(--purple); }
+    .nivel-badge.master_certificador { background: var(--gold-light); color: var(--gold); }
+    .nivel-badge.ninguno { background: var(--surface); color: var(--text-4); }
+
+    .vigente-dot {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 12px; font-weight: 600;
+    }
+    .vigente-dot::before { content: '●'; font-size: 8px; }
+    .vigente-dot.si { color: var(--green); }
+    .vigente-dot.no { color: var(--text-4); }
+
+    .btn-cert {
+      padding: 7px 14px; border-radius: 8px;
+      background: var(--gradient); color: white; border: none;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; font-weight: 700;
+      cursor: pointer; transition: opacity 0.2s; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-cert:hover { opacity: 0.85; }
+    .btn-cert svg { width: 13px; height: 13px; }
+
+    /* MODAL */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 999;
+      background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; visibility: hidden; transition: opacity 0.25s, visibility 0.25s;
+    }
+    .modal-overlay.open { opacity: 1; visibility: visible; }
+    .modal {
+      background: var(--bg-card); border: 1px solid var(--border-strong);
+      border-radius: var(--radius-xl); padding: 32px;
+      width: 100%; max-width: 480px;
+      transform: translateY(20px); transition: transform 0.25s;
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .modal-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 17px; font-weight: 800; color: var(--text); }
+    .modal-close {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--text-3); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .modal-close:hover { color: var(--text); }
+    .modal-close svg { width: 14px; height: 14px; }
+    .modal-user { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+    .modal-user-name { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 700; color: var(--text); }
+    .modal-user-email { font-size: 12px; color: var(--text-3); }
+
+    .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    .form-label { font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-3); }
+    .form-input, .form-select {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 10px 14px;
+      color: var(--text); font-family: 'Inter', sans-serif; font-size: 13.5px;
+      outline: none; transition: border-color 0.2s; width: 100%;
+    }
+    .form-input:focus, .form-select:focus { border-color: var(--teal); }
+    .form-select option { background: var(--bg-card); }
+
+    .modal-actions { display: flex; gap: 10px; margin-top: 24px; }
+    .btn-primary {
+      flex: 1; padding: 12px; border-radius: var(--radius-sm);
+      background: var(--gradient); color: white; border: none;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 700;
+      cursor: pointer; transition: opacity 0.2s;
+    }
+    .btn-primary:hover { opacity: 0.85; }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-revocar {
+      padding: 12px 20px; border-radius: var(--radius-sm);
+      background: var(--red-light); color: var(--red);
+      border: 1px solid var(--red); font-size: 13px; font-weight: 700;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .btn-revocar:hover { background: var(--red); color: white; }
+
+    .modal-feedback { margin-top: 14px; font-size: 12.5px; text-align: center; min-height: 18px; }
+    .modal-feedback.ok { color: var(--green); }
+    .modal-feedback.err { color: var(--red); }
+
+    /* Skeleton */
+    .skeleton {
+      background: linear-gradient(90deg, var(--surface), var(--surface-hover), var(--surface));
+      background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: var(--radius-sm);
+    }
+    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <a href="/portal/dashboard.html" class="sidebar-logo" style="text-decoration:none">
+        <img src="/logos/SX Isp.png" alt="SCALEx">
+      </a>
+      <a href="/portal/dashboard.html" class="sidebar-icon" title="Dashboard"><i data-lucide="layout-dashboard"></i></a>
+      <a href="/portal/opsp.html" class="sidebar-icon" title="OPSP"><i data-lucide="map"></i></a>
+      <a href="/portal/rituales.html" class="sidebar-icon" title="Rituales"><i data-lucide="repeat"></i></a>
+      <div class="sidebar-divider"></div>
+      <a href="/portal/reflejo.html" class="sidebar-icon" title="Reflejo"><i data-lucide="eye"></i></a>
+      <a href="/portal/vector.html" class="sidebar-icon" title="Vector"><i data-lucide="compass"></i></a>
+      <a href="/portal/costeo.html" class="sidebar-icon" title="Costeo"><i data-lucide="calculator"></i></a>
+      <a href="/portal/ritmo.html" class="sidebar-icon" title="Ritmo"><i data-lucide="activity"></i></a>
+      <div class="sidebar-bottom">
+        <button class="sidebar-icon" title="Cambiar tema" onclick="toggleTheme()"><i data-lucide="sun" id="theme-icon"></i></button>
+        <button class="sidebar-icon" title="Configuración"><i data-lucide="settings"></i></button>
+        <button class="sidebar-icon" title="Cerrar sesión" onclick="logout()"><i data-lucide="log-out"></i></button>
+      </div>
+    </aside>
+
+    <!-- SHELL -->
+    <main class="shell">
+      <div class="topbar">
+        <div class="topbar-title">
+          <div class="topbar-eyebrow">Admin · SCALEx</div>
+          <div class="topbar-h">Asignación de Certificaciones</div>
+        </div>
+        <div class="topbar-actions">
+          <div class="topbar-icon-btn" title="Recargar" id="btn-reload"><i data-lucide="refresh-cw"></i></div>
+          <div class="topbar-icon-btn" title="Cambiar tema" onclick="toggleTheme()"><i data-lucide="sun"></i></div>
+        </div>
+      </div>
+
+      <div class="content" id="content-area">
+        <!-- Cargando -->
+        <div class="skeleton" style="height:50px;margin-bottom:16px;"></div>
+        <div class="skeleton" style="height:400px;"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL CERTIFICAR -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-title">Asignar Certificación</div>
+        <button class="modal-close" onclick="cerrarModal()"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-user" id="modal-user">
+        <div class="tabla-avatar" id="modal-avatar">?</div>
+        <div>
+          <div class="modal-user-name" id="modal-nombre">—</div>
+          <div class="modal-user-email" id="modal-email">—</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nivel de consultor</label>
+        <select class="form-select" id="modal-nivel">
+          <option value="junior">Junior</option>
+          <option value="senior">Senior</option>
+          <option value="master">Master</option>
+          <option value="master_certificador">Master Certificador</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Número de certificación</label>
+        <input type="text" class="form-input" id="modal-cert-numero" placeholder="JR-017">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Fecha de certificación</label>
+        <input type="date" class="form-input" id="modal-cert-fecha">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-primary" id="btn-asignar" onclick="asignarCert()">
+          <i data-lucide="badge-check" style="width:14px;height:14px;display:inline;vertical-align:middle;margin-right:6px"></i>
+          Asignar certificación
+        </button>
+        <button class="btn-revocar" id="btn-revocar" onclick="revocarCert()" style="display:none">
+          Revocar
+        </button>
+      </div>
+      <div class="modal-feedback" id="modal-feedback"></div>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons()
+
+    function toggleTheme() {
+      const html = document.documentElement
+      const next = html.dataset.theme === 'dark' ? 'light' : 'dark'
+      html.dataset.theme = next
+      localStorage.setItem('scalex-theme', next)
+      lucide.createIcons()
+    }
+    function logout() {
+      import('/assets/js/supabase-client.js').then(m => m.signOut())
+    }
+
+    const savedTheme = localStorage.getItem('scalex-theme')
+    if (savedTheme) document.documentElement.dataset.theme = savedTheme
+
+    document.getElementById('btn-reload')?.addEventListener('click', () => {
+      import('/assets/js/admin-consultores.js').then(m => m.cargarConsultores?.())
+    })
+  </script>
+
+  <script type="module" src="/assets/js/portal-shell.js"></script>
+  <script type="module" src="/assets/js/admin-consultores.js"></script>
+</body>
+</html>
