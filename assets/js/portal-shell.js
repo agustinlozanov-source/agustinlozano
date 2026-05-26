@@ -73,7 +73,7 @@ function injectSidebarExtras(perfil) {
   if (!sidebarBottom) return
 
   const isAdmin = perfil.rol_global === 'admin'
-  const isCertConsultor = perfil.rol_global === 'consultor' && perfil.cert_vigente === true
+  const isCertConsultor = perfil.cert_vigente === true
 
   // Punto de inserción: .sidebar-nav si existe, si no fallback a antes del bottom
   const nav = document.querySelector('.sidebar-nav') || sidebarBottom
