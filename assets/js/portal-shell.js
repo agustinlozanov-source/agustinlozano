@@ -34,10 +34,13 @@ function injectStyles() {
   const style = document.createElement('style')
   style.id = 'portal-shell-styles'
   style.textContent = `
-    /* ── Sidebar con scroll oculto ── */
-    .sidebar { overflow-y: auto !important; overflow-x: hidden !important; }
-    .sidebar::-webkit-scrollbar { width: 0 !important; background: transparent !important; }
-    .sidebar { -ms-overflow-style: none !important; scrollbar-width: none !important; }
+    /* ── Sidebar con scroll ── */
+    .sidebar { overflow-y: auto !important; overflow-x: hidden !important; scrollbar-width: none !important; }
+    .sidebar::-webkit-scrollbar { width: 0 !important; }
+    .sidebar:hover { scrollbar-width: thin !important; scrollbar-color: rgba(255,255,255,0.15) transparent !important; }
+    .sidebar:hover::-webkit-scrollbar { width: 3px !important; }
+    .sidebar:hover::-webkit-scrollbar-track { background: transparent !important; }
+    .sidebar:hover::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15) !important; border-radius: 99px !important; }
 
     /* ── User Badge ── */
     .user-badge {
