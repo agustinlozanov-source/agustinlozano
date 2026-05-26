@@ -34,13 +34,7 @@ function injectStyles() {
   const style = document.createElement('style')
   style.id = 'portal-shell-styles'
   style.textContent = `
-    /* ── Sidebar con scroll ── */
-    .sidebar { overflow-y: auto !important; overflow-x: hidden !important; scrollbar-width: none !important; }
-    .sidebar::-webkit-scrollbar { width: 0 !important; }
-    .sidebar:hover { scrollbar-width: thin !important; scrollbar-color: rgba(255,255,255,0.15) transparent !important; }
-    .sidebar:hover::-webkit-scrollbar { width: 3px !important; }
-    .sidebar:hover::-webkit-scrollbar-track { background: transparent !important; }
-    .sidebar:hover::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15) !important; border-radius: 99px !important; }
+    /* ── Sidebar scroll — aplicado via JS directo sobre el elemento ── */
 
     /* ── User Badge ── */
     .user-badge {
@@ -117,6 +111,21 @@ function injectSidebarExtras(perfil) {
 
   // Re-renderizar iconos Lucide sobre los nuevos elementos
   if (window.lucide) lucide.createIcons()
+
+  // Aplicar scroll directo al elemento — funciona aunque sea flex container
+  const sidebar = document.querySelector('.sidebar')
+  if (sidebar) {
+    sidebar.style.overflowY = 'auto'
+    sidebar.style.overflowX = 'hidden'
+    // Scrollbar delgada siempre visible cuando hay overflow
+    const styleEl = document.createElement('style')
+    styleEl.textContent = `
+      .sidebar::-webkit-scrollbar { width: 3px; }
+      .sidebar::-webkit-scrollbar-track { background: transparent; }
+      .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); border-radius: 99px; }
+    `
+    document.head.appendChild(styleEl)
+  }
 }
 
 // ────────────────────────────────────────────────────────────────────────────
