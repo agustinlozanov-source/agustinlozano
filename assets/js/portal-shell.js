@@ -1,5 +1,5 @@
 // ============================================================================
-// SCALEx Portal · Shell · portal-shell.js
+// SCALEx Portal · Shell · portal-shell.js · v2
 // ============================================================================
 // Inyecta en TODAS las páginas del portal:
 //   1. Sidebar extras: Modo Presentación, Mi Perfil, Admin (si aplica)
@@ -93,6 +93,7 @@ function injectSidebarExtras(perfil) {
   // Modo Presentación — solo consultor certificado vigente
   const presentacionLink = document.createElement('a')
   presentacionLink.href = '/portal/presentacion.html'
+  presentacionLink.target = '_blank'
   presentacionLink.className = 'sidebar-icon'
   presentacionLink.id = 'sidebar-presentacion'
   presentacionLink.title = 'Modo Presentación'
