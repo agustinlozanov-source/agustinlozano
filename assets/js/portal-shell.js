@@ -75,6 +75,9 @@ function injectSidebarExtras(perfil) {
   const isAdmin = perfil.rol_global === 'admin'
   const isCertConsultor = perfil.rol_global === 'consultor' && perfil.cert_vigente === true
 
+  // Punto de inserción: .sidebar-nav si existe, si no fallback a antes del bottom
+  const nav = document.querySelector('.sidebar-nav') || sidebarBottom
+
   // Divider
   const divider = document.createElement('div')
   divider.className = 'sidebar-divider'
@@ -96,67 +99,33 @@ function injectSidebarExtras(perfil) {
   presentacionLink.innerHTML = '<i data-lucide="presentation"></i>'
   if (!isCertConsultor) presentacionLink.style.display = 'none'
 
-  sidebarBottom.before(divider, presentacionLink, perfilLink)
-
-  // Admin — solo si rol_global === 'admin'
-  if (isAdmin) {
-    const adminLink = document.createElement('a')
-    adminLink.href = '/portal/admin-consultores.html'
-    adminLink.className = 'sidebar-icon'
-    adminLink.id = 'sidebar-admin-consultores'
-    adminLink.title = 'Admin · Consultores'
-    adminLink.innerHTML = '<i data-lucide="shield-check"></i>'
-    sidebarBottom.before(adminLink)
+  if (nav.classList.contains('sidebar-nav')) {
+    // Insertar al final del nav scrolleable
+    nav.append(divider, presentacionLink, perfilLink)
+    if (isAdmin) {
+      const adminLink = document.createElement('a')
+      adminLink.href = '/portal/admin-consultores.html'
+      adminLink.className = 'sidebar-icon'
+      adminLink.id = 'sidebar-admin-consultores'
+      adminLink.title = 'Admin · Consultores'
+      adminLink.innerHTML = '<i data-lucide="shield-check"></i>'
+      nav.append(adminLink)
+    }
+  } else {
+    // Fallback: insertar antes del bottom (portales sin sidebar-nav aún)
+    sidebarBottom.before(divider, presentacionLink, perfilLink)
+    if (isAdmin) {
+      const adminLink = document.createElement('a')
+      adminLink.href = '/portal/admin-consultores.html'
+      adminLink.className = 'sidebar-icon'
+      adminLink.id = 'sidebar-admin-consultores'
+      adminLink.title = 'Admin · Consultores'
+      adminLink.innerHTML = '<i data-lucide="shield-check"></i>'
+      sidebarBottom.before(adminLink)
+    }
   }
 
-  // Re-renderizar iconos Lucide sobre los nuevos elementos
   if (window.lucide) lucide.createIcons()
-
-  // ── Hacer scrolleable la zona de iconos del medio ─────────────────────────
-  // El truco: logo (primer hijo) y sidebar-bottom (último) quedan fijos.
-  // Todo lo del medio va dentro de un wrapper con overflow-y: auto.
-  const sidebar = document.querySelector('.sidebar')
-  if (!sidebar) return
-
-  const logo = sidebar.querySelector('.sidebar-logo')
-  const bottom = sidebar.querySelector('.sidebar-bottom')
-  if (!logo || !bottom) return
-
-  // Recoger todos los hijos que NO son logo ni sidebar-bottom
-  const middleNodes = []
-  sidebar.childNodes.forEach(node => {
-    if (node !== logo && node !== bottom) middleNodes.push(node)
-  })
-
-  // Crear wrapper scrolleable
-  const scrollWrap = document.createElement('div')
-  scrollWrap.style.cssText = [
-    'flex: 1',
-    'overflow-y: auto',
-    'overflow-x: hidden',
-    'width: 100%',
-    'display: flex',
-    'flex-direction: column',
-    'align-items: center',
-    'gap: 8px',
-    'padding: 4px 0',
-  ].join(';')
-
-  // Scrollbar delgada
-  const scrollStyle = document.createElement('style')
-  scrollStyle.textContent = `
-    .sidebar-scroll-wrap::-webkit-scrollbar { width: 3px; }
-    .sidebar-scroll-wrap::-webkit-scrollbar-track { background: transparent; }
-    .sidebar-scroll-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 99px; }
-  `
-  document.head.appendChild(scrollStyle)
-  scrollWrap.classList.add('sidebar-scroll-wrap')
-
-  // Mover nodos al wrapper
-  middleNodes.forEach(node => scrollWrap.appendChild(node))
-
-  // Insertar wrapper entre logo y bottom
-  sidebar.insertBefore(scrollWrap, bottom)
 }
 
 // ────────────────────────────────────────────────────────────────────────────

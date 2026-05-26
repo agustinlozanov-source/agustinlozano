@@ -118,9 +118,23 @@
       background: var(--teal); border-radius: 0 3px 3px 0;
     }
     .sidebar-icon svg { width: 20px; height: 20px; }
+    .sidebar-nav {
+      flex: 1;
+      width: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 0;
+    }
+    .sidebar-nav::-webkit-scrollbar { width: 3px; }
+    .sidebar-nav::-webkit-scrollbar-track { background: transparent; }
+    .sidebar-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 99px; }
     .sidebar-bottom {
-      margin-top: auto;
       display: flex; flex-direction: column; gap: 8px; align-items: center;
+      padding-bottom: 4px;
     }
 
     .shell {
@@ -548,22 +562,24 @@
         <img src="/logos/SX Isp.png" alt="SCALEx">
       </a>
 
-      <a href="/portal/dashboard.html" class="sidebar-icon active" title="Dashboard">
-        <i data-lucide="layout-dashboard"></i>
-      </a>
-      <a href="/portal/opsp.html" class="sidebar-icon" title="OPSP — One Page Strategic Plan">
-        <i data-lucide="map"></i>
-      </a>
-      <a href="/portal/rituales.html" class="sidebar-icon" title="Rituales">
-        <i data-lucide="repeat"></i>
-      </a>
+      <div class="sidebar-nav">
+        <a href="/portal/dashboard.html" class="sidebar-icon active" title="Dashboard">
+          <i data-lucide="layout-dashboard"></i>
+        </a>
+        <a href="/portal/opsp.html" class="sidebar-icon" title="OPSP — One Page Strategic Plan">
+          <i data-lucide="map"></i>
+        </a>
+        <a href="/portal/rituales.html" class="sidebar-icon" title="Rituales">
+          <i data-lucide="repeat"></i>
+        </a>
 
-      <div class="sidebar-divider"></div>
+        <div class="sidebar-divider"></div>
 
-      <a href="/portal/reflejo.html" class="sidebar-icon" title="Reflejo"><i data-lucide="eye"></i></a>
-      <a href="/portal/vector.html" class="sidebar-icon" title="Vector"><i data-lucide="compass"></i></a>
-      <a href="/portal/costeo.html" class="sidebar-icon" title="Costeo"><i data-lucide="calculator"></i></a>
-      <a href="/portal/ritmo.html" class="sidebar-icon" title="Ritmo"><i data-lucide="activity"></i></a>
+        <a href="/portal/reflejo.html" class="sidebar-icon" title="Reflejo"><i data-lucide="eye"></i></a>
+        <a href="/portal/vector.html" class="sidebar-icon" title="Vector"><i data-lucide="compass"></i></a>
+        <a href="/portal/costeo.html" class="sidebar-icon" title="Costeo"><i data-lucide="calculator"></i></a>
+        <a href="/portal/ritmo.html" class="sidebar-icon" title="Ritmo"><i data-lucide="activity"></i></a>
+      </div>
 
       <div class="sidebar-bottom">
         <button class="sidebar-icon" title="Cambiar tema" onclick="toggleTheme()">
