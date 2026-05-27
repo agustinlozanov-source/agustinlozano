@@ -53,7 +53,7 @@ async function cargarProspectos() {
     .select('*')
     .eq('consultor_id', perfil.id)
     .neq('etapa', 'descartado')
-    .order('orden', { ascending: true })
+    .order('created_at', { ascending: true })
 
   if (error) { console.error(error); return }
   prospectos = data || []
@@ -197,8 +197,7 @@ window.onDrop = async function(e) {
 
   const { error } = await supabase.rpc('prospecto_mover', {
     p_prospecto_id: draggingId,
-    p_nueva_etapa: nuevaEtapa,
-    p_nuevo_orden: 999
+    p_nueva_etapa: nuevaEtapa
   })
 
   if (error) {
@@ -361,7 +360,6 @@ async function guardarFicha() {
     // Nuevo prospecto → INSERT
     payload.consultor_id = perfil.id
     payload.etapa = 'sin_contactar'
-    payload.orden = 0
 
     const { data, error } = await supabase
       .from('prospectos')
