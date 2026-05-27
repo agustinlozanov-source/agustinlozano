@@ -100,9 +100,21 @@ function injectSidebarExtras(perfil) {
   presentacionLink.innerHTML = '<i data-lucide="presentation"></i>'
   if (!isCertConsultor) presentacionLink.style.display = 'none'
 
+  // Pipeline — solo si ya no está en el nav (evitar duplicado en pipeline.html que lo tiene estático)
+  const pipelineExists = !!document.getElementById('sidebar-pipeline')
+  const pipelineLink = document.createElement('a')
+  pipelineLink.href = '/portal/pipeline.html'
+  pipelineLink.className = 'sidebar-icon'
+  pipelineLink.id = 'sidebar-pipeline'
+  pipelineLink.title = 'Mis Clientes · Pipeline'
+  pipelineLink.innerHTML = '<i data-lucide="kanban-square"></i>'
+  if (!isCertConsultor) pipelineLink.style.display = 'none'
+
   if (nav.classList.contains('sidebar-nav')) {
     // Insertar al final del nav scrolleable
-    nav.append(divider, presentacionLink, perfilLink)
+    nav.append(divider)
+    if (isCertConsultor && !pipelineExists) nav.append(pipelineLink)
+    nav.append(presentacionLink, perfilLink)
     if (isAdmin) {
       const adminLink = document.createElement('a')
       adminLink.href = '/portal/admin-consultores.html'
@@ -110,11 +122,19 @@ function injectSidebarExtras(perfil) {
       adminLink.id = 'sidebar-admin-consultores'
       adminLink.title = 'Admin · Consultores'
       adminLink.innerHTML = '<i data-lucide="shield-check"></i>'
-      nav.append(adminLink)
+      const adminPipelineLink = document.createElement('a')
+      adminPipelineLink.href = '/portal/admin-pipeline.html'
+      adminPipelineLink.className = 'sidebar-icon'
+      adminPipelineLink.id = 'sidebar-admin-pipeline'
+      adminPipelineLink.title = 'Pipeline Global'
+      adminPipelineLink.innerHTML = '<i data-lucide="trending-up"></i>'
+      nav.append(adminLink, adminPipelineLink)
     }
   } else {
     // Fallback: insertar antes del bottom (portales sin sidebar-nav aún)
-    sidebarBottom.before(divider, presentacionLink, perfilLink)
+    sidebarBottom.before(divider)
+    if (isCertConsultor && !pipelineExists) sidebarBottom.before(pipelineLink)
+    sidebarBottom.before(presentacionLink, perfilLink)
     if (isAdmin) {
       const adminLink = document.createElement('a')
       adminLink.href = '/portal/admin-consultores.html'
@@ -122,7 +142,13 @@ function injectSidebarExtras(perfil) {
       adminLink.id = 'sidebar-admin-consultores'
       adminLink.title = 'Admin · Consultores'
       adminLink.innerHTML = '<i data-lucide="shield-check"></i>'
-      sidebarBottom.before(adminLink)
+      const adminPipelineLink = document.createElement('a')
+      adminPipelineLink.href = '/portal/admin-pipeline.html'
+      adminPipelineLink.className = 'sidebar-icon'
+      adminPipelineLink.id = 'sidebar-admin-pipeline'
+      adminPipelineLink.title = 'Pipeline Global'
+      adminPipelineLink.innerHTML = '<i data-lucide="trending-up"></i>'
+      sidebarBottom.before(adminLink, adminPipelineLink)
     }
   }
 

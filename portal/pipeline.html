@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCALEx Portal — Pipeline</title>
+  <link rel="icon" type="image/png" href="/logos/SX Icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script type="module" src="/assets/js/auth-guard.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #070708; --white: #ffffff;
+      --teal: #1aab99; --teal-light: rgba(26,171,153,0.12);
+      --indigo: #3533cd; --indigo-light: rgba(53,51,205,0.12);
+      --gradient: linear-gradient(135deg, #1aab99, #3533cd);
+      --green: #00c853; --green-light: rgba(0,200,83,0.12);
+      --amber: #ff9500; --amber-light: rgba(255,149,0,0.12);
+      --red: #ff3b30; --red-light: rgba(255,59,48,0.12);
+      --purple: #7c3aed; --purple-light: rgba(124,58,237,0.12);
+      --pink: #ec4899; --pink-light: rgba(236,72,153,0.12);
+      --radius-xl: 28px; --radius-lg: 20px; --radius: 14px; --radius-sm: 9px;
+      --sidebar-w: 80px;
+      font-family: 'Inter', sans-serif; line-height: 1.6;
+    }
+
+    [data-theme="dark"] {
+      --bg-page: #0a0a0c; --bg-shell: #141416; --bg-card: #1c1c1e; --bg-card-2: #242426;
+      --surface: rgba(255,255,255,0.04); --surface-hover: rgba(255,255,255,0.07);
+      --border: rgba(255,255,255,0.08); --border-strong: rgba(255,255,255,0.13);
+      --text: #ffffff; --text-2: #c7c7cc; --text-3: #8e8e93; --text-4: #48484a;
+      --sidebar-bg: #050506;
+    }
+    [data-theme="light"] {
+      --bg-page: #eef0f5; --bg-shell: #ffffff; --bg-card: #f5f5f7; --bg-card-2: #ebebef;
+      --surface: rgba(0,0,0,0.03); --surface-hover: rgba(0,0,0,0.055);
+      --border: rgba(0,0,0,0.08); --border-strong: rgba(0,0,0,0.14);
+      --text: #070708; --text-2: #3a3a3c; --text-3: #6e6e73; --text-4: #c7c7cc;
+      --sidebar-bg: #0a0a0c;
+    }
+
+    body { background: var(--bg-page); color: var(--text); min-height: 100vh; overflow: hidden; transition: background 0.3s, color 0.3s; }
+
+    /* ── APP LAYOUT ── */
+    .app-layout { display: flex; min-height: 100vh; padding: 16px; gap: 16px; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--sidebar-w); background: var(--sidebar-bg); border-radius: var(--radius-xl);
+      padding: 20px 0; display: flex; flex-direction: column; align-items: center; gap: 8px;
+      flex-shrink: 0; position: sticky; top: 16px; height: calc(100vh - 32px); overflow: hidden;
+    }
+    .sidebar-logo { width: 44px; height: auto; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+    .sidebar-logo img { width: 100%; height: auto; display: block; }
+    .sidebar-divider { width: 28px; height: 1px; background: rgba(255,255,255,0.08); margin: 4px 0; }
+    .sidebar-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.2s; color: rgba(255,255,255,0.5);
+      text-decoration: none; background: none; border: none;
+    }
+    .sidebar-icon:hover { background: rgba(255,255,255,0.06); color: white; }
+    .sidebar-icon.active { background: var(--gradient); color: white; }
+    .sidebar-icon svg { width: 20px; height: 20px; }
+    .sidebar-nav { flex: 1; min-height: 0; width: 100%; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 4px 0; }
+    .sidebar-nav::-webkit-scrollbar { width: 3px; }
+    .sidebar-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 99px; }
+    .sidebar-bottom { display: flex; flex-direction: column; gap: 8px; align-items: center; padding-bottom: 4px; }
+
+    /* ── SHELL ── */
+    .shell { flex: 1; background: var(--bg-shell); border-radius: var(--radius-xl); overflow: hidden; display: flex; flex-direction: column; height: calc(100vh - 32px); min-width: 0; }
+
+    /* ── TOPBAR ── */
+    .topbar { padding: 18px 28px; display: flex; align-items: center; gap: 16px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .topbar-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; font-weight: 700; color: var(--text); }
+    .topbar-sub { font-size: 13px; color: var(--text-3); margin-top: 1px; }
+    .topbar-left { flex: 1; }
+    .topbar-actions { display: flex; align-items: center; gap: 10px; }
+    .btn-primary {
+      display: flex; align-items: center; gap: 7px;
+      background: var(--gradient); color: white;
+      border: none; border-radius: 10px; padding: 9px 16px;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 700;
+      cursor: pointer; transition: opacity 0.2s; white-space: nowrap;
+    }
+    .btn-primary:hover { opacity: 0.88; }
+    .btn-primary svg { width: 15px; height: 15px; }
+    .btn-ghost {
+      display: flex; align-items: center; gap: 7px;
+      background: var(--surface); color: var(--text-2);
+      border: 1px solid var(--border); border-radius: 10px; padding: 8px 14px;
+      font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-ghost:hover { background: var(--surface-hover); color: var(--text); }
+    .btn-ghost svg { width: 14px; height: 14px; }
+    .search-input {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+      padding: 8px 14px; color: var(--text); font-size: 13px; width: 220px;
+      outline: none; transition: border-color 0.2s;
+    }
+    .search-input:focus { border-color: var(--teal); }
+    .search-input::placeholder { color: var(--text-4); }
+    .btn-filter { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px; color: var(--text-3); font-size: 12px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+    .btn-filter:hover { background: var(--surface-hover); color: var(--text); }
+    .btn-filter.active { border-color: var(--amber); color: var(--amber); background: var(--amber-light); }
+    .btn-filter svg { width: 13px; height: 13px; }
+
+    /* ── STATS HEADER ── */
+    .pipeline-stats { padding: 14px 28px; display: flex; gap: 12px; border-bottom: 1px solid var(--border); flex-shrink: 0; flex-wrap: wrap; }
+    .stat-chip {
+      display: flex; align-items: center; gap: 7px;
+      padding: 6px 12px; border-radius: 999px;
+      font-size: 12px; font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .stat-chip .stat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .stat-chip .stat-num { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 800; }
+    .stat-chip .stat-label { color: var(--text-3); }
+
+    /* ── KANBAN BOARD ── */
+    .kanban-wrapper { flex: 1; overflow-x: auto; overflow-y: hidden; padding: 20px 28px 28px; }
+    .kanban-board { display: flex; gap: 14px; height: 100%; min-width: max-content; }
+    .kanban-col {
+      width: 280px; display: flex; flex-direction: column; flex-shrink: 0;
+      background: var(--surface); border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      transition: border-color 0.2s;
+    }
+    .kanban-col.drag-over { border-color: var(--teal); background: var(--teal-light); }
+    .kanban-col-header {
+      padding: 14px 16px 12px; display: flex; align-items: center; gap: 10px;
+      border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .col-accent { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .col-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 700; flex: 1; }
+    .col-count { font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 99px; background: var(--surface-hover); color: var(--text-3); }
+    .kanban-cards { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; min-height: 80px; }
+    .kanban-cards::-webkit-scrollbar { width: 3px; }
+    .kanban-cards::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 99px; }
+    .kanban-empty { flex: 1; display: flex; align-items: center; justify-content: center; color: var(--text-4); font-size: 12px; padding: 20px 0; }
+
+    /* ── TARJETA ── */
+    .prospect-card {
+      background: var(--bg-card); border-radius: var(--radius); padding: 13px 14px;
+      border: 1px solid var(--border); cursor: pointer;
+      transition: all 0.18s; position: relative;
+    }
+    .prospect-card:hover { background: var(--bg-card-2); border-color: var(--border-strong); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
+    .prospect-card.dragging { opacity: 0.45; cursor: grabbing; }
+    .card-empresa { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+    .card-contacto { font-size: 11px; color: var(--text-3); margin-bottom: 8px; }
+    .card-pilares { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
+    .pilar-chip {
+      font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 99px;
+      border: 1px solid currentColor;
+    }
+    .pilar-chip.reflejo { color: #7c3aed; background: rgba(124,58,237,0.1); }
+    .pilar-chip.adn     { color: #ec4899; background: rgba(236,72,153,0.1); }
+    .pilar-chip.vector  { color: #3533cd; background: rgba(53,51,205,0.1); }
+    .pilar-chip.ritmo   { color: #1aab99; background: rgba(26,171,153,0.1); }
+    .pilar-chip.flujo   { color: #ff9500; background: rgba(255,149,0,0.1); }
+    .card-footer { display: flex; align-items: center; justify-content: space-between; }
+    .card-accion { font-size: 10px; color: var(--text-3); display: flex; align-items: center; gap: 4px; }
+    .card-accion.vencida { color: var(--amber); }
+    .card-accion svg { width: 11px; height: 11px; }
+    .card-interacciones { font-size: 10px; color: var(--text-4); display: flex; align-items: center; gap: 3px; }
+    .card-interacciones svg { width: 11px; height: 11px; }
+
+    /* ── MODAL OVERLAY ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 1000;
+      background: rgba(0,0,0,0.75); backdrop-filter: blur(8px);
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--bg-card); border-radius: var(--radius-xl);
+      border: 1px solid var(--border-strong);
+      width: 100%; max-width: 720px; max-height: 90vh;
+      display: flex; flex-direction: column; overflow: hidden;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+    }
+    .modal-header {
+      padding: 22px 26px 18px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 14px; flex-shrink: 0;
+    }
+    .modal-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; font-weight: 800; flex: 1; }
+    .modal-save-indicator { font-size: 11px; color: var(--teal); display: none; align-items: center; gap: 4px; }
+    .modal-save-indicator.show { display: flex; }
+    .modal-save-indicator svg { width: 12px; height: 12px; }
+    .modal-close { background: var(--surface); border: 1px solid var(--border); border-radius: 9px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-3); transition: all 0.2s; }
+    .modal-close:hover { background: var(--surface-hover); color: var(--text); }
+    .modal-close svg { width: 16px; height: 16px; }
+    .modal-body { flex: 1; overflow-y: auto; padding: 24px 26px; display: flex; flex-direction: column; gap: 26px; }
+    .modal-body::-webkit-scrollbar { width: 4px; }
+    .modal-body::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 99px; }
+    .modal-footer { padding: 18px 26px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .modal-footer-spacer { flex: 1; }
+
+    /* ── FORM SECTIONS ── */
+    .form-section-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-grid.cols-1 { grid-template-columns: 1fr; }
+    .form-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+    .form-field { display: flex; flex-direction: column; gap: 5px; }
+    .form-field.span-2 { grid-column: span 2; }
+    .form-label { font-size: 11px; font-weight: 600; color: var(--text-3); }
+    .form-input, .form-select, .form-textarea {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
+      padding: 9px 12px; color: var(--text); font-size: 13px; font-family: inherit;
+      outline: none; transition: border-color 0.2s; width: 100%;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--teal); }
+    .form-textarea { resize: vertical; min-height: 80px; }
+    .form-select { cursor: pointer; }
+    option { background: var(--bg-card); }
+
+    /* ── PILARES CHIPS EN MODAL ── */
+    .pilares-selector { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pilar-btn {
+      padding: 6px 14px; border-radius: 99px; font-size: 12px; font-weight: 600;
+      cursor: pointer; border: 1.5px solid var(--border); background: var(--surface);
+      color: var(--text-3); transition: all 0.18s;
+    }
+    .pilar-btn[data-pilar="Reflejo"].active { background: rgba(124,58,237,0.18); border-color: #7c3aed; color: #7c3aed; }
+    .pilar-btn[data-pilar="ADN"].active     { background: rgba(236,72,153,0.18); border-color: #ec4899; color: #ec4899; }
+    .pilar-btn[data-pilar="Vector"].active  { background: rgba(53,51,205,0.18); border-color: #3533cd; color: #b8b7ff; }
+    .pilar-btn[data-pilar="Ritmo"].active   { background: rgba(26,171,153,0.18); border-color: #1aab99; color: #1aab99; }
+    .pilar-btn[data-pilar="Flujo"].active   { background: rgba(255,149,0,0.18); border-color: #ff9500; color: #ff9500; }
+
+    /* ── BITÁCORA ── */
+    .bitacora-list { display: flex; flex-direction: column; gap: 10px; }
+    .bitacora-item {
+      background: var(--surface); border-radius: var(--radius-sm); padding: 12px 14px;
+      border: 1px solid var(--border); display: flex; gap: 12px;
+    }
+    .bitacora-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: var(--surface-hover); color: var(--text-3); }
+    .bitacora-icon svg { width: 15px; height: 15px; }
+    .bitacora-content { flex: 1; min-width: 0; }
+    .bitacora-top { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; }
+    .bitacora-tipo { font-size: 11px; font-weight: 700; color: var(--teal); text-transform: capitalize; }
+    .bitacora-fecha { font-size: 10px; color: var(--text-4); }
+    .bitacora-resumen { font-size: 12px; color: var(--text); font-weight: 500; }
+    .bitacora-detalle { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+    .bitacora-delete { background: none; border: none; color: var(--text-4); cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.15s; flex-shrink: 0; align-self: flex-start; }
+    .bitacora-delete:hover { color: var(--red); background: var(--red-light); }
+    .bitacora-delete svg { width: 13px; height: 13px; }
+    .btn-add-interaccion {
+      display: flex; align-items: center; gap: 7px;
+      background: var(--surface); border: 1px dashed var(--border-strong);
+      border-radius: var(--radius-sm); padding: 10px 14px;
+      color: var(--text-3); font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s; width: 100%;
+    }
+    .btn-add-interaccion:hover { background: var(--surface-hover); color: var(--text); border-color: var(--teal); }
+    .btn-add-interaccion svg { width: 14px; height: 14px; }
+    .interaccion-form {
+      background: var(--bg-card-2); border-radius: var(--radius-sm); padding: 14px;
+      border: 1px solid var(--border-strong); display: none; flex-direction: column; gap: 10px;
+    }
+    .interaccion-form.open { display: flex; }
+    .interaccion-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .interaccion-form-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+    /* ── MODAL CONFIRM ── */
+    .confirm-overlay {
+      display: none; position: fixed; inset: 0; z-index: 1100;
+      background: rgba(0,0,0,0.8); backdrop-filter: blur(6px);
+      align-items: center; justify-content: center;
+    }
+    .confirm-overlay.open { display: flex; }
+    .confirm-box {
+      background: var(--bg-card); border-radius: var(--radius-lg);
+      border: 1px solid var(--border-strong); padding: 28px; max-width: 400px; width: 90%;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+    }
+    .confirm-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 17px; font-weight: 800; margin-bottom: 10px; }
+    .confirm-body { font-size: 13px; color: var(--text-2); margin-bottom: 22px; line-height: 1.6; }
+    .confirm-actions { display: flex; gap: 10px; justify-content: flex-end; }
+    .btn-danger { background: var(--red); color: white; border: none; border-radius: 10px; padding: 9px 18px; font-size: 13px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+    .btn-danger:hover { opacity: 0.85; }
+    .btn-confirm-ok { background: var(--gradient); color: white; border: none; border-radius: 10px; padding: 9px 18px; font-size: 13px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+    .btn-confirm-ok:hover { opacity: 0.88; }
+
+    /* ── TOAST ── */
+    .toast-container { position: fixed; bottom: 28px; right: 28px; z-index: 2000; display: flex; flex-direction: column; gap: 8px; }
+    .toast {
+      background: var(--bg-card-2); border: 1px solid var(--border-strong); border-radius: 12px;
+      padding: 12px 18px; font-size: 13px; font-weight: 500; color: var(--text);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4); display: flex; align-items: center; gap: 10px;
+      animation: slideIn 0.25s ease; max-width: 320px;
+    }
+    .toast.success { border-color: var(--teal); }
+    .toast.error { border-color: var(--red); }
+    .toast svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .toast.success svg { color: var(--teal); }
+    .toast.error svg { color: var(--red); }
+    @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    /* ── LOADING ── */
+    .skeleton { background: var(--surface); border-radius: 8px; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 99px; }
+  </style>
+</head>
+<body>
+
+  <div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <a href="/portal/dashboard.html" class="sidebar-logo" style="text-decoration:none">
+        <img src="/logos/SX Isp.png" alt="SCALEx">
+      </a>
+      <div class="sidebar-nav">
+        <a href="/portal/dashboard.html" class="sidebar-icon" title="Dashboard"><i data-lucide="layout-dashboard"></i></a>
+        <a href="/portal/opsp.html" class="sidebar-icon" title="OPSP"><i data-lucide="map"></i></a>
+        <a href="/portal/rituales.html" class="sidebar-icon" title="Rituales"><i data-lucide="repeat"></i></a>
+        <div class="sidebar-divider"></div>
+        <a href="/portal/reflejo.html" class="sidebar-icon" title="Reflejo"><i data-lucide="eye"></i></a>
+        <a href="/portal/vector.html" class="sidebar-icon" title="Vector"><i data-lucide="compass"></i></a>
+        <a href="/portal/costeo.html" class="sidebar-icon" title="Costeo"><i data-lucide="calculator"></i></a>
+        <a href="/portal/ritmo.html" class="sidebar-icon" title="Ritmo"><i data-lucide="activity"></i></a>
+        <div class="sidebar-divider"></div>
+        <a href="/portal/pipeline.html" class="sidebar-icon active" title="Mis Clientes — Pipeline"><i data-lucide="kanban-square"></i></a>
+      </div>
+      <div class="sidebar-bottom">
+        <button class="sidebar-icon" title="Cambiar tema" onclick="toggleTheme()"><i data-lucide="sun" id="theme-icon"></i></button>
+        <button class="sidebar-icon" title="Cerrar sesión" onclick="logout()"><i data-lucide="log-out"></i></button>
+      </div>
+    </aside>
+
+    <!-- SHELL -->
+    <main class="shell">
+
+      <!-- TOPBAR -->
+      <div class="topbar">
+        <div class="topbar-left">
+          <div class="topbar-title">Mis Clientes · Pipeline</div>
+          <div class="topbar-sub">Gestión de prospectos y cuentas activas</div>
+        </div>
+        <div class="topbar-actions">
+          <input type="text" class="search-input" id="search-input" placeholder="Buscar empresa o contacto…">
+          <button class="btn-filter" id="btn-vencidas" onclick="toggleFiltroVencidas()">
+            <i data-lucide="clock"></i> Vencidas
+          </button>
+          <button class="btn-primary" onclick="abrirModalNuevo()">
+            <i data-lucide="plus"></i> Nuevo prospecto
+          </button>
+        </div>
+      </div>
+
+      <!-- STATS -->
+      <div class="pipeline-stats" id="pipeline-stats">
+        <div class="stat-chip"><span class="stat-dot" style="background:#6b7280"></span><span class="stat-num" id="stat-sin-contactar">—</span><span class="stat-label">sin contactar</span></div>
+        <div class="stat-chip"><span class="stat-dot" style="background:#3533cd"></span><span class="stat-num" id="stat-conversacion">—</span><span class="stat-label">conversación</span></div>
+        <div class="stat-chip"><span class="stat-dot" style="background:#1aab99"></span><span class="stat-num" id="stat-reunion">—</span><span class="stat-label">reunión</span></div>
+        <div class="stat-chip"><span class="stat-dot" style="background:#ff9500"></span><span class="stat-num" id="stat-propuesta">—</span><span class="stat-label">propuesta</span></div>
+        <div class="stat-chip"><span class="stat-dot" style="background:#00c853"></span><span class="stat-num" id="stat-activos">—</span><span class="stat-label">activos</span></div>
+      </div>
+
+      <!-- KANBAN -->
+      <div class="kanban-wrapper">
+        <div class="kanban-board" id="kanban-board">
+
+          <div class="kanban-col" id="col-sin_contactar" data-etapa="sin_contactar"
+               ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+            <div class="kanban-col-header">
+              <div class="col-accent" style="background:#6b7280"></div>
+              <div class="col-title">Sin contactar</div>
+              <div class="col-count" id="count-sin_contactar">0</div>
+            </div>
+            <div class="kanban-cards" id="cards-sin_contactar"></div>
+          </div>
+
+          <div class="kanban-col" id="col-conversacion_iniciada" data-etapa="conversacion_iniciada"
+               ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+            <div class="kanban-col-header">
+              <div class="col-accent" style="background:#3533cd"></div>
+              <div class="col-title">Conversación</div>
+              <div class="col-count" id="count-conversacion_iniciada">0</div>
+            </div>
+            <div class="kanban-cards" id="cards-conversacion_iniciada"></div>
+          </div>
+
+          <div class="kanban-col" id="col-reunion_agendada" data-etapa="reunion_agendada"
+               ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+            <div class="kanban-col-header">
+              <div class="col-accent" style="background:#1aab99"></div>
+              <div class="col-title">Reunión agendada</div>
+              <div class="col-count" id="count-reunion_agendada">0</div>
+            </div>
+            <div class="kanban-cards" id="cards-reunion_agendada"></div>
+          </div>
+
+          <div class="kanban-col" id="col-en_propuesta" data-etapa="en_propuesta"
+               ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+            <div class="kanban-col-header">
+              <div class="col-accent" style="background:#ff9500"></div>
+              <div class="col-title">En propuesta</div>
+              <div class="col-count" id="count-en_propuesta">0</div>
+            </div>
+            <div class="kanban-cards" id="cards-en_propuesta"></div>
+          </div>
+
+          <div class="kanban-col" id="col-cuenta_activa" data-etapa="cuenta_activa"
+               ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+            <div class="kanban-col-header">
+              <div class="col-accent" style="background:#00c853"></div>
+              <div class="col-title">Cuenta activa</div>
+              <div class="col-count" id="count-cuenta_activa">0</div>
+            </div>
+            <div class="kanban-cards" id="cards-cuenta_activa"></div>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ━━━ MODAL FICHA ━━━ -->
+  <div class="modal-overlay" id="modal-overlay" onclick="cerrarModalSiFuera(event)">
+    <div class="modal" id="modal-ficha">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-title">Nuevo prospecto</div>
+        <div class="modal-save-indicator" id="save-indicator">
+          <i data-lucide="check-circle"></i> Guardado
+        </div>
+        <button class="modal-close" onclick="cerrarModal()"><i data-lucide="x"></i></button>
+      </div>
+
+      <div class="modal-body">
+
+        <!-- SECCIÓN 1 — Empresa -->
+        <div>
+          <div class="form-section-title">Empresa</div>
+          <div class="form-grid">
+            <div class="form-field span-2">
+              <label class="form-label">Nombre de la empresa *</label>
+              <input type="text" class="form-input" id="f-empresa-nombre" placeholder="Ej. Empresa Prueba SA de CV" data-field="empresa_nombre">
+            </div>
+            <div class="form-field">
+              <label class="form-label">Sector</label>
+              <input type="text" class="form-input" id="f-sector" placeholder="Ej. Manufactura" data-field="sector">
+            </div>
+            <div class="form-field">
+              <label class="form-label">Tamaño</label>
+              <input type="text" class="form-input" id="f-tamano" placeholder="Ej. 120 personas" data-field="tamano">
+            </div>
+            <div class="form-field">
+              <label class="form-label">Ciudad</label>
+              <input type="text" class="form-input" id="f-ciudad" placeholder="Monterrey" data-field="ciudad">
+            </div>
+            <div class="form-field">
+              <label class="form-label">País</label>
+              <input type="text" class="form-input" id="f-pais" placeholder="México" data-field="pais">
+            </div>
+            <div class="form-field span-2">
+              <label class="form-label">Sitio web</label>
+              <input type="text" class="form-input" id="f-web" placeholder="https://..." data-field="sitio_web">
+            </div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN 2 — Contacto -->
+        <div>
+          <div class="form-section-title">Contacto principal</div>
+          <div class="form-grid">
+            <div class="form-field">
+              <label class="form-label">Nombre del contacto *</label>
+              <input type="text" class="form-input" id="f-contacto-nombre" placeholder="Paula Méndez" data-field="contacto_nombre">
+            </div>
+            <div class="form-field">
+              <label class="form-label">Puesto</label>
+              <input type="text" class="form-input" id="f-contacto-puesto" placeholder="Director General" data-field="contacto_puesto">
+            </div>
+            <div class="form-field">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-input" id="f-contacto-email" placeholder="paula@empresa.com" data-field="contacto_email">
+            </div>
+            <div class="form-field">
+              <label class="form-label">Teléfono</label>
+              <input type="text" class="form-input" id="f-contacto-tel" placeholder="+52 81 1234 5678" data-field="contacto_telefono">
+            </div>
+            <div class="form-field">
+              <label class="form-label">WhatsApp</label>
+              <input type="text" class="form-input" id="f-contacto-wa" placeholder="+52 81 1234 5678" data-field="contacto_whatsapp">
+            </div>
+            <div class="form-field">
+              <label class="form-label">LinkedIn</label>
+              <input type="text" class="form-input" id="f-contacto-li" placeholder="linkedin.com/in/..." data-field="contacto_linkedin">
+            </div>
+            <div class="form-field">
+              <label class="form-label">Fuente</label>
+              <select class="form-select" id="f-fuente" data-field="fuente">
+                <option value="">— Selecciona —</option>
+                <option value="referido">Referido</option>
+                <option value="red_social">Red social</option>
+                <option value="evento">Evento</option>
+                <option value="inbound">Inbound</option>
+                <option value="outbound">Outbound</option>
+                <option value="otro">Otro</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label class="form-label">Detalle de fuente</label>
+              <input type="text" class="form-input" id="f-fuente-detalle" placeholder="¿Quién o dónde?" data-field="fuente_detalle">
+            </div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN 3 — Diagnóstico -->
+        <div>
+          <div class="form-section-title">Diagnóstico preliminar</div>
+          <div class="pilares-selector" id="pilares-selector">
+            <button class="pilar-btn" data-pilar="Reflejo" onclick="togglePilar(this)">Reflejo</button>
+            <button class="pilar-btn" data-pilar="ADN" onclick="togglePilar(this)">ADN</button>
+            <button class="pilar-btn" data-pilar="Vector" onclick="togglePilar(this)">Vector</button>
+            <button class="pilar-btn" data-pilar="Ritmo" onclick="togglePilar(this)">Ritmo</button>
+            <button class="pilar-btn" data-pilar="Flujo" onclick="togglePilar(this)">Flujo</button>
+          </div>
+          <div style="margin-top:12px">
+            <label class="form-label">Notas del diagnóstico</label>
+            <textarea class="form-textarea" id="f-notas-diag" placeholder="Observaciones del diagnóstico inicial…" data-field="notas_diagnostico" style="margin-top:6px"></textarea>
+          </div>
+        </div>
+
+        <!-- SECCIÓN 4 — Próxima acción -->
+        <div>
+          <div class="form-section-title">Próxima acción</div>
+          <div class="form-grid">
+            <div class="form-field span-2">
+              <label class="form-label">¿Qué hay que hacer?</label>
+              <input type="text" class="form-input" id="f-proxima-accion" placeholder="Enviar propuesta económica" data-field="proxima_accion">
+            </div>
+            <div class="form-field">
+              <label class="form-label">¿Para cuándo?</label>
+              <input type="date" class="form-input" id="f-proxima-fecha" data-field="proxima_accion_fecha">
+            </div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN 5 — Bitácora -->
+        <div>
+          <div class="form-section-title">Bitácora de interacciones</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <button class="btn-add-interaccion" onclick="toggleFormInteraccion()">
+              <i data-lucide="plus"></i> Agregar interacción
+            </button>
+            <div class="interaccion-form" id="form-interaccion">
+              <div class="interaccion-form-row">
+                <div class="form-field">
+                  <label class="form-label">Tipo</label>
+                  <select class="form-select" id="int-tipo">
+                    <option value="nota">Nota</option>
+                    <option value="mensaje">Mensaje</option>
+                    <option value="llamada">Llamada</option>
+                    <option value="reunion">Reunión</option>
+                    <option value="propuesta">Propuesta</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label class="form-label">Fecha</label>
+                  <input type="date" class="form-input" id="int-fecha">
+                </div>
+              </div>
+              <div class="form-field">
+                <label class="form-label">Resumen *</label>
+                <input type="text" class="form-input" id="int-resumen" placeholder="Breve descripción de la interacción">
+              </div>
+              <div class="form-field">
+                <label class="form-label">Detalle (opcional)</label>
+                <textarea class="form-textarea" id="int-detalle" placeholder="Más contexto…" style="min-height:60px"></textarea>
+              </div>
+              <div class="interaccion-form-actions">
+                <button class="btn-ghost" onclick="toggleFormInteraccion()">Cancelar</button>
+                <button class="btn-primary" onclick="guardarInteraccion()">
+                  <i data-lucide="save"></i> Guardar
+                </button>
+              </div>
+            </div>
+            <div class="bitacora-list" id="bitacora-list">
+              <div style="font-size:12px;color:var(--text-4);text-align:center;padding:12px 0">Sin interacciones registradas</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- FOOTER MODAL -->
+      <div class="modal-footer">
+        <button class="btn-danger" id="btn-descartar" onclick="descartarProspecto()" style="display:none">
+          Descartar
+        </button>
+        <div class="modal-footer-spacer"></div>
+        <button class="btn-ghost" onclick="cerrarModal()">Cerrar</button>
+        <button class="btn-confirm-ok" id="btn-convertir" onclick="convertirEnCuenta()" disabled style="display:none">
+          <i data-lucide="star"></i> Convertir en cuenta activa
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ━━━ MODAL CONFIRM ━━━ -->
+  <div class="confirm-overlay" id="confirm-overlay">
+    <div class="confirm-box">
+      <div class="confirm-title" id="confirm-title">¿Confirmar?</div>
+      <div class="confirm-body" id="confirm-body"></div>
+      <div class="confirm-actions">
+        <button class="btn-ghost" onclick="cerrarConfirm()">Cancelar</button>
+        <button class="btn-confirm-ok" id="confirm-ok-btn">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ━━━ TOASTS ━━━ -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script>lucide.createIcons()</script>
+  <script type="module" src="/assets/js/pipeline.js"></script>
+  <script type="module" src="/assets/js/portal-shell.js"></script>
+
+  <script>
+    function toggleTheme() {
+      const html = document.documentElement
+      const current = html.getAttribute('data-theme')
+      const next = current === 'dark' ? 'light' : 'dark'
+      html.setAttribute('data-theme', next)
+      localStorage.setItem('scalex-theme', next)
+      const icon = document.getElementById('theme-icon')
+      if (icon) { icon.setAttribute('data-lucide', next === 'dark' ? 'sun' : 'moon'); lucide.createIcons() }
+    }
+    ;(function() {
+      const saved = localStorage.getItem('scalex-theme')
+      if (saved) {
+        document.documentElement.setAttribute('data-theme', saved)
+        const icon = document.getElementById('theme-icon')
+        if (icon) icon.setAttribute('data-lucide', saved === 'dark' ? 'sun' : 'moon')
+      }
+    })()
+    async function logout() {
+      const { signOut } = await import('/assets/js/supabase-client.js')
+      await signOut()
+    }
+  </script>
+
+</body>
+</html>
