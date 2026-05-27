@@ -198,10 +198,10 @@ window.onDrop = async function(e) {
   p.etapa = nuevaEtapa
   renderKanban()
 
-  const { error } = await supabase.rpc('prospecto_mover', {
-    p_prospecto_id: draggingId,
-    p_nueva_etapa: nuevaEtapa
-  })
+  const { error } = await supabase
+    .from('prospectos')
+    .update({ etapa: nuevaEtapa })
+    .eq('id', draggingId)
 
   if (error) {
     toast('Error al mover prospecto', 'error')
