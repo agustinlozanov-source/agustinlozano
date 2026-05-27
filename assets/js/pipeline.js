@@ -55,7 +55,10 @@ async function cargarProspectos() {
     .neq('etapa', 'descartado')
     .order('created_at', { ascending: true })
 
-  if (error) { console.error(error); return }
+  if (error) {
+    console.error('❌ cargarProspectos:', error.message, '| hint:', error.hint, '| details:', error.details, '| code:', error.code)
+    return
+  }
   prospectos = data || []
   renderKanban()
 }
@@ -376,6 +379,7 @@ async function guardarFicha() {
       renderKanban()
       cargarMetricas()
     } else {
+      console.error('❌ guardarFicha INSERT:', error?.message, '| hint:', error?.hint, '| details:', error?.details, '| code:', error?.code)
       toast('Error al crear prospecto', 'error')
     }
   }
