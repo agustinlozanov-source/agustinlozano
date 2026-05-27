@@ -64,14 +64,13 @@ async function cargarProspectos() {
 }
 
 async function cargarMetricas() {
-  const { data, error } = await supabase.rpc('pipeline_metricas_consultor')
-  if (error || !data || data.length === 0) return
-  const m = data[0]
-  setText('stat-sin-contactar', m.sin_contactar ?? 0)
-  setText('stat-conversacion', m.conversacion_iniciada ?? 0)
-  setText('stat-reunion', m.reunion_agendada ?? 0)
-  setText('stat-propuesta', m.en_propuesta ?? 0)
-  setText('stat-activos', m.cuenta_activa ?? 0)
+  // Calcular directo desde los prospectos ya en memoria
+  const contar = etapa => prospectos.filter(p => p.etapa === etapa).length
+  setText('stat-sin-contactar', contar('sin_contactar'))
+  setText('stat-conversacion',  contar('conversacion_iniciada'))
+  setText('stat-reunion',       contar('reunion_agendada'))
+  setText('stat-propuesta',     contar('en_propuesta'))
+  setText('stat-activos',       contar('cuenta_activa'))
 }
 
 async function cargarInteracciones(prospectoId) {
