@@ -514,18 +514,19 @@ window.convertirEnCuenta = function() {
     '¿Convertir en cuenta activa?',
     `"${prospectoActual.empresa_nombre}" se convertirá en una organización dentro de SCALEx. Esta acción no se puede deshacer fácilmente.`,
     async () => {
-      const { error } = await supabase.rpc('prospecto_convertir_a_cuenta', {
-        p_prospecto_id: prospectoActual.id,
-        p_organizacion_nombre: prospectoActual.empresa_nombre
-      })
+      const { error } = await supabase
+        .from('prospectos')
+        .update({ etapa: 'cuenta_activa' })
+        .eq('id', prospectoActual.id)
 
       if (error) { toast('Error al convertir: ' + error.message, 'error'); return }
 
-      // Refrescar
-      await cargarProspectos()
+      const p = prospectos.find(x => x.id === prospectoActual.id)
+      if (p) p.etapa = 'cuenta_activa'
+      renderKanban()
       cargarMetricas()
       cerrarModal()
-      toast('¡Cuenta activa creada! 🎉')
+      toast('¡Cuenta activa! 🎉')
     }
   )
 }
