@@ -22,19 +22,44 @@ window.cargarDatos = async function() {
   const tbody = document.getElementById('tabla-body')
   if (tbody) tbody.innerHTML = '<tr class="loading-row"><td colspan="9">Cargando datos…</td></tr>'
 
-  const { data, error } = await supabase.rpc('pipeline_metricas_owner')
+  // Traer todos los prospectos activos + perfil del consultor
+  const { data: prospectos, error: e1 } = await supabase
+    .from('prospectos')
+    .select('id, consultor_id, etapa')
+    .neq('etapa', 'descartado')
 
-  if (error) {
-    console.error(error)
+  const { data: perfiles, error: e2 } = await supabase
+    .from('perfiles')
+    .select('id, nombre, apellido, email, cert_vigente, nivel_consultor, cert_numero')
+
+  if (e1 || e2) {
+    console.error('❌ admin-pipeline:', e1?.message, e2?.message)
     if (tbody) tbody.innerHTML = '<tr class="loading-row"><td colspan="9">Error al cargar datos</td></tr>'
     return
   }
 
-  rows = (data || []).map(r => ({
-    ...r,
-    total: (r.sin_contactar || 0) + (r.conversacion_iniciada || 0) + (r.reunion_agendada || 0) + (r.en_propuesta || 0) + (r.cuenta_activa || 0),
-    tasa: r.total_prospectos > 0 ? Math.round((r.cuenta_activa / r.total_prospectos) * 100) : 0
-  }))
+  // Agrupar prospectos por consultor
+  const mapa = {}
+  for (const p of prospectos || []) {
+    if (!mapa[p.consultor_id]) mapa[p.consultor_id] = { sin_contactar:0, conversacion_iniciada:0, reunion_agendada:0, en_propuesta:0, cuenta_activa:0 }
+    if (mapa[p.consultor_id][p.etapa] !== undefined) mapa[p.consultor_id][p.etapa]++
+  }
+
+  // Armar rows solo con consultores que tienen prospectos
+  rows = Object.entries(mapa).map(([consultor_id, etapas]) => {
+    const perfil = (perfiles || []).find(p => p.id === consultor_id) || {}
+    const total = Object.values(etapas).reduce((s, n) => s + n, 0)
+    return {
+      consultor_id,
+      nombre: [perfil.nombre, perfil.apellido].filter(Boolean).join(' ') || perfil.email || '—',
+      email: perfil.email || '',
+      cert_vigente: perfil.cert_vigente,
+      nivel_consultor: perfil.nivel_consultor,
+      ...etapas,
+      total,
+      tasa: total > 0 ? Math.round((etapas.cuenta_activa / total) * 100) : 0
+    }
+  })
 
   actualizarMetricasGlobales()
   renderTabla()
