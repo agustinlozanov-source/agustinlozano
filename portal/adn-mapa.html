@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCALEx Portal — ADN · Paso 2 · Mapa ADN</title>
+  <link rel="icon" type="image/png" href="/logos/SX Icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script type="module" src="/assets/js/auth-guard.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --teal: #1aab99; --teal-light: rgba(26,171,153,0.12);
+      --indigo: #3533cd; --indigo-light: rgba(53,51,205,0.12);
+      --gradient: linear-gradient(135deg, #1aab99, #3533cd);
+      --pink: #ec4899; --pink-light: rgba(236,72,153,0.12);
+      --green: #00c853; --green-light: rgba(0,200,83,0.12);
+      --amber: #ff9500; --amber-light: rgba(255,149,0,0.12);
+      --red: #ff3b30; --red-light: rgba(255,59,48,0.12);
+      --gold: #d4a256; --gold-light: rgba(212,162,86,0.12);
+      --radius-xl: 28px; --radius-lg: 20px; --radius: 14px; --radius-sm: 9px;
+      --sidebar-w: 80px;
+      font-family: 'Inter', sans-serif; line-height: 1.6;
+    }
+    [data-theme="dark"] {
+      --bg-page: #0a0a0c; --bg-shell: #141416; --bg-card: #1c1c1e; --bg-card-2: #242426;
+      --bg-input: #0d0d10;
+      --surface: rgba(255,255,255,0.04); --surface-hover: rgba(255,255,255,0.07);
+      --border: rgba(255,255,255,0.08); --border-strong: rgba(255,255,255,0.13);
+      --text: #fff; --text-2: #c7c7cc; --text-3: #8e8e93; --text-4: #48484a;
+      --sidebar-bg: #050506;
+    }
+    [data-theme="light"] {
+      --bg-page: #eef0f5; --bg-shell: #fff; --bg-card: #f5f5f7; --bg-card-2: #ebebef;
+      --bg-input: #fff;
+      --surface: rgba(0,0,0,0.03); --surface-hover: rgba(0,0,0,0.055);
+      --border: rgba(0,0,0,0.08); --border-strong: rgba(0,0,0,0.14);
+      --text: #070708; --text-2: #3a3a3c; --text-3: #6e6e73; --text-4: #c7c7cc;
+      --sidebar-bg: #0a0a0c;
+    }
+    body { background:var(--bg-page); color:var(--text); min-height:100vh; overflow:hidden; transition:background .3s,color .3s; }
+    .app-layout { display:flex; min-height:100vh; padding:16px; gap:16px; }
+
+    /* SIDEBAR */
+    .sidebar { width:var(--sidebar-w); background:var(--sidebar-bg); border-radius:var(--radius-xl); padding:20px 0; display:flex; flex-direction:column; align-items:center; gap:8px; flex-shrink:0; position:sticky; top:16px; height:calc(100vh - 32px); }
+    .sidebar-logo { width:44px; display:flex; align-items:center; justify-content:center; margin-bottom:16px; text-decoration:none; }
+    .sidebar-logo img { width:100%; display:block; }
+    .sidebar-divider { width:28px; height:1px; background:rgba(255,255,255,0.08); margin:4px 0; }
+    .sidebar-icon { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .2s; color:rgba(255,255,255,0.5); position:relative; text-decoration:none; background:none; border:none; }
+    .sidebar-icon:hover { background:rgba(255,255,255,0.06); color:white; }
+    .sidebar-icon.active { background:var(--gradient); color:white; }
+    .sidebar-icon.active::before { content:''; position:absolute; left:-16px; top:50%; transform:translateY(-50%); width:3px; height:24px; background:var(--teal); border-radius:0 3px 3px 0; }
+    .sidebar-icon svg { width:20px; height:20px; }
+    .sidebar-nav { flex:1; width:100%; overflow-y:auto; overflow-x:hidden; min-height:0; display:flex; flex-direction:column; align-items:center; gap:8px; padding:4px 0; }
+    .sidebar-nav::-webkit-scrollbar { width:3px; }
+    .sidebar-nav::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.2); border-radius:99px; }
+    .sidebar-bottom { display:flex; flex-direction:column; gap:8px; align-items:center; padding-bottom:4px; }
+
+    /* SHELL */
+    .shell { flex:1; background:var(--bg-shell); border-radius:var(--radius-xl); overflow:hidden; display:flex; flex-direction:column; height:calc(100vh - 32px); }
+
+    /* TOPBAR */
+    .topbar { padding:18px 28px; display:flex; align-items:center; gap:16px; border-bottom:1px solid var(--border); flex-shrink:0; }
+    .topbar-back { width:36px; height:36px; border-radius:10px; background:var(--surface); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .2s; color:var(--text-2); text-decoration:none; }
+    .topbar-back:hover { background:var(--surface-hover); color:var(--text); }
+    .topbar-back svg { width:16px; height:16px; }
+    .topbar-title-block { flex:1; }
+    .topbar-eyebrow { font-size:11px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; color:var(--pink); }
+    .topbar-title { font-family:'Plus Jakarta Sans',sans-serif; font-size:18px; font-weight:800; color:var(--text); letter-spacing:-0.3px; margin-top:2px; }
+    .topbar-actions { display:flex; align-items:center; gap:10px; }
+    .topbar-icon-btn { width:40px; height:40px; border-radius:12px; background:var(--surface); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .2s; color:var(--text-2); }
+    .topbar-icon-btn:hover { background:var(--surface-hover); color:var(--text); }
+    .topbar-icon-btn svg { width:16px; height:16px; }
+    .save-indicator { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-3); padding:6px 12px; background:var(--surface); border-radius:50px; transition:color .3s; }
+    .save-indicator .dot { width:6px; height:6px; border-radius:50%; background:currentColor; }
+    .save-indicator.saving { color:var(--amber); }
+    .save-indicator.saved { color:var(--green); }
+    .save-indicator.idle { color:var(--text-4); }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .save-indicator.saving .dot { animation:pulse 1.4s infinite; }
+
+    /* LAYOUT — tabs arriba, contenido abajo */
+    .content-area { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+
+    /* TABS */
+    .tabs-row { display:flex; align-items:center; gap:4px; padding:12px 28px; border-bottom:1px solid var(--border); flex-shrink:0; overflow-x:auto; }
+    .tabs-row::-webkit-scrollbar { display:none; }
+    .tab-btn { display:flex; align-items:center; gap:7px; padding:7px 14px; border-radius:50px; font-family:'Plus Jakarta Sans',sans-serif; font-size:12px; font-weight:700; cursor:pointer; border:1px solid var(--border); background:var(--surface); color:var(--text-3); white-space:nowrap; transition:all .2s; }
+    .tab-btn:hover { color:var(--text); background:var(--surface-hover); }
+    .tab-btn.active { background:var(--pink); border-color:var(--pink); color:white; }
+    .tab-btn svg { width:13px; height:13px; }
+    .tab-count { background:rgba(255,255,255,0.2); padding:1px 6px; border-radius:50px; font-size:10px; }
+    .tab-btn:not(.active) .tab-count { background:var(--bg-card-2); color:var(--text-3); }
+
+    /* PANEL CONTENT */
+    .tab-content { display:none; flex:1; overflow:hidden; }
+    .tab-content.visible { display:flex; flex-direction:column; }
+
+    /* CAPA SCROLL */
+    .capa-scroll { flex:1; overflow-y:auto; padding:24px 28px 32px; display:flex; flex-direction:column; gap:16px; }
+    .capa-scroll::-webkit-scrollbar { width:4px; }
+    .capa-scroll::-webkit-scrollbar-thumb { background:rgba(128,128,128,0.2); border-radius:99px; }
+
+    /* CAPA INTRO */
+    .capa-intro { background:var(--surface); border-radius:var(--radius); padding:16px 20px; border-left:3px solid var(--pink); }
+    .capa-intro-title { font-family:'Plus Jakarta Sans',sans-serif; font-size:13px; font-weight:700; color:var(--text); margin-bottom:4px; }
+    .capa-intro-text { font-size:12.5px; color:var(--text-2); line-height:1.65; }
+
+    /* ITEM CARD */
+    .item-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:20px; position:relative; transition:border-color .2s; }
+    .item-card.has-data { border-color:rgba(236,72,153,0.25); }
+    .item-card-header { display:flex; align-items:flex-start; gap:12px; margin-bottom:16px; }
+    .item-num { width:28px; height:28px; border-radius:8px; background:var(--pink); color:white; font-family:'Plus Jakarta Sans',sans-serif; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .item-nombre-wrap { flex:1; }
+    .item-nombre-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:var(--text-4); margin-bottom:4px; }
+    .item-nombre-input { width:100%; background:var(--bg-input); border:1px solid var(--border); border-radius:var(--radius-sm); padding:8px 12px; color:var(--text); font-family:'Plus Jakarta Sans',sans-serif; font-size:14px; font-weight:700; outline:none; transition:border-color .2s; }
+    .item-nombre-input:focus { border-color:var(--pink); }
+    .item-nombre-input::placeholder { color:var(--text-4); font-weight:400; }
+
+    .item-delete { width:28px; height:28px; border-radius:8px; background:var(--surface); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-3); transition:all .2s; flex-shrink:0; }
+    .item-delete:hover { background:var(--red-light); border-color:var(--red); color:var(--red); }
+    .item-delete svg { width:13px; height:13px; }
+
+    /* FIELDS GRID */
+    .fields-grid { display:grid; gap:12px; }
+    .field-group { display:flex; flex-direction:column; gap:5px; }
+    .field-label { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.7px; color:var(--text-3); }
+    .field-input, .field-textarea { width:100%; background:var(--bg-input); border:1px solid var(--border); border-radius:var(--radius-sm); padding:9px 12px; color:var(--text); font-size:13px; font-family:inherit; outline:none; transition:border-color .2s; }
+    .field-input:focus, .field-textarea:focus { border-color:var(--pink); }
+    .field-textarea { resize:vertical; min-height:60px; line-height:1.55; }
+    .field-input::placeholder, .field-textarea::placeholder { color:var(--text-4); }
+
+    /* RADIO PILL GROUP */
+    .pill-group { display:flex; flex-wrap:wrap; gap:6px; }
+    .pill-option { display:flex; align-items:center; }
+    .pill-option input[type="radio"] { display:none; }
+    .pill-option label { padding:4px 12px; border-radius:50px; font-size:11.5px; font-weight:600; cursor:pointer; border:1px solid var(--border); background:var(--surface); color:var(--text-3); transition:all .2s; white-space:nowrap; }
+    .pill-option input:checked + label { border-color:var(--pink); background:var(--pink-light); color:var(--pink); }
+    .pill-option label:hover { border-color:var(--pink); color:var(--pink); }
+
+    /* SEMAFORO SELECT */
+    .semaforo-select { width:100%; background:var(--bg-input); border:1px solid var(--border); border-radius:var(--radius-sm); padding:9px 12px; color:var(--text); font-size:13px; font-family:inherit; outline:none; transition:border-color .2s; cursor:pointer; }
+    .semaforo-select:focus { border-color:var(--pink); }
+    .semaforo-badge { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:50px; font-size:11px; font-weight:700; }
+    .semaforo-pendiente { background:var(--surface); color:var(--text-3); }
+    .semaforo-legitimo { background:var(--green-light); color:var(--green); }
+    .semaforo-en_construccion { background:var(--amber-light); color:var(--amber); }
+    .semaforo-eslogan { background:var(--red-light); color:var(--red); }
+    .semaforo-real { background:var(--green-light); color:var(--green); }
+    .semaforo-en_formacion { background:var(--amber-light); color:var(--amber); }
+    .semaforo-area_disfrazada { background:var(--red-light); color:var(--red); }
+
+    /* PRUEBAS SECTIONS */
+    .pruebas-section { background:var(--surface); border-radius:var(--radius-sm); padding:14px 16px; margin-top:10px; }
+    .pruebas-section-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:var(--text-4); margin-bottom:12px; display:flex; align-items:center; gap:6px; }
+    .pruebas-section-title svg { width:12px; height:12px; }
+
+    /* RECTOR CARD */
+    .rector-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:20px; transition:border-color .2s; }
+    .rector-card.has-data { border-color:rgba(236,72,153,0.25); }
+    .rector-header { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+    .rector-icon { width:36px; height:36px; border-radius:10px; background:var(--pink-light); border:1px solid rgba(236,72,153,0.25); display:flex; align-items:center; justify-content:center; color:var(--pink); flex-shrink:0; }
+    .rector-icon svg { width:16px; height:16px; }
+    .rector-titulo { font-family:'Plus Jakarta Sans',sans-serif; font-size:14px; font-weight:800; color:var(--text); }
+    .rector-desc { font-size:12px; color:var(--text-3); margin-top:2px; }
+    .rector-pregunta { font-size:12.5px; color:var(--text-2); line-height:1.65; background:var(--surface); border-radius:var(--radius-sm); padding:10px 12px; border-left:3px solid var(--pink); margin-bottom:14px; }
+    .rector-controls { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .rector-ano-group { display:flex; flex-direction:column; gap:6px; }
+    .rector-ano-label { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.7px; color:var(--text-3); }
+    .rector-ano-pills { display:flex; gap:6px; }
+    .ano-pill { display:flex; align-items:center; }
+    .ano-pill input[type="radio"] { display:none; }
+    .ano-pill label { width:32px; height:32px; border-radius:8px; font-size:12px; font-weight:700; cursor:pointer; border:1px solid var(--border); background:var(--surface); color:var(--text-3); transition:all .2s; display:flex; align-items:center; justify-content:center; }
+    .ano-pill input:checked + label { border-color:var(--pink); background:var(--pink-light); color:var(--pink); }
+    .ano-pill label:hover { border-color:var(--pink); color:var(--pink); }
+    .rector-si-no { font-size:11px; color:var(--text-3); background:var(--surface); border-radius:var(--radius-sm); padding:10px 12px; margin-top:10px; line-height:1.55; }
+    .rector-si-no strong { color:var(--red); }
+
+    /* ADD BUTTON */
+    .btn-add { display:flex; align-items:center; gap:8px; padding:10px 18px; border-radius:50px; font-family:'Plus Jakarta Sans',sans-serif; font-size:12px; font-weight:700; cursor:pointer; border:1px dashed var(--border); background:transparent; color:var(--text-3); transition:all .2s; }
+    .btn-add:hover { border-color:var(--pink); color:var(--pink); background:var(--pink-light); }
+    .btn-add svg { width:14px; height:14px; }
+
+    /* BTN */
+    .btn { padding:10px 20px; border-radius:50px; font-family:'Plus Jakarta Sans',sans-serif; font-size:13px; font-weight:700; cursor:pointer; border:none; display:inline-flex; align-items:center; gap:8px; transition:all .2s; }
+    .btn svg { width:14px; height:14px; }
+    .btn-primary { background:linear-gradient(135deg,#ec4899,#7c3aed); color:white; }
+    .btn-primary:hover { transform:translateY(-1px); opacity:.9; }
+    .btn-primary:disabled { opacity:.4; cursor:not-allowed; transform:none; }
+
+    /* COMPLETAR WRAP */
+    .completar-wrap { padding:16px 28px 24px; border-top:1px solid var(--border); flex-shrink:0; display:flex; align-items:center; justify-content:space-between; gap:16px; }
+    .completar-hint { font-size:12px; color:var(--text-3); }
+
+    .skeleton { background:var(--surface); border-radius:6px; animation:shimmer 1.4s infinite; }
+    @keyframes shimmer { 0%,100%{opacity:.5} 50%{opacity:1} }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <a href="/portal/dashboard.html" class="sidebar-logo">
+      <img src="/logos/SX Icon.png" alt="SCALEx">
+    </a>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-nav" id="sidebar-nav">
+      <a href="/portal/dashboard.html" class="sidebar-icon" title="Dashboard"><i data-lucide="layout-dashboard"></i></a>
+      <a href="/portal/opsp.html" class="sidebar-icon" title="OPSP"><i data-lucide="compass"></i></a>
+      <a href="/portal/adn.html" class="sidebar-icon active" id="sidebar-adn" title="ADN"><i data-lucide="dna"></i></a>
+    </div>
+    <div class="sidebar-bottom" id="sidebar-bottom"></div>
+  </nav>
+
+  <!-- SHELL -->
+  <main class="shell">
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <a href="/portal/adn.html" class="topbar-back"><i data-lucide="arrow-left"></i></a>
+      <div class="topbar-title-block">
+        <div class="topbar-eyebrow">ADN · Paso 2</div>
+        <div class="topbar-title">Mapa ADN</div>
+      </div>
+      <div class="topbar-actions">
+        <div class="save-indicator idle" id="save-indicator">
+          <span class="dot"></span>
+          <span id="save-text">—</span>
+        </div>
+        <button class="topbar-icon-btn" id="theme-toggle" title="Cambiar tema"><i data-lucide="sun"></i></button>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="content-area">
+      <div class="tabs-row">
+        <button class="tab-btn active" data-tab="publicos">
+          <i data-lucide="users"></i> Públicos <span class="tab-count" id="count-publicos">0</span>
+        </button>
+        <button class="tab-btn" data-tab="diferenciadores">
+          <i data-lucide="zap"></i> Diferenciadores <span class="tab-count" id="count-diferenciadores">0</span>
+        </button>
+        <button class="tab-btn" data-tab="habilitadores">
+          <i data-lucide="cog"></i> Habilitadores <span class="tab-count" id="count-habilitadores">0</span>
+        </button>
+        <button class="tab-btn" data-tab="rectores">
+          <i data-lucide="shield"></i> Rectores <span class="tab-count" id="count-rectores">0</span>
+        </button>
+      </div>
+
+      <!-- PÚBLICOS -->
+      <div class="tab-content visible" id="tab-publicos">
+        <div class="capa-scroll">
+          <div class="capa-intro">
+            <div class="capa-intro-title">Capa 1 · Públicos</div>
+            <div class="capa-intro-text">¿A quiénes sirve esta empresa? No los clientes ideales — los reales. Cada público que nombras define el mapa de valor desde el que todo lo demás se construye. Un público es cualquier grupo que recibe algo de ti: clientes directos, socios, comunidades, proveedores estratégicos.</div>
+          </div>
+          <div id="publicos-list"></div>
+          <button class="btn-add" id="btn-add-publico">
+            <i data-lucide="plus"></i> Agregar público
+          </button>
+        </div>
+      </div>
+
+      <!-- DIFERENCIADORES -->
+      <div class="tab-content" id="tab-diferenciadores">
+        <div class="capa-scroll">
+          <div class="capa-intro">
+            <div class="capa-intro-title">Capa 2 · Diferenciadores</div>
+            <div class="capa-intro-text">¿Qué hace esta empresa que la competencia no puede replicar fácilmente? Cada diferenciador debe pasar 2 pruebas: que no sea ocurrencia (Prueba 1) y que no sea eslogan (Prueba 2). El semáforo es el veredicto consultado.</div>
+          </div>
+          <div id="diferenciadores-list"></div>
+          <button class="btn-add" id="btn-add-diferenciador">
+            <i data-lucide="plus"></i> Agregar diferenciador
+          </button>
+        </div>
+      </div>
+
+      <!-- HABILITADORES -->
+      <div class="tab-content" id="tab-habilitadores">
+        <div class="capa-scroll">
+          <div class="capa-intro">
+            <div class="capa-intro-title">Capa 3 · Habilitadores</div>
+            <div class="capa-intro-text">¿Qué produce internamente esta empresa que hace posibles los diferenciadores? Un habilitador es una capacidad interna — no un área, no un proceso genérico. Se descubre con 3 preguntas en secuencia: ¿qué entrega valioso produces internamente? → ¿qué perderías exactamente si dejara de pasar? → ¿cómo se llama eso?</div>
+          </div>
+          <div id="habilitadores-list"></div>
+          <button class="btn-add" id="btn-add-habilitador">
+            <i data-lucide="plus"></i> Agregar habilitador
+          </button>
+        </div>
+      </div>
+
+      <!-- RECTORES -->
+      <div class="tab-content" id="tab-rectores">
+        <div class="capa-scroll" id="rectores-scroll">
+          <div class="capa-intro">
+            <div class="capa-intro-title">Capa 4 · Rectores institucionales</div>
+            <div class="capa-intro-text">Los 6 rectores son los pilares que sostienen el modelo de empresa a largo plazo. No son opcionales — son la base que permite que la pirámide invertida sea real y duradera. Evalúa su estado actual y asigna año de construcción.</div>
+          </div>
+          <div id="rectores-list">
+            <div class="skeleton" style="height:160px;border-radius:14px"></div>
+            <div class="skeleton" style="height:160px;border-radius:14px"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COMPLETAR -->
+      <div class="completar-wrap" id="completar-wrap" style="display:none">
+        <div class="completar-hint" id="completar-hint"></div>
+        <button class="btn btn-primary" id="btn-completar">
+          <i data-lucide="check-circle"></i> Completar Paso 2
+        </button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script type="module" src="/assets/js/adn-mapa.js"></script>
+<script type="module" src="/assets/js/portal-shell.js"></script>
+<script>
+  lucide.createIcons()
+  const html = document.documentElement
+  const saved = localStorage.getItem('scalex-theme') || 'dark'
+  html.setAttribute('data-theme', saved)
+  document.getElementById('theme-toggle').addEventListener('click', () => {
+    const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'
+    html.setAttribute('data-theme', next)
+    localStorage.setItem('scalex-theme', next)
+    lucide.createIcons()
+  })
+</script>
+</body>
+</html>
