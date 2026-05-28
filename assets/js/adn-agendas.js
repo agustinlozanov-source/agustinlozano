@@ -519,25 +519,19 @@ export async function regenerarAgendasSesion(sesionId, sesionData, containerEl) 
     }
   }
 
-  // Upsert paso_0 y paso_1 (constraint único por sesion+paso+horizonte)
-  if (filas.length > 0) {
-    const { error } = await supabase.from('adn_agendas').upsert(filas, { onConflict: 'sesion_id,paso,horizonte' })
-    if (error) {
-      console.error('❌ regenerarAgendasSesion (p0/p1):', error.message)
-      if (btn) { btn.disabled = false; btn.innerHTML = '<i data-lucide="refresh-cw"></i> Reintentar'; lucide.createIcons() }
-      return
-    }
+  // Borrar todas las agendas existentes de esta sesión y reinsertar
+  const todasFilas = [...filas, ...filasRectores]
+  if (todasFilas.length === 0) {
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i data-lucide="refresh-cw"></i> Sin datos para generar'; lucide.createIcons() }
+    return
   }
 
-  // Para rectores: DELETE + INSERT (múltiples rectores por horizonte, constraint no aplica)
-  if (filasRectores.length > 0) {
-    await supabase.from('adn_agendas').delete().eq('sesion_id', sesionId).eq('paso', 'paso_2_rector')
-    const { error: errR } = await supabase.from('adn_agendas').insert(filasRectores)
-    if (errR) {
-      console.error('❌ regenerarAgendasSesion (rectores):', errR.message)
-      if (btn) { btn.disabled = false; btn.innerHTML = '<i data-lucide="refresh-cw"></i> Reintentar'; lucide.createIcons() }
-      return
-    }
+  await supabase.from('adn_agendas').delete().eq('sesion_id', sesionId)
+  const { error } = await supabase.from('adn_agendas').insert(todasFilas)
+  if (error) {
+    console.error('❌ regenerarAgendasSesion:', error.message)
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i data-lucide="refresh-cw"></i> Reintentar'; lucide.createIcons() }
+    return
   }
 
   if (containerEl) await renderAgendasHub(sesionId, containerEl, sesion)

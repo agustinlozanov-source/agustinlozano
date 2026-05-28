@@ -480,9 +480,11 @@ async function generarAgendas(claveHibrido, hibrido) {
 
   const { error } = await supabase
     .from('adn_agendas')
-    .upsert(filas, { onConflict: 'sesion_id,paso,horizonte' })
-
-  if (error) console.error('❌ adn_agendas paso_1:', error.message)
+    .delete()
+    .eq('sesion_id', sesionId)
+    .eq('paso', 'paso_1')
+  if (!error) await supabase.from('adn_agendas').insert(filas)
+  else console.error('❌ adn_agendas delete:', error.message)
 }
 
 // ──────────────────────────────────────────────
