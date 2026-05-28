@@ -18,16 +18,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   esAdmin = perfil.rol_global === 'admin'
 
   // Detectar si es dueño de alguna org
-  const { data: orgDueno, error: errorDueno } = await supabase.rpc('mi_organizacion_como_dueno')
-  console.log('[config] mi_organizacion_como_dueno raw:', JSON.stringify(orgDueno), '| error:', errorDueno?.message)
-  // El RPC puede devolver un objeto único o un array con una fila
-  const orgDuenoItem = Array.isArray(orgDueno) ? orgDueno[0] : orgDueno
-  // El campo id puede llamarse 'id' o 'org_id' según la función
-  const orgDuenoId = orgDuenoItem?.id || orgDuenoItem?.org_id
-  if (orgDuenoId) {
+  const { data: orgDueno } = await supabase.rpc('mi_organizacion_como_dueno')
+  // El RPC devuelve directamente el UUID como string
+  if (orgDueno) {
     esDueno = true
-    miOrgId = orgDuenoId
-    miOrgNombre = orgDuenoItem.nombre
+    miOrgId = typeof orgDueno === 'string' ? orgDueno : (orgDueno?.id || orgDueno?.org_id)
+    // Cargar el nombre de la org por separado
+    if (miOrgId) {
+      const { data: orgData } = await supabase.from('organizaciones').select('nombre').eq('id', miOrgId).maybeSingle()
+      miOrgNombre = orgData?.nombre || ''
+    }
   }
   console.log('[config] esAdmin:', esAdmin, '| esDueno:', esDueno, '| miOrgId:', miOrgId)
 
