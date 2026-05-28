@@ -27,9 +27,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const org = await getMyOrganization()
   if (!org) return
 
-  // Topbar
-  renderTopbar(perfil, org)
-
   // Obtener sesión activa
   const { data: sid, error } = await supabase.rpc('adn_sesion_activa', {
     p_organizacion_id: org.id,
