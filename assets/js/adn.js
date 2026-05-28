@@ -60,9 +60,9 @@ async function cargarEstadoSesion(orgId, consultorId) {
 // RENDER DE ESTADOS
 // ──────────────────────────────────────────────
 function renderEstado(sesion) {
-  const p0 = sesion.paso_0_completado === true
-  const p1 = sesion.paso_1_completado === true
-  const p2 = sesion.paso_2_completado === true
+  const p0 = sesion.paso_0_estado === 'completado'
+  const p1 = sesion.paso_1_estado === 'completado'
+  const p2 = sesion.paso_2_estado === 'completado'
 
   // Calcular % de progreso (3 pasos reales, P3 es visualización)
   const completados = [p0, p1, p2].filter(Boolean).length
@@ -73,9 +73,9 @@ function renderEstado(sesion) {
   // ── Paso 0 ──
   if (p0) {
     setCardDone('card-0', 'num-0', 'badge-0', 'P0')
-    if (sesion.tipo_piramide) {
+    if (sesion.paso_0_tipo_piramide) {
       const nombres = { cerrada: 'Pirámide Cerrada', transicion: 'Pirámide en Transición', abierta: 'Pirámide Abierta', invertida: 'Pirámide Invertida' }
-      document.getElementById('result-0-val').textContent = nombres[sesion.tipo_piramide] || sesion.tipo_piramide
+      document.getElementById('result-0-val').textContent = nombres[sesion.paso_0_tipo_piramide] || sesion.paso_0_tipo_piramide
       document.getElementById('result-0').style.display = 'flex'
     }
   } else {
@@ -87,8 +87,8 @@ function renderEstado(sesion) {
     // Desbloqueado
     if (p1) {
       setCardDone('card-1', 'num-1', 'badge-1', 'P1')
-      if (sesion.nombre_hibrido) {
-        document.getElementById('result-1-val').textContent = sesion.nombre_hibrido
+      if (sesion.paso_1_nombre_hibrido) {
+        document.getElementById('result-1-val').textContent = sesion.paso_1_nombre_hibrido
         document.getElementById('result-1').style.display = 'flex'
       }
     } else {
