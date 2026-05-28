@@ -8,9 +8,9 @@ let sesionId = null
 let saveTimers = {}
 
 // Estado local de las 4 capas
-let publicos = []        // [{id, nombre, que_entregamos, tipo_vinculo, criticidad, notas_consultor}]
-let diferenciadores = [] // [{id, nombre, prueba1_*, prueba2_*, semaforo, notas_consultor}]
-let habilitadores = []   // [{id, nombre, output_valioso, que_perderia, semaforo, notas_consultor}]
+let publicos = []        // [{id, nombre, que_entregamos, tipo_vinculo, criticidad, notas_consultor, _draft?}]
+let diferenciadores = [] // [{id, nombre, prueba1_*, prueba2_*, semaforo, notas_consultor, _draft?}]
+let habilitadores = []   // [{id, nombre, output_valioso, que_perderia, semaforo, notas_consultor, _draft?}]
 let rectores = {}        // { codigo: { id, estado_actual, ano_construccion, notas_consultor } }
 
 // ──────────────────────────────────────────────
@@ -485,62 +485,37 @@ function attachRectorListeners() {
 // AGREGAR ITEMS
 // ──────────────────────────────────────────────
 async function agregarPublico() {
-  setSaveIndicator('saving')
-  const orden = publicos.length
-  const { data, error } = await supabase
-    .from('adn_paso2_publicos')
-    .insert({ sesion_id: sesionId, nombre: '', orden })
-    .select()
-    .single()
-
-  if (error) { console.error('❌ insert publico:', error.message); setSaveIndicator('error'); return }
-  publicos.push(data)
+  const tempId = 'draft-' + Date.now()
+  const draft = { id: tempId, nombre: '', que_entregamos: '', tipo_vinculo: null, criticidad: null, notas_consultor: '', orden: publicos.length, _draft: true }
+  publicos.push(draft)
   renderPublicos()
   actualizarContadores()
-  setSaveIndicator('saved')
 
-  // Scroll al nuevo
-  const newCard = document.getElementById(`pub-card-${data.id}`)
+  const newCard = document.getElementById(`pub-card-${tempId}`)
   newCard?.scrollIntoView({ behavior: 'smooth', block: 'center' })
   newCard?.querySelector('input')?.focus()
 }
 
 async function agregarDiferenciador() {
-  setSaveIndicator('saving')
-  const orden = diferenciadores.length
-  const { data, error } = await supabase
-    .from('adn_paso2_diferenciadores')
-    .insert({ sesion_id: sesionId, nombre: '', orden })
-    .select()
-    .single()
-
-  if (error) { console.error('❌ insert diferenciador:', error.message); setSaveIndicator('error'); return }
-  diferenciadores.push(data)
+  const tempId = 'draft-' + Date.now()
+  const draft = { id: tempId, nombre: '', semaforo: 'pendiente', orden: diferenciadores.length, _draft: true }
+  diferenciadores.push(draft)
   renderDiferenciadores()
   actualizarContadores()
-  setSaveIndicator('saved')
 
-  const newCard = document.getElementById(`dif-card-${data.id}`)
+  const newCard = document.getElementById(`dif-card-${tempId}`)
   newCard?.scrollIntoView({ behavior: 'smooth', block: 'center' })
   newCard?.querySelector('input')?.focus()
 }
 
 async function agregarHabilitador() {
-  setSaveIndicator('saving')
-  const orden = habilitadores.length
-  const { data, error } = await supabase
-    .from('adn_paso2_habilitadores')
-    .insert({ sesion_id: sesionId, nombre: '', orden })
-    .select()
-    .single()
-
-  if (error) { console.error('❌ insert habilitador:', error.message); setSaveIndicator('error'); return }
-  habilitadores.push(data)
+  const tempId = 'draft-' + Date.now()
+  const draft = { id: tempId, nombre: '', semaforo: 'pendiente', orden: habilitadores.length, _draft: true }
+  habilitadores.push(draft)
   renderHabilitadores()
   actualizarContadores()
-  setSaveIndicator('saved')
 
-  const newCard = document.getElementById(`hab-card-${data.id}`)
+  const newCard = document.getElementById(`hab-card-${tempId}`)
   newCard?.scrollIntoView({ behavior: 'smooth', block: 'center' })
   newCard?.querySelector('input')?.focus()
 }
@@ -549,30 +524,54 @@ async function agregarHabilitador() {
 // ELIMINAR ITEMS
 // ──────────────────────────────────────────────
 async function eliminarItem(tipo, id) {
-  const tabla = { publico: 'adn_paso2_publicos', diferenciador: 'adn_paso2_diferenciadores', habilitador: 'adn_paso2_habilitadores' }[tipo]
-  if (!tabla) return
+  // Si es draft local, solo eliminar del array
+  const isDraft = id.startsWith('draft-')
 
-  setSaveIndicator('saving')
-  const { error } = await supabase.from(tabla).delete().eq('id', id)
-  if (error) { console.error('❌ delete:', error.message); setSaveIndicator('error'); return }
+  if (!isDraft) {
+    const tabla = { publico: 'adn_paso2_publicos', diferenciador: 'adn_paso2_diferenciadores', habilitador: 'adn_paso2_habilitadores' }[tipo]
+    if (!tabla) return
+    setSaveIndicator('saving')
+    const { error } = await supabase.from(tabla).delete().eq('id', id)
+    if (error) { console.error('❌ delete:', error.message); setSaveIndicator('error'); return }
+    setSaveIndicator('saved')
+  }
 
   if (tipo === 'publico') { publicos = publicos.filter(p => p.id !== id); renderPublicos() }
   if (tipo === 'diferenciador') { diferenciadores = diferenciadores.filter(d => d.id !== id); renderDiferenciadores() }
   if (tipo === 'habilitador') { habilitadores = habilitadores.filter(h => h.id !== id); renderHabilitadores() }
 
   actualizarContadores()
-  setSaveIndicator('saved')
 }
 
 // ──────────────────────────────────────────────
 // GUARDAR PÚBLICO
 // ──────────────────────────────────────────────
 async function guardarPublico(id, field, value) {
-  setSaveIndicator('saving')
-  // Actualizar estado local
   const item = publicos.find(p => p.id === id)
-  if (item) item[field] = value
+  if (!item) return
+  item[field] = value
 
+  // Si es draft y el campo nombre aún está vacío, no persistir
+  if (item._draft) {
+    if (!item.nombre?.trim()) return
+    // Primer insert real
+    setSaveIndicator('saving')
+    const { data, error } = await supabase
+      .from('adn_paso2_publicos')
+      .insert({ sesion_id: sesionId, nombre: item.nombre.trim(), que_entregamos: item.que_entregamos || '', tipo_vinculo: item.tipo_vinculo, criticidad: item.criticidad, notas_consultor: item.notas_consultor || '', orden: item.orden })
+      .select().single()
+    if (error) { console.error('❌ insert publico:', error.message); setSaveIndicator('error'); return }
+    // Reemplazar draft con el registro real
+    const idx = publicos.findIndex(p => p.id === id)
+    publicos[idx] = data
+    renderPublicos()
+    actualizarContadores()
+    setSaveIndicator('saved')
+    verificarCompletable()
+    return
+  }
+
+  setSaveIndicator('saving')
   const { error } = await supabase
     .from('adn_paso2_publicos')
     .update({ [field]: value, updated_at: new Date().toISOString() })
@@ -586,10 +585,27 @@ async function guardarPublico(id, field, value) {
 // GUARDAR DIFERENCIADOR
 // ──────────────────────────────────────────────
 async function guardarDiferenciador(id, field, value) {
-  setSaveIndicator('saving')
   const item = diferenciadores.find(d => d.id === id)
-  if (item) item[field] = value
+  if (!item) return
+  item[field] = value
 
+  if (item._draft) {
+    if (!item.nombre?.trim()) return
+    setSaveIndicator('saving')
+    const { data, error } = await supabase
+      .from('adn_paso2_diferenciadores')
+      .insert({ sesion_id: sesionId, nombre: item.nombre.trim(), semaforo: item.semaforo || 'pendiente', orden: item.orden })
+      .select().single()
+    if (error) { console.error('❌ insert diferenciador:', error.message); setSaveIndicator('error'); return }
+    const idx = diferenciadores.findIndex(d => d.id === id)
+    diferenciadores[idx] = data
+    renderDiferenciadores()
+    actualizarContadores()
+    setSaveIndicator('saved')
+    return
+  }
+
+  setSaveIndicator('saving')
   const { error } = await supabase
     .from('adn_paso2_diferenciadores')
     .update({ [field]: value, updated_at: new Date().toISOString() })
@@ -603,10 +619,27 @@ async function guardarDiferenciador(id, field, value) {
 // GUARDAR HABILITADOR
 // ──────────────────────────────────────────────
 async function guardarHabilitador(id, field, value) {
-  setSaveIndicator('saving')
   const item = habilitadores.find(h => h.id === id)
-  if (item) item[field] = value
+  if (!item) return
+  item[field] = value
 
+  if (item._draft) {
+    if (!item.nombre?.trim()) return
+    setSaveIndicator('saving')
+    const { data, error } = await supabase
+      .from('adn_paso2_habilitadores')
+      .insert({ sesion_id: sesionId, nombre: item.nombre.trim(), semaforo: item.semaforo || 'pendiente', orden: item.orden })
+      .select().single()
+    if (error) { console.error('❌ insert habilitador:', error.message); setSaveIndicator('error'); return }
+    const idx = habilitadores.findIndex(h => h.id === id)
+    habilitadores[idx] = data
+    renderHabilitadores()
+    actualizarContadores()
+    setSaveIndicator('saved')
+    return
+  }
+
+  setSaveIndicator('saving')
   const { error } = await supabase
     .from('adn_paso2_habilitadores')
     .update({ [field]: value, updated_at: new Date().toISOString() })
