@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCALEx Portal — ADN Empresarial</title>
+  <link rel="icon" type="image/png" href="/logos/SX Icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script type="module" src="/assets/js/auth-guard.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal: #1aab99; --teal-light: rgba(26,171,153,0.12);
+      --indigo: #3533cd; --indigo-light: rgba(53,51,205,0.12);
+      --gradient: linear-gradient(135deg, #1aab99, #3533cd);
+      --pink: #ec4899; --pink-light: rgba(236,72,153,0.12);
+      --green: #00c853; --green-light: rgba(0,200,83,0.12);
+      --amber: #ff9500; --amber-light: rgba(255,149,0,0.12);
+      --red: #ff3b30; --red-light: rgba(255,59,48,0.12);
+      --purple: #7c3aed; --purple-light: rgba(124,58,237,0.12);
+      --gold: #d4a256; --gold-light: rgba(212,162,86,0.12);
+      --radius-xl: 28px; --radius-lg: 20px; --radius: 14px; --radius-sm: 9px;
+      --sidebar-w: 80px;
+      font-family: 'Inter', sans-serif; line-height: 1.6;
+    }
+    [data-theme="dark"] {
+      --bg-page: #0a0a0c; --bg-shell: #141416; --bg-card: #1c1c1e; --bg-card-2: #242426;
+      --surface: rgba(255,255,255,0.04); --surface-hover: rgba(255,255,255,0.07);
+      --border: rgba(255,255,255,0.08); --border-strong: rgba(255,255,255,0.13);
+      --text: #fff; --text-2: #c7c7cc; --text-3: #8e8e93; --text-4: #48484a;
+      --sidebar-bg: #050506;
+    }
+    [data-theme="light"] {
+      --bg-page: #eef0f5; --bg-shell: #fff; --bg-card: #f5f5f7; --bg-card-2: #ebebef;
+      --surface: rgba(0,0,0,0.03); --surface-hover: rgba(0,0,0,0.055);
+      --border: rgba(0,0,0,0.08); --border-strong: rgba(0,0,0,0.14);
+      --text: #070708; --text-2: #3a3a3c; --text-3: #6e6e73; --text-4: #c7c7cc;
+      --sidebar-bg: #0a0a0c;
+    }
+
+    body { background: var(--bg-page); color: var(--text); min-height:100vh; overflow:hidden; transition: background .3s, color .3s; }
+    .app-layout { display:flex; min-height:100vh; padding:16px; gap:16px; }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: var(--sidebar-w); background: var(--sidebar-bg);
+      border-radius: var(--radius-xl); padding: 20px 0;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      flex-shrink: 0; position: sticky; top: 16px; height: calc(100vh - 32px);
+    }
+    .sidebar-logo { width:44px; display:flex; align-items:center; justify-content:center; margin-bottom:16px; text-decoration:none; }
+    .sidebar-logo img { width:100%; display:block; }
+    .sidebar-divider { width:28px; height:1px; background:rgba(255,255,255,0.08); margin:4px 0; }
+    .sidebar-icon {
+      width:44px; height:44px; border-radius:12px;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:all .2s; color:rgba(255,255,255,0.5);
+      position:relative; text-decoration:none; background:none; border:none;
+    }
+    .sidebar-icon:hover { background:rgba(255,255,255,0.06); color:white; }
+    .sidebar-icon.active { background:var(--gradient); color:white; }
+    .sidebar-icon.active::before {
+      content:''; position:absolute; left:-16px; top:50%; transform:translateY(-50%);
+      width:3px; height:24px; background:var(--teal); border-radius:0 3px 3px 0;
+    }
+    .sidebar-icon svg { width:20px; height:20px; }
+    .sidebar-nav {
+      flex:1; width:100%; overflow-y:auto; overflow-x:hidden; min-height:0;
+      display:flex; flex-direction:column; align-items:center; gap:8px; padding:4px 0;
+    }
+    .sidebar-nav::-webkit-scrollbar { width:3px; }
+    .sidebar-nav::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.2); border-radius:99px; }
+    .sidebar-bottom { display:flex; flex-direction:column; gap:8px; align-items:center; padding-bottom:4px; }
+
+    /* SHELL */
+    .shell {
+      flex:1; background:var(--bg-shell); border-radius:var(--radius-xl);
+      overflow:hidden; display:flex; flex-direction:column;
+      height:calc(100vh - 32px);
+    }
+
+    /* TOPBAR */
+    .topbar {
+      padding:18px 28px; display:flex; align-items:center; gap:16px;
+      border-bottom:1px solid var(--border); flex-shrink:0;
+    }
+    .topbar-back {
+      width:36px; height:36px; border-radius:10px;
+      background:var(--surface); border:1px solid var(--border);
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:all .2s; color:var(--text-2); text-decoration:none;
+    }
+    .topbar-back:hover { background:var(--surface-hover); color:var(--text); }
+    .topbar-back svg { width:16px; height:16px; }
+    .topbar-title-block { flex:1; }
+    .topbar-eyebrow { font-size:11px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; color:var(--pink); }
+    .topbar-title { font-family:'Plus Jakarta Sans',sans-serif; font-size:18px; font-weight:800; color:var(--text); letter-spacing:-0.3px; margin-top:2px; }
+    .topbar-actions { display:flex; align-items:center; gap:10px; }
+    .topbar-icon-btn {
+      width:40px; height:40px; border-radius:12px;
+      background:var(--surface); border:1px solid var(--border);
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:all .2s; color:var(--text-2);
+    }
+    .topbar-icon-btn:hover { background:var(--surface-hover); color:var(--text); }
+    .topbar-icon-btn svg { width:16px; height:16px; }
+
+    /* BODY */
+    .body-scroll { flex:1; overflow-y:auto; padding:28px 32px 40px; }
+
+    /* HERO */
+    .adn-hero {
+      background: linear-gradient(135deg, rgba(236,72,153,0.12), rgba(53,51,205,0.08));
+      border: 1px solid rgba(236,72,153,0.2);
+      border-radius: var(--radius-lg);
+      padding: 28px 32px;
+      margin-bottom: 28px;
+      display: flex; align-items: center; gap: 24px;
+    }
+    .adn-hero-icon {
+      width: 64px; height: 64px; border-radius: 18px;
+      background: linear-gradient(135deg, #ec4899, #7c3aed);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .adn-hero-icon svg { width: 30px; height: 30px; color: white; }
+    .adn-hero-text h1 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 22px; font-weight: 800; color: var(--text);
+      letter-spacing: -0.4px; margin-bottom: 6px;
+    }
+    .adn-hero-text p { font-size: 13.5px; color: var(--text-2); max-width: 560px; line-height: 1.6; }
+
+    /* PROGRESS BAR */
+    .adn-progress-bar {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 28px;
+    }
+    .adn-progress-label { font-size: 12px; font-weight: 600; color: var(--text-3); white-space: nowrap; }
+    .adn-progress-track {
+      flex: 1; height: 6px; background: var(--surface);
+      border-radius: 99px; overflow: hidden;
+    }
+    .adn-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ec4899, #7c3aed);
+      border-radius: 99px;
+      transition: width 0.6s ease;
+    }
+    .adn-progress-pct { font-size: 12px; font-weight: 700; color: var(--pink); white-space: nowrap; }
+
+    /* STEPS GRID */
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+    @media (max-width: 760px) { .steps-grid { grid-template-columns: 1fr; } }
+
+    .step-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      text-decoration: none;
+      display: flex; flex-direction: column; gap: 14px;
+      transition: all 0.2s;
+      cursor: pointer; position: relative; overflow: hidden;
+    }
+    .step-card:hover { border-color: var(--pink); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(236,72,153,0.1); }
+    .step-card.locked { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+    .step-card.completed { border-color: rgba(0,200,83,0.3); }
+    .step-card.completed::after {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: var(--green);
+    }
+    .step-card.active::after {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, #ec4899, #7c3aed);
+    }
+
+    .step-header { display: flex; align-items: flex-start; gap: 14px; }
+    .step-num {
+      width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13px; font-weight: 800;
+    }
+    .step-num.pending { background: var(--surface); color: var(--text-3); }
+    .step-num.active { background: var(--pink-light); color: var(--pink); }
+    .step-num.done { background: var(--green-light); color: var(--green); }
+    .step-num.locked { background: var(--surface); color: var(--text-4); }
+
+    .step-meta { flex: 1; }
+    .step-tag {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.9px;
+      text-transform: uppercase; color: var(--pink); margin-bottom: 4px;
+    }
+    .step-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: -0.2px;
+    }
+    .step-status-badge {
+      font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 50px;
+    }
+    .step-status-badge.pending { background: var(--surface); color: var(--text-3); }
+    .step-status-badge.active { background: var(--pink-light); color: var(--pink); }
+    .step-status-badge.done { background: var(--green-light); color: var(--green); }
+    .step-status-badge.locked { background: var(--surface); color: var(--text-4); }
+
+    .step-desc { font-size: 12.5px; color: var(--text-3); line-height: 1.55; }
+
+    .step-result {
+      background: var(--surface);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      font-size: 12px; color: var(--text-2);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .step-result svg { width: 14px; height: 14px; flex-shrink: 0; }
+    .step-result-label { font-weight: 700; margin-right: 4px; }
+
+    .step-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: auto;
+    }
+    .step-items-count { font-size: 11px; color: var(--text-4); }
+    .step-arrow { color: var(--pink); opacity: 0; transition: opacity 0.2s; }
+    .step-card:hover .step-arrow { opacity: 1; }
+    .step-arrow svg { width: 16px; height: 16px; }
+
+    /* INFO BANNER */
+    .info-banner {
+      margin-top: 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      display: flex; gap: 12px; align-items: flex-start;
+      font-size: 12.5px; color: var(--text-3); line-height: 1.55;
+    }
+    .info-banner svg { width: 16px; height: 16px; flex-shrink: 0; color: var(--pink); margin-top: 1px; }
+
+    /* SKELETON */
+    .skeleton { background: var(--surface); border-radius: 6px; animation: shimmer 1.4s infinite; }
+    @keyframes shimmer { 0%,100%{opacity:0.5} 50%{opacity:1} }
+
+    /* THEME TOGGLE */
+    .theme-btn { background:none; border:none; cursor:pointer; }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <a href="/portal/dashboard.html" class="sidebar-logo">
+      <img src="/logos/SX Icon.png" alt="SCALEx">
+    </a>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-nav" id="sidebar-nav">
+      <a href="/portal/dashboard.html" class="sidebar-icon" title="Dashboard">
+        <i data-lucide="layout-dashboard"></i>
+      </a>
+      <a href="/portal/opsp.html" class="sidebar-icon" title="OPSP">
+        <i data-lucide="compass"></i>
+      </a>
+      <a href="/portal/adn.html" class="sidebar-icon active" title="ADN Empresarial">
+        <i data-lucide="dna"></i>
+      </a>
+    </div>
+    <div class="sidebar-bottom" id="sidebar-bottom"></div>
+  </nav>
+
+  <!-- SHELL -->
+  <main class="shell">
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <a href="/portal/dashboard.html" class="topbar-back">
+        <i data-lucide="arrow-left"></i>
+      </a>
+      <div class="topbar-title-block">
+        <div class="topbar-eyebrow">Pilar · ADN</div>
+        <div class="topbar-title">ADN Empresarial</div>
+      </div>
+      <div class="topbar-actions">
+        <button class="topbar-icon-btn theme-btn" id="theme-toggle" title="Cambiar tema">
+          <i data-lucide="sun"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- BODY -->
+    <div class="body-scroll">
+
+      <!-- HERO -->
+      <div class="adn-hero">
+        <div class="adn-hero-icon">
+          <i data-lucide="dna"></i>
+        </div>
+        <div class="adn-hero-text">
+          <h1>Diagnóstico de ADN Empresarial</h1>
+          <p>3 pasos para revelar la identidad profunda de tu empresa: cómo está estructurada su pirámide de poder, cuál es su perfil de personalidad empresarial, y qué rectores la sostienen institucionalmente.</p>
+        </div>
+      </div>
+
+      <!-- PROGRESS -->
+      <div class="adn-progress-bar">
+        <span class="adn-progress-label">Progreso general</span>
+        <div class="adn-progress-track">
+          <div class="adn-progress-fill" id="prog-fill" style="width:0%"></div>
+        </div>
+        <span class="adn-progress-pct" id="prog-pct">0%</span>
+      </div>
+
+      <!-- STEPS GRID -->
+      <div class="steps-grid" id="steps-grid">
+        <!-- Paso 0 -->
+        <a href="/portal/adn-piramide.html" class="step-card" id="card-0" >
+          <div class="step-header">
+            <div class="step-num pending" id="num-0">P0</div>
+            <div class="step-meta">
+              <div class="step-tag">Paso 0</div>
+              <div class="step-title">Diagnóstico de Pirámide</div>
+            </div>
+            <span class="step-status-badge pending" id="badge-0">Pendiente</span>
+          </div>
+          <div class="step-desc">
+            20 tesis detonantes para revelar si la pirámide de poder de tu empresa está invertida o cerrada. 
+            El consultor guía, toma notas y selecciona la respuesta tipo que mejor describe la realidad.
+          </div>
+          <div class="step-result" id="result-0" style="display:none">
+            <i data-lucide="triangle"></i>
+            <span><span class="step-result-label">Tipo:</span> <span id="result-0-val">—</span></span>
+          </div>
+          <div class="step-footer">
+            <span class="step-items-count">20 tesis · 4 opciones c/u</span>
+            <span class="step-arrow"><i data-lucide="arrow-right"></i></span>
+          </div>
+        </a>
+
+        <!-- Paso 1 -->
+        <a href="/portal/adn-personalidad.html" class="step-card locked" id="card-1">
+          <div class="step-header">
+            <div class="step-num locked" id="num-1">P1</div>
+            <div class="step-meta">
+              <div class="step-tag">Paso 1</div>
+              <div class="step-title">Perfil de Personalidad</div>
+            </div>
+            <span class="step-status-badge locked" id="badge-1">Bloqueado</span>
+          </div>
+          <div class="step-desc">
+            28 preguntas detonantes en 5 dimensiones para revelar el ADN de personalidad empresarial: Templo, Familia, Estudio, Fábrica, Comercio, Taller o Laboratorio.
+          </div>
+          <div class="step-result" id="result-1" style="display:none">
+            <i data-lucide="sparkles"></i>
+            <span><span class="step-result-label">Híbrido:</span> <span id="result-1-val">—</span></span>
+          </div>
+          <div class="step-footer">
+            <span class="step-items-count">28 preguntas · 7 rasgos</span>
+            <span class="step-arrow"><i data-lucide="arrow-right"></i></span>
+          </div>
+        </a>
+
+        <!-- Paso 2 -->
+        <a href="/portal/adn-mapa.html" class="step-card locked" id="card-2">
+          <div class="step-header">
+            <div class="step-num locked" id="num-2">P2</div>
+            <div class="step-meta">
+              <div class="step-tag">Paso 2</div>
+              <div class="step-title">Mapa de Diferenciadores</div>
+            </div>
+            <span class="step-status-badge locked" id="badge-2">Bloqueado</span>
+          </div>
+          <div class="step-desc">
+            Las 4 capas del ADN empresarial: Públicos, Diferenciadores, Habilitadores y Rectores. 
+            Cada capa con su metodología propia y validación socrática.
+          </div>
+          <div class="step-result" id="result-2" style="display:none">
+            <i data-lucide="layers"></i>
+            <span><span class="step-result-label">Capas:</span> <span id="result-2-val">—</span></span>
+          </div>
+          <div class="step-footer">
+            <span class="step-items-count">4 capas · 6 rectores</span>
+            <span class="step-arrow"><i data-lucide="arrow-right"></i></span>
+          </div>
+        </a>
+
+        <!-- Paso 3 — Visualización -->
+        <a href="/portal/adn-piramide-invertida.html" class="step-card locked" id="card-3">
+          <div class="step-header">
+            <div class="step-num locked" id="num-3">P3</div>
+            <div class="step-meta">
+              <div class="step-tag">Paso 3</div>
+              <div class="step-title">Pirámide Invertida</div>
+            </div>
+            <span class="step-status-badge locked" id="badge-3">Bloqueado</span>
+          </div>
+          <div class="step-desc">
+            Visualización final del ADN completo. La pirámide invertida con todos los elementos de los 3 pasos anteriores integrados en un solo lienzo.
+          </div>
+          <div class="step-footer">
+            <span class="step-items-count">Visualización · Solo lectura</span>
+            <span class="step-arrow"><i data-lucide="arrow-right"></i></span>
+          </div>
+        </a>
+      </div>
+
+      <!-- INFO BANNER -->
+      <div class="info-banner">
+        <i data-lucide="info"></i>
+        <span>Los pasos se desbloquean en orden. Completa el Paso 0 para acceder al Paso 1, y así sucesivamente. Puedes volver a cualquier paso completado en cualquier momento para revisarlo.</span>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script type="module" src="/assets/js/adn.js"></script>
+<script type="module" src="/assets/js/portal-shell.js"></script>
+<script>
+  lucide.createIcons()
+  // Theme toggle
+  const html = document.documentElement
+  const themeBtn = document.getElementById('theme-toggle')
+  const saved = localStorage.getItem('scalex-theme') || 'dark'
+  html.setAttribute('data-theme', saved)
+  themeBtn.addEventListener('click', () => {
+    const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'
+    html.setAttribute('data-theme', next)
+    localStorage.setItem('scalex-theme', next)
+    lucide.createIcons()
+  })
+</script>
+</body>
+</html>

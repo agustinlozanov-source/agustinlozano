@@ -100,6 +100,15 @@ function injectSidebarExtras(perfil) {
   presentacionLink.innerHTML = '<i data-lucide="presentation"></i>'
   if (!isCertConsultor) presentacionLink.style.display = 'none'
 
+  // ADN — inyectar si no existe en el nav estático
+  const adnExists = !!document.getElementById('sidebar-adn')
+  const adnLink = document.createElement('a')
+  adnLink.href = '/portal/adn.html'
+  adnLink.className = 'sidebar-icon'
+  adnLink.id = 'sidebar-adn'
+  adnLink.title = 'ADN Empresarial'
+  adnLink.innerHTML = '<i data-lucide="dna"></i>'
+
   // Pipeline — solo si ya no está en el nav (evitar duplicado en pipeline.html que lo tiene estático)
   const pipelineExists = !!document.getElementById('sidebar-pipeline')
   const pipelineLink = document.createElement('a')
@@ -113,6 +122,7 @@ function injectSidebarExtras(perfil) {
   if (nav.classList.contains('sidebar-nav')) {
     // Insertar al final del nav scrolleable
     nav.append(divider)
+    if (!adnExists) nav.append(adnLink)
     if (isCertConsultor && !pipelineExists) nav.append(pipelineLink)
     nav.append(presentacionLink, perfilLink)
     if (isAdmin) {
@@ -133,6 +143,7 @@ function injectSidebarExtras(perfil) {
   } else {
     // Fallback: insertar antes del bottom (portales sin sidebar-nav aún)
     sidebarBottom.before(divider)
+    if (!adnExists) sidebarBottom.before(adnLink)
     if (isCertConsultor && !pipelineExists) sidebarBottom.before(pipelineLink)
     sidebarBottom.before(presentacionLink, perfilLink)
     if (isAdmin) {
