@@ -328,7 +328,9 @@ window.crearColaborador = async function() {
 
   const err = error || data?.error
   if (err) {
-    mostrarErrorModal('modal-colab-error', typeof err === 'string' ? err : (err.message || JSON.stringify(err)))
+    const msg = typeof err === 'string' ? err : (err.message || JSON.stringify(err))
+    console.error('❌ crear-usuario (miembro):', msg, '| data completo:', JSON.stringify(data))
+    mostrarErrorModal('modal-colab-error', msg)
     return
   }
 
