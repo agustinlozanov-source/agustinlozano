@@ -19,11 +19,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Detectar si es dueño de alguna org
   const { data: orgDueno } = await supabase.rpc('mi_organizacion_como_dueno')
-  if (orgDueno && orgDueno.length > 0) {
+  // El RPC puede devolver un objeto único, un array, o null
+  const orgDuenoItem = Array.isArray(orgDueno) ? orgDueno[0] : orgDueno
+  if (orgDuenoItem?.id) {
     esDueno = true
-    miOrgId = orgDueno[0].id
-    miOrgNombre = orgDueno[0].nombre
+    miOrgId = orgDuenoItem.id
+    miOrgNombre = orgDuenoItem.nombre
   }
+  console.log('[config] esAdmin:', esAdmin, '| esDueno:', esDueno, '| miOrgId:', miOrgId)
 
   const nombreUsuario = [perfil.nombre, perfil.apellido].filter(Boolean).join(' ') || perfil.email
   document.getElementById('topbar-sub').textContent = nombreUsuario
@@ -224,9 +227,13 @@ window.crearOrganizacion = async function() {
   btn.innerHTML = '<i data-lucide="plus"></i> Crear organización'
   lucide.createIcons()
 
-  const err = error || data?.error
-  if (err) {
-    mostrarErrorModal('modal-org-error', typeof err === 'string' ? err : (err.message || JSON.stringify(err)))
+  if (error || data?.error) {
+    let msg = data?.error || error?.message || 'Error desconocido'
+    if (error?.context) {
+      try { const body = await error.context.json(); msg = body.error || body.message || JSON.stringify(body) } catch {}
+    }
+    console.error('❌ crear-usuario (cliente):', msg)
+    mostrarErrorModal('modal-org-error', msg)
     return
   }
 
@@ -326,10 +333,13 @@ window.crearColaborador = async function() {
   btn.innerHTML = '<i data-lucide="user-plus"></i> Agregar colaborador'
   lucide.createIcons()
 
-  const err = error || data?.error
-  if (err) {
-    const msg = typeof err === 'string' ? err : (err.message || JSON.stringify(err))
-    console.error('❌ crear-usuario (miembro):', msg, '| data completo:', JSON.stringify(data))
+  if (error || data?.error) {
+    let msg = data?.error || error?.message || 'Error desconocido'
+    // Intentar leer el body real de la Edge Function (FunctionsHttpError)
+    if (error?.context) {
+      try { const body = await error.context.json(); msg = body.error || body.message || JSON.stringify(body) } catch {}
+    }
+    console.error('❌ crear-usuario (miembro):', msg)
     mostrarErrorModal('modal-colab-error', msg)
     return
   }
