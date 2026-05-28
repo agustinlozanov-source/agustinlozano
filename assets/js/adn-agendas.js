@@ -2,6 +2,7 @@
 // Renderiza y gestiona las agendas interactivas desde adn_agendas (Supabase)
 
 import { supabase } from '/assets/js/supabase-client.js'
+import { AGENDAS_PASO_0, RECTORES, AGENDA_PASO_2_RECTOR_TEMPLATE } from '/assets/js/adn-piramides-rectores-catalogo.js'
 
 // ──────────────────────────────────────────────
 // CONFIGURACIÓN DE HORIZONTES Y PASOS
@@ -201,6 +202,39 @@ function injectStyles() {
   overflow-y: auto;
   padding: 20px 28px;
 }
+/* Notes */
+.agenda-notes-toggle {
+  display: inline-flex; align-items: center; gap: 4px;
+  margin-top: 8px; padding: 2px 0;
+  background: none; border: none; cursor: pointer;
+  font-size: 11px; color: var(--text-4); transition: color 0.15s;
+}
+.agenda-notes-toggle:hover { color: var(--text-2); }
+.agenda-notes-toggle svg { width: 11px; height: 11px; }
+.agenda-notes-input {
+  width: 100%; margin-top: 6px; padding: 8px 10px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 7px; color: var(--text-2); font-size: 12px;
+  line-height: 1.5; resize: none; font-family: inherit;
+  transition: border-color 0.15s; box-sizing: border-box; min-height: 60px;
+}
+.agenda-notes-input:focus { outline: none; border-color: var(--pink); }
+.agenda-notes-saved {
+  font-size: 10px; color: var(--green,#00c853); margin-top: 3px;
+  opacity: 0; transition: opacity 0.3s;
+}
+.agenda-notes-saved.show { opacity: 1; }
+/* Regen button */
+.agenda-regen-btn {
+  display: inline-flex; align-items: center; gap: 7px; margin-top: 14px;
+  padding: 8px 18px; border-radius: 8px; cursor: pointer; font-size: 13px;
+  font-weight: 600; font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text-2); transition: all 0.2s;
+}
+.agenda-regen-btn:hover { border-color: var(--pink); color: var(--pink); }
+.agenda-regen-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.agenda-regen-btn svg { width: 14px; height: 14px; }
 `
   document.head.appendChild(style)
 }
@@ -220,7 +254,7 @@ function renderCard(agenda) {
   const h = HORIZONTE_CONFIG[agenda.horizonte] || HORIZONTE_CONFIG['7_dias']
   const isDone = agenda.estado === 'completada'
   return `
-    <div class="agenda-card${isDone ? ' completada' : ''}" data-agenda-id="${agenda.id}">
+    <div class="agenda-card${isDone ? ' completada' : ''}" data-agenda-id="${agenda.id}" data-notas="${esc(agenda.notas_consultor || '')}">
       <div class="agenda-card-top">
         <span class="agenda-horizonte-badge" style="background:${h.color}22;color:${h.color}">
           <i data-lucide="${h.icon}"></i> ${h.label}
@@ -253,6 +287,49 @@ function wireCheckboxes(containerEl) {
   })
 }
 
+const _notesTimers = {}
+function wireNotesInputs(containerEl) {
+  containerEl.querySelectorAll('.agenda-card[data-agenda-id]').forEach(card => {
+    const id = card.dataset.agendaId
+    const body = card.querySelector('.agenda-card-body')
+    if (!body || body.querySelector('.agenda-notes-toggle')) return
+
+    const existingNotes = card.dataset.notas || ''
+    const wrap = document.createElement('div')
+    wrap.innerHTML = `
+      <button class="agenda-notes-toggle" type="button">
+        <i data-lucide="pencil-line"></i>
+        <span>${existingNotes ? 'Ver nota' : 'Agregar nota'}</span>
+      </button>
+      <textarea class="agenda-notes-input" placeholder="Notas del consultor…" style="display:none">${esc(existingNotes)}</textarea>
+      <div class="agenda-notes-saved">Guardado ✓</div>`
+    body.appendChild(wrap)
+
+    const toggleBtn = wrap.querySelector('.agenda-notes-toggle')
+    const textarea = wrap.querySelector('.agenda-notes-input')
+    const savedEl = wrap.querySelector('.agenda-notes-saved')
+
+    if (existingNotes) textarea.style.display = 'block'
+
+    toggleBtn.addEventListener('click', () => {
+      const visible = textarea.style.display !== 'none'
+      textarea.style.display = visible ? 'none' : 'block'
+      if (!visible) textarea.focus()
+    })
+
+    textarea.addEventListener('input', () => {
+      clearTimeout(_notesTimers[id])
+      _notesTimers[id] = setTimeout(async () => {
+        await supabase.from('adn_agendas').update({ notas_consultor: textarea.value }).eq('id', id)
+        savedEl.classList.add('show')
+        setTimeout(() => savedEl.classList.remove('show'), 2000)
+        const span = toggleBtn.querySelector('span')
+        if (span) span.textContent = textarea.value.trim() ? 'Ver nota' : 'Agregar nota'
+      }, 800)
+    })
+  })
+}
+
 // ──────────────────────────────────────────────
 // RENDER AGENDAS — un paso (P0 o P1 o P2)
 // ──────────────────────────────────────────────
@@ -274,13 +351,14 @@ export async function renderAgendas(sesionId, paso, containerEl) {
 
   containerEl.innerHTML = `<div class="agendas-grid">${agendas.map(renderCard).join('')}</div>`
   wireCheckboxes(containerEl)
+  wireNotesInputs(containerEl)
   if (window.lucide) lucide.createIcons()
 }
 
 // ──────────────────────────────────────────────
 // RENDER AGENDAS HUB — todas, agrupadas por horizonte
 // ──────────────────────────────────────────────
-export async function renderAgendasHub(sesionId, containerEl) {
+export async function renderAgendasHub(sesionId, containerEl, sesion = null) {
   injectStyles()
 
   const { data: agendas, error } = await supabase
@@ -290,19 +368,34 @@ export async function renderAgendasHub(sesionId, containerEl) {
     .order('horizonte')
 
   if (error || !agendas || agendas.length === 0) {
+    const canRegen = sesion && (
+      sesion.paso_0_estado === 'completado' ||
+      sesion.paso_1_estado === 'completado' ||
+      sesion.paso_2_estado === 'completado'
+    )
     containerEl.innerHTML = `
       <div class="agenda-section-wrap">
         <div class="agenda-section-header">
           <div class="agenda-section-header-icon"><i data-lucide="calendar-check"></i></div>
           <div class="agenda-section-header-text">
             <h3>Agenda ADN · 7 / 30 / 90 días</h3>
-            <p>Las acciones se generan automáticamente al completar cada paso.</p>
+            <p>${canRegen ? 'Sesión completada pero sin agendas. Pulsá para generarlas.' : 'Las acciones se generan automáticamente al completar cada paso.'}</p>
           </div>
         </div>
         <div class="agenda-section-body">
-          <div class="agendas-empty">Completa al menos el Paso 0 para ver tu agenda de implementación.</div>
+          <div class="agendas-empty">
+            ${canRegen
+              ? `Los pasos están completados pero las agendas aún no fueron generadas.<br><button class="agenda-regen-btn" type="button"><i data-lucide="refresh-cw"></i> Regenerar agendas</button>`
+              : 'Completa al menos el Paso 0 para ver tu agenda de implementación.'
+            }
+          </div>
         </div>
       </div>`
+    if (canRegen) {
+      containerEl.querySelector('.agenda-regen-btn')?.addEventListener('click', () =>
+        regenerarAgendasSesion(sesionId, sesion, containerEl)
+      )
+    }
     if (window.lucide) lucide.createIcons()
     return
   }
@@ -334,7 +427,7 @@ export async function renderAgendasHub(sesionId, containerEl) {
           const paso = PASO_CONFIG[a.paso] || { label: a.paso, color: '#888' }
           const isDone = a.estado === 'completada'
           return `
-            <div class="agenda-card${isDone ? ' completada' : ''}" data-agenda-id="${a.id}">
+            <div class="agenda-card${isDone ? ' completada' : ''}" data-agenda-id="${a.id}" data-notas="${esc(a.notas_consultor || '')}">
               <div class="agenda-card-top">
                 <span class="agenda-card-paso-badge" style="background:${paso.color}22;color:${paso.color}">${paso.label}</span>
                 <label class="agenda-check-wrap" title="${isDone ? 'Marcar pendiente' : 'Marcar completada'}">
@@ -370,5 +463,69 @@ export async function renderAgendasHub(sesionId, containerEl) {
     </div>`
 
   wireCheckboxes(containerEl)
+  wireNotesInputs(containerEl)
   if (window.lucide) lucide.createIcons()
+}
+
+// ──────────────────────────────────────────────
+// REGENERAR AGENDAS — para sesiones completadas sin agendas
+// ──────────────────────────────────────────────
+export async function regenerarAgendasSesion(sesionId, sesionData, containerEl) {
+  const btn = containerEl?.querySelector('.agenda-regen-btn')
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i data-lucide="loader"></i> Regenerando…'; lucide.createIcons() }
+
+  const sesion = sesionData || (await supabase.from('adn_sesiones').select('*').eq('id', sesionId).maybeSingle()).data
+  if (!sesion) return
+
+  const filas = []
+
+  // Paso 0
+  if (sesion.paso_0_estado === 'completado' && sesion.paso_0_tipo_piramide) {
+    const ag = AGENDAS_PASO_0[sesion.paso_0_tipo_piramide]
+    if (ag) filas.push(
+      { sesion_id: sesionId, paso: 'paso_0', horizonte: '7_dias',  contenido: ag['7_dias']  },
+      { sesion_id: sesionId, paso: 'paso_0', horizonte: '30_dias', contenido: ag['30_dias'] },
+      { sesion_id: sesionId, paso: 'paso_0', horizonte: '90_dias', contenido: ag['90_dias'] }
+    )
+  }
+
+  // Paso 1
+  if (sesion.paso_1_estado === 'completado' && sesion.paso_1_nombre_hibrido) {
+    const n = sesion.paso_1_nombre_hibrido
+    filas.push(
+      { sesion_id: sesionId, paso: 'paso_1', horizonte: '7_dias',  contenido: `Comparte el resultado del Perfil de Personalidad (${n}) con el equipo directivo. Reacción y resonancia.` },
+      { sesion_id: sesionId, paso: 'paso_1', horizonte: '30_dias', contenido: `Identifica 1-2 iniciativas concretas que activen los rasgos secundarios del perfil ${n}.` },
+      { sesion_id: sesionId, paso: 'paso_1', horizonte: '90_dias', contenido: `Revisión: ¿cómo ha evolucionado el perfil ${n}? ¿Qué rasgos se han fortalecido o debilitado? Conectar con el Mapa ADN del Paso 2.` }
+    )
+  }
+
+  // Paso 2 — rectores año 1
+  if (sesion.paso_2_estado === 'completado') {
+    const { data: rdata } = await supabase
+      .from('adn_paso2_rectores')
+      .select('id, rector_codigo, ano_construccion, estado_actual')
+      .eq('sesion_id', sesionId)
+      .eq('ano_construccion', 1)
+      .neq('estado_actual', 'operativo')
+    for (const r of rdata || []) {
+      const info = RECTORES.find(rec => rec.codigo === r.rector_codigo)
+      const nombre = info?.nombre || r.rector_codigo
+      filas.push(
+        { sesion_id: sesionId, paso: 'paso_2_rector', horizonte: '7_dias',  contenido: `[${nombre}] ${AGENDA_PASO_2_RECTOR_TEMPLATE['7_dias']}`,  referencia_id: r.id },
+        { sesion_id: sesionId, paso: 'paso_2_rector', horizonte: '30_dias', contenido: `[${nombre}] ${AGENDA_PASO_2_RECTOR_TEMPLATE['30_dias']}`, referencia_id: r.id },
+        { sesion_id: sesionId, paso: 'paso_2_rector', horizonte: '90_dias', contenido: `[${nombre}] ${AGENDA_PASO_2_RECTOR_TEMPLATE['90_dias']}`, referencia_id: r.id }
+      )
+    }
+  }
+
+  if (filas.length > 0) {
+    const { error } = await supabase.from('adn_agendas').upsert(filas, { onConflict: 'sesion_id,paso,horizonte' })
+    if (error) {
+      console.error('❌ regenerarAgendasSesion:', error.message)
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i data-lucide="refresh-cw"></i> Reintentar'; lucide.createIcons() }
+      return
+    }
+  }
+
+  if (containerEl) await renderAgendasHub(sesionId, containerEl, sesion)
 }

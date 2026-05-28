@@ -58,7 +58,7 @@ async function cargarEstadoSesion(orgId, consultorId) {
 
   // Renderizar agenda global
   const agendaHubEl = document.getElementById('agenda-hub-container')
-  if (agendaHubEl) renderAgendasHub(sesionId, agendaHubEl)
+  if (agendaHubEl) renderAgendasHub(sesionId, agendaHubEl, sesion)
 }
 
 // ──────────────────────────────────────────────
