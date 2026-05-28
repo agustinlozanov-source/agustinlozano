@@ -1,6 +1,7 @@
 // adn.js — SCALEx Portal · Hub ADN Empresarial
 
 import { supabase, getMyProfile, getMyOrganization } from '/assets/js/supabase-client.js'
+import { renderAgendasHub } from '/assets/js/adn-agendas.js'
 
 // ──────────────────────────────────────────────
 // INIT
@@ -54,6 +55,10 @@ async function cargarEstadoSesion(orgId, consultorId) {
 
   // Renderizar estado de los 4 pasos
   renderEstado(sesion)
+
+  // Renderizar agenda global
+  const agendaHubEl = document.getElementById('agenda-hub-container')
+  if (agendaHubEl) renderAgendasHub(sesionId, agendaHubEl)
 }
 
 // ──────────────────────────────────────────────

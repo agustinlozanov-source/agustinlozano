@@ -3,6 +3,7 @@
 import { supabase, getMyProfile, getMyOrganization } from '/assets/js/supabase-client.js'
 import { PREGUNTAS_PASO_1, RASGOS, DIMENSIONES } from '/assets/js/adn-paso1-catalogo.js'
 import { HIBRIDOS, obtenerHibrido } from '/assets/js/adn-hibridos-catalogo.js'
+import { renderAgendas } from '/assets/js/adn-agendas.js'
 
 let sesionId = null
 let respuestasMap = {}   // { pregunta_numero: { tipo, notas, pesos } }
@@ -448,6 +449,14 @@ function mostrarResultado(resultado) {
       </ul>
     </div>
   `
+
+  // Agenda interactiva desde BD
+  const agendaWrap = document.getElementById('agenda-wrap')
+  const agendaContent = document.getElementById('agenda-content')
+  if (agendaWrap && agendaContent && sesionId) {
+    agendaWrap.style.display = 'block'
+    renderAgendas(sesionId, 'paso_1', agendaContent)
+  }
 
   lucide.createIcons()
 }

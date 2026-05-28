@@ -3,6 +3,7 @@
 import { supabase, getMyProfile, getMyOrganization } from '/assets/js/supabase-client.js'
 import { TESIS_PASO_0, PUNTAJE_RESPUESTA, RANGOS_PIRAMIDE } from '/assets/js/adn-paso0-catalogo.js'
 import { PIRAMIDES, AGENDAS_PASO_0 } from '/assets/js/adn-piramides-rectores-catalogo.js'
+import { renderAgendas } from '/assets/js/adn-agendas.js'
 
 let sesionId = null
 let respuestasMap = {}   // { tesis_numero: { tipo, notas } }
@@ -39,15 +40,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Verificar si ya completado
   const { data: sesion } = await supabase
     .from('adn_sesiones')
-    .select('paso_0_completado, tipo_piramide, puntaje_piramide')
+    .select('paso_0_estado, paso_0_tipo_piramide, paso_0_puntaje')
     .eq('id', sesionId)
     .maybeSingle()
 
   renderTesis()
   actualizarPanel()
 
-  if (sesion?.paso_0_completado) {
-    mostrarResultado(sesion.tipo_piramide, sesion.puntaje_piramide)
+  if (sesion?.paso_0_estado === 'completado') {
+    mostrarResultado(sesion.paso_0_tipo_piramide, sesion.paso_0_puntaje)
   }
 
   document.getElementById('btn-completar').addEventListener('click', completarPaso0)
@@ -238,14 +239,14 @@ async function completarPaso0() {
   // Leer tipo_piramide actualizado
   const { data: sesion } = await supabase
     .from('adn_sesiones')
-    .select('tipo_piramide, puntaje_piramide')
+    .select('paso_0_tipo_piramide, paso_0_puntaje')
     .eq('id', sesionId)
     .maybeSingle()
 
   // Generar agendas
-  if (sesion?.tipo_piramide) {
-    await generarAgendas(sesion.tipo_piramide)
-    mostrarResultado(sesion.tipo_piramide, sesion.puntaje_piramide)
+  if (sesion?.paso_0_tipo_piramide) {
+    await generarAgendas(sesion.paso_0_tipo_piramide)
+    mostrarResultado(sesion.paso_0_tipo_piramide, sesion.paso_0_puntaje)
   }
 
   document.getElementById('btn-completar-wrap').style.display = 'none'
@@ -274,24 +275,12 @@ function mostrarResultado(tipoCodigo, puntaje) {
     <div class="resultado-siguiente">${pir.proximo_paso}</div>
   `
 
-  // Agenda
-  const agendas = AGENDAS_PASO_0[tipoCodigo]
-  if (agendas) {
-    document.getElementById('agenda-wrap').style.display = 'block'
-    document.getElementById('agenda-content').innerHTML = `
-      <div class="agenda-item">
-        <div class="agenda-dia">7 días</div>
-        <div class="agenda-texto">${agendas['7_dias']}</div>
-      </div>
-      <div class="agenda-item">
-        <div class="agenda-dia">30 días</div>
-        <div class="agenda-texto">${agendas['30_dias']}</div>
-      </div>
-      <div class="agenda-item">
-        <div class="agenda-dia">90 días</div>
-        <div class="agenda-texto">${agendas['90_dias']}</div>
-      </div>
-    `
+  // Agenda interactiva desde BD
+  const agendaWrap = document.getElementById('agenda-wrap')
+  const agendaContent = document.getElementById('agenda-content')
+  if (agendaWrap && agendaContent && sesionId) {
+    agendaWrap.style.display = 'block'
+    renderAgendas(sesionId, 'paso_0', agendaContent)
   }
 
   document.getElementById('btn-completar-wrap').style.display = 'none'

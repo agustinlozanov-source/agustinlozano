@@ -3,6 +3,7 @@
 
 import { supabase, getMyProfile, getMyOrganization } from '/assets/js/supabase-client.js'
 import { RECTORES, AGENDA_PASO_2_RECTOR_TEMPLATE } from '/assets/js/adn-piramides-rectores-catalogo.js'
+import { renderAgendas } from '/assets/js/adn-agendas.js'
 
 let sesionId = null
 let saveTimers = {}
@@ -59,6 +60,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Tabs
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => cambiarTab(btn.dataset.tab))
+  })
+
+  // Lazy-load agendas cuando se abre esa tab
+  let agendasCargadas = false
+  document.querySelector('[data-tab="agendas"]')?.addEventListener('click', async () => {
+    if (agendasCargadas) return
+    agendasCargadas = true
+    const el = document.getElementById('agendas-tab-body')
+    if (el && sesionId) await renderAgendas(sesionId, 'paso_2_rector', el)
   })
 
   document.getElementById('btn-add-publico').addEventListener('click', agregarPublico)
