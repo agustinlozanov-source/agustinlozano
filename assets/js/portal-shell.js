@@ -153,6 +153,19 @@ function injectSidebarExtras(perfil) {
   }
 
   if (window.lucide) lucide.createIcons()
+
+  // Inyectar ícono de configuración en sidebar-bottom si no existe ya
+  if (sidebarBottom && !document.getElementById('sidebar-config')) {
+    const configLink = document.createElement('a')
+    configLink.href = '/portal/configuracion.html'
+    configLink.className = 'sidebar-icon'
+    configLink.id = 'sidebar-config'
+    configLink.title = 'Configuración'
+    configLink.innerHTML = '<i data-lucide="settings"></i>'
+    // Insertar como primer hijo del bottom
+    sidebarBottom.insertBefore(configLink, sidebarBottom.firstChild)
+    if (window.lucide) lucide.createIcons()
+  }
 }
 
 // ────────────────────────────────────────────────────────────────────────────

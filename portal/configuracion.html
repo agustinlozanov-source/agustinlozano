@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCALEx Portal — Configuración</title>
+  <link rel="icon" type="image/png" href="/logos/SX Icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script type="module" src="/assets/js/auth-guard.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --teal:#1aab99; --teal-light:rgba(26,171,153,.12);
+      --indigo:#3533cd; --gradient:linear-gradient(135deg,#1aab99,#3533cd);
+      --green:#00c853; --green-light:rgba(0,200,83,.12);
+      --amber:#ff9500; --amber-light:rgba(255,149,0,.12);
+      --red:#ff3b30; --red-light:rgba(255,59,48,.12);
+      --radius-xl:28px; --radius-lg:20px; --radius:14px; --radius-sm:9px;
+      --sidebar-w:80px;
+      font-family:'Inter',sans-serif; line-height:1.6;
+    }
+    [data-theme="dark"] {
+      --bg-page:#0a0a0c; --bg-shell:#141416; --bg-card:#1c1c1e; --bg-card-2:#242426;
+      --surface:rgba(255,255,255,.04); --surface-hover:rgba(255,255,255,.07);
+      --border:rgba(255,255,255,.08); --border-strong:rgba(255,255,255,.13);
+      --text:#ffffff; --text-2:#c7c7cc; --text-3:#8e8e93; --text-4:#48484a;
+      --sidebar-bg:#050506;
+    }
+    [data-theme="light"] {
+      --bg-page:#eef0f5; --bg-shell:#ffffff; --bg-card:#f5f5f7; --bg-card-2:#ebebef;
+      --surface:rgba(0,0,0,.03); --surface-hover:rgba(0,0,0,.055);
+      --border:rgba(0,0,0,.08); --border-strong:rgba(0,0,0,.14);
+      --text:#070708; --text-2:#3a3a3c; --text-3:#6e6e73; --text-4:#c7c7cc;
+      --sidebar-bg:#0a0a0c;
+    }
+    body { background:var(--bg-page); color:var(--text); min-height:100vh; overflow:hidden; transition:background .3s,color .3s; }
+    .app-layout { display:flex; min-height:100vh; padding:16px; gap:16px; }
+
+    /* SIDEBAR */
+    .sidebar { width:var(--sidebar-w); background:var(--sidebar-bg); border-radius:var(--radius-xl); padding:20px 0; display:flex; flex-direction:column; align-items:center; gap:8px; flex-shrink:0; position:sticky; top:16px; height:calc(100vh - 32px); overflow:hidden; }
+    .sidebar-logo { width:44px; display:flex; align-items:center; justify-content:center; margin-bottom:16px; }
+    .sidebar-logo img { width:100%; display:block; }
+    .sidebar-divider { width:28px; height:1px; background:rgba(255,255,255,.08); margin:4px 0; }
+    .sidebar-icon { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .2s; color:rgba(255,255,255,.5); text-decoration:none; background:none; border:none; }
+    .sidebar-icon:hover { background:rgba(255,255,255,.06); color:white; }
+    .sidebar-icon.active { background:var(--gradient); color:white; }
+    .sidebar-icon svg { width:20px; height:20px; }
+    .sidebar-nav { flex:1; min-height:0; width:100%; overflow-y:auto; overflow-x:hidden; display:flex; flex-direction:column; align-items:center; gap:8px; padding:4px 0; }
+    .sidebar-nav::-webkit-scrollbar { width:3px; }
+    .sidebar-nav::-webkit-scrollbar-thumb { background:rgba(255,255,255,.2); border-radius:99px; }
+    .sidebar-bottom { display:flex; flex-direction:column; gap:8px; align-items:center; padding-bottom:4px; }
+
+    /* SHELL */
+    .shell { flex:1; background:var(--bg-shell); border-radius:var(--radius-xl); overflow:hidden; display:flex; flex-direction:column; height:calc(100vh - 32px); min-width:0; }
+
+    /* TOPBAR */
+    .topbar { padding:18px 28px; display:flex; align-items:center; gap:16px; border-bottom:1px solid var(--border); flex-shrink:0; }
+    .topbar-title { font-family:'Plus Jakarta Sans',sans-serif; font-size:18px; font-weight:700; }
+    .topbar-sub { font-size:13px; color:var(--text-3); margin-top:1px; }
+    .topbar-left { flex:1; }
+    .topbar-actions { display:flex; align-items:center; gap:10px; }
+
+    /* TABS */
+    .tabs-bar { padding:0 28px; display:flex; gap:4px; border-bottom:1px solid var(--border); flex-shrink:0; }
+    .tab-btn { padding:13px 16px; font-size:13px; font-weight:600; color:var(--text-3); background:none; border:none; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; transition:all .2s; display:flex; align-items:center; gap:7px; white-space:nowrap; }
+    .tab-btn svg { width:14px; height:14px; }
+    .tab-btn:hover { color:var(--text); }
+    .tab-btn.active { color:var(--teal); border-bottom-color:var(--teal); }
+    .tab-panel { display:none; }
+    .tab-panel.active { display:block; }
+
+    /* CONTENT */
+    .content { flex:1; overflow-y:auto; padding:28px; }
+    .content::-webkit-scrollbar { width:6px; }
+    .content::-webkit-scrollbar-thumb { background:var(--border-strong); border-radius:99px; }
+
+    /* SECTION */
+    .section-header { display:flex; align-items:center; gap:12px; margin-bottom:20px; }
+    .section-title { font-family:'Plus Jakarta Sans',sans-serif; font-size:15px; font-weight:800; flex:1; }
+
+    /* BUTTONS */
+    .btn-primary { display:flex; align-items:center; gap:7px; background:var(--gradient); color:white; border:none; border-radius:10px; padding:9px 16px; font-family:'Plus Jakarta Sans',sans-serif; font-size:13px; font-weight:700; cursor:pointer; transition:opacity .2s; white-space:nowrap; }
+    .btn-primary:hover { opacity:.88; }
+    .btn-primary:disabled { opacity:.5; cursor:not-allowed; }
+    .btn-primary svg { width:15px; height:15px; }
+    .btn-ghost { display:flex; align-items:center; gap:7px; background:var(--surface); color:var(--text-2); border:1px solid var(--border); border-radius:10px; padding:8px 14px; font-size:13px; font-weight:500; cursor:pointer; transition:all .2s; }
+    .btn-ghost:hover { background:var(--surface-hover); color:var(--text); }
+    .btn-ghost svg { width:14px; height:14px; }
+    .btn-danger-sm { background:none; border:none; color:var(--text-4); cursor:pointer; padding:6px; border-radius:8px; transition:all .15s; display:flex; align-items:center; }
+    .btn-danger-sm:hover { color:var(--red); background:var(--red-light); }
+    .btn-danger-sm svg { width:14px; height:14px; }
+
+    /* TABLE */
+    .table-wrap { background:var(--bg-card); border-radius:var(--radius-lg); border:1px solid var(--border); overflow:auto; margin-bottom:28px; }
+    table { width:100%; border-collapse:collapse; }
+    thead th { padding:11px 16px; text-align:left; font-size:11px; font-weight:700; color:var(--text-3); text-transform:uppercase; letter-spacing:.06em; border-bottom:1px solid var(--border); background:var(--surface); white-space:nowrap; }
+    tbody tr { border-bottom:1px solid var(--border); transition:background .15s; }
+    tbody tr:last-child { border-bottom:none; }
+    tbody tr:hover { background:var(--surface); }
+    tbody td { padding:12px 16px; font-size:13px; color:var(--text-2); vertical-align:middle; }
+    .td-main { font-weight:600; color:var(--text); }
+    .td-sub { font-size:11px; color:var(--text-4); margin-top:1px; }
+    .empty-row td { text-align:center; color:var(--text-4); padding:32px; }
+
+    /* TEAM CARDS */
+    .team-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px; }
+    .team-card { background:var(--bg-card); border-radius:var(--radius-lg); border:1px solid var(--border); padding:16px 18px; display:flex; align-items:center; gap:14px; transition:all .18s; }
+    .team-card:hover { border-color:var(--border-strong); background:var(--bg-card-2); }
+    .team-avatar { width:40px; height:40px; border-radius:50%; background:var(--gradient); display:flex; align-items:center; justify-content:center; font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:13px; color:white; flex-shrink:0; }
+    .team-info { flex:1; min-width:0; }
+    .team-name { font-family:'Plus Jakarta Sans',sans-serif; font-size:13px; font-weight:700; color:var(--text); }
+    .team-cargo { font-size:11px; color:var(--text-3); }
+    .team-rol { font-size:10px; font-weight:700; padding:2px 7px; border-radius:99px; background:var(--surface); color:var(--text-4); margin-top:4px; display:inline-block; }
+    .team-rol.dueno { background:var(--teal-light); color:var(--teal); }
+
+    /* ORG ROW EXPAND */
+    .org-detail-row { display:none; }
+    .org-detail-row.open { display:table-row; }
+    .org-detail-cell { padding:0 !important; }
+    .org-detail-inner { padding:16px 20px; background:var(--surface); border-bottom:1px solid var(--border); }
+    .org-detail-title { font-size:11px; font-weight:700; color:var(--text-3); text-transform:uppercase; letter-spacing:.06em; margin-bottom:10px; }
+    .mini-team { display:flex; flex-wrap:wrap; gap:8px; }
+    .mini-member { display:flex; align-items:center; gap:8px; background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:7px 12px; font-size:12px; }
+    .mini-avatar { width:26px; height:26px; border-radius:50%; background:var(--gradient); display:flex; align-items:center; justify-content:center; font-family:'Plus Jakarta Sans',sans-serif; font-size:9px; font-weight:800; color:white; flex-shrink:0; }
+    .mini-name { font-weight:600; color:var(--text); }
+    .mini-cargo { color:var(--text-4); font-size:11px; }
+
+    /* MI CUENTA */
+    .account-card { background:var(--bg-card); border-radius:var(--radius-lg); border:1px solid var(--border); padding:24px; max-width:480px; }
+    .account-card-title { font-family:'Plus Jakarta Sans',sans-serif; font-size:14px; font-weight:800; margin-bottom:16px; }
+    .account-link { display:flex; align-items:center; gap:12px; padding:13px 16px; background:var(--surface); border-radius:var(--radius-sm); text-decoration:none; color:var(--text-2); font-size:13px; font-weight:500; border:1px solid var(--border); transition:all .2s; margin-bottom:10px; }
+    .account-link:hover { background:var(--surface-hover); color:var(--text); border-color:var(--border-strong); }
+    .account-link svg { width:16px; height:16px; color:var(--teal); flex-shrink:0; }
+    .account-link-sub { font-size:11px; color:var(--text-4); margin-top:1px; }
+    .placeholder-block { padding:13px 16px; background:var(--surface); border-radius:var(--radius-sm); border:1px dashed var(--border); font-size:12px; color:var(--text-4); display:flex; align-items:center; gap:10px; }
+    .placeholder-block svg { width:14px; height:14px; flex-shrink:0; }
+
+    /* MODAL */
+    .modal-overlay { display:none; position:fixed; inset:0; z-index:1000; background:rgba(0,0,0,.75); backdrop-filter:blur(8px); align-items:center; justify-content:center; padding:20px; }
+    .modal-overlay.open { display:flex; }
+    .modal { background:var(--bg-card); border-radius:var(--radius-xl); border:1px solid var(--border-strong); width:100%; max-width:560px; max-height:90vh; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 32px 80px rgba(0,0,0,.6); }
+    .modal-header { padding:22px 26px 18px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:14px; flex-shrink:0; }
+    .modal-title { font-family:'Plus Jakarta Sans',sans-serif; font-size:17px; font-weight:800; flex:1; }
+    .modal-close { background:var(--surface); border:1px solid var(--border); border-radius:9px; width:32px; height:32px; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--text-3); transition:all .2s; }
+    .modal-close:hover { background:var(--surface-hover); color:var(--text); }
+    .modal-close svg { width:16px; height:16px; }
+    .modal-body { flex:1; overflow-y:auto; padding:24px 26px; display:flex; flex-direction:column; gap:20px; }
+    .modal-footer { padding:18px 26px; border-top:1px solid var(--border); display:flex; gap:10px; justify-content:flex-end; flex-shrink:0; }
+
+    /* FORM */
+    .form-section-title { font-family:'Plus Jakarta Sans',sans-serif; font-size:11px; font-weight:700; color:var(--text-3); text-transform:uppercase; letter-spacing:.08em; margin-bottom:10px; }
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .form-grid.cols-1 { grid-template-columns:1fr; }
+    .form-field { display:flex; flex-direction:column; gap:5px; }
+    .form-field.span-2 { grid-column:span 2; }
+    .form-label { font-size:11px; font-weight:600; color:var(--text-3); }
+    .form-input, .form-select { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:9px 12px; color:var(--text); font-size:13px; font-family:inherit; outline:none; transition:border-color .2s; width:100%; }
+    .form-input:focus, .form-select:focus { border-color:var(--teal); }
+    .form-input.error { border-color:var(--red); }
+    .form-error { font-size:11px; color:var(--red); }
+    .form-hint { font-size:11px; color:var(--text-4); }
+    option { background:var(--bg-card); }
+
+    /* TOAST */
+    .toast-container { position:fixed; bottom:28px; right:28px; z-index:2000; display:flex; flex-direction:column; gap:8px; }
+    .toast { background:var(--bg-card-2); border:1px solid var(--border-strong); border-radius:12px; padding:12px 18px; font-size:13px; font-weight:500; color:var(--text); box-shadow:0 8px 24px rgba(0,0,0,.4); display:flex; align-items:center; gap:10px; animation:slideIn .25s ease; max-width:340px; }
+    .toast.success { border-color:var(--teal); }
+    .toast.error { border-color:var(--red); }
+    .toast svg { width:16px; height:16px; flex-shrink:0; }
+    .toast.success svg { color:var(--teal); }
+    .toast.error svg { color:var(--red); }
+    @keyframes slideIn { from{transform:translateX(20px);opacity:0} to{transform:translateX(0);opacity:1} }
+
+    ::-webkit-scrollbar { width:6px; height:6px; }
+    ::-webkit-scrollbar-track { background:transparent; }
+    ::-webkit-scrollbar-thumb { background:var(--border-strong); border-radius:99px; }
+  </style>
+</head>
+<body>
+
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <a href="/portal/dashboard.html" class="sidebar-logo" style="text-decoration:none">
+      <img src="/logos/SX Isp.png" alt="SCALEx">
+    </a>
+    <div class="sidebar-nav">
+      <a href="/portal/dashboard.html" class="sidebar-icon" title="Dashboard"><i data-lucide="layout-dashboard"></i></a>
+      <a href="/portal/opsp.html" class="sidebar-icon" title="OPSP"><i data-lucide="map"></i></a>
+      <a href="/portal/rituales.html" class="sidebar-icon" title="Rituales"><i data-lucide="repeat"></i></a>
+      <div class="sidebar-divider"></div>
+      <a href="/portal/reflejo.html" class="sidebar-icon" title="Reflejo"><i data-lucide="eye"></i></a>
+      <a href="/portal/vector.html" class="sidebar-icon" title="Vector"><i data-lucide="compass"></i></a>
+      <a href="/portal/costeo.html" class="sidebar-icon" title="Costeo"><i data-lucide="calculator"></i></a>
+      <a href="/portal/ritmo.html" class="sidebar-icon" title="Ritmo"><i data-lucide="activity"></i></a>
+    </div>
+    <div class="sidebar-bottom">
+      <a href="/portal/configuracion.html" class="sidebar-icon active" title="Configuración"><i data-lucide="settings"></i></a>
+      <button class="sidebar-icon" title="Cambiar tema" onclick="toggleTheme()"><i data-lucide="sun" id="theme-icon"></i></button>
+      <button class="sidebar-icon" title="Cerrar sesión" onclick="logout()"><i data-lucide="log-out"></i></button>
+    </div>
+  </aside>
+
+  <!-- SHELL -->
+  <main class="shell">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-title">Configuración</div>
+        <div class="topbar-sub" id="topbar-sub">Cargando…</div>
+      </div>
+      <div class="topbar-actions"></div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs-bar" id="tabs-bar">
+      <!-- inyectado por JS según rol -->
+    </div>
+
+    <!-- CONTENIDO -->
+    <div class="content" id="main-content">
+      <!-- inyectado por JS -->
+      <div style="color:var(--text-4);font-size:13px;padding:40px;text-align:center">Cargando configuración…</div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ━━━ MODAL NUEVA ORG ━━━ -->
+<div class="modal-overlay" id="modal-nueva-org" onclick="cerrarModalSiFuera(event,'modal-nueva-org')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Nueva organización con dueño</div>
+      <button class="modal-close" onclick="cerrarModal('modal-nueva-org')"><i data-lucide="x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div>
+        <div class="form-section-title">Empresa</div>
+        <div class="form-grid">
+          <div class="form-field span-2">
+            <label class="form-label">Nombre de la empresa *</label>
+            <input type="text" class="form-input" id="org-nombre" placeholder="Empresa Ejemplo SA de CV">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Sector</label>
+            <input type="text" class="form-input" id="org-sector" placeholder="Manufactura">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Ciudad</label>
+            <input type="text" class="form-input" id="org-ciudad" placeholder="Monterrey">
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="form-section-title">Dueño / Director</div>
+        <div class="form-grid">
+          <div class="form-field">
+            <label class="form-label">Nombre *</label>
+            <input type="text" class="form-input" id="dueno-nombre" placeholder="Carlos">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Apellido</label>
+            <input type="text" class="form-input" id="dueno-apellido" placeholder="López">
+          </div>
+          <div class="form-field span-2">
+            <label class="form-label">Email *</label>
+            <input type="email" class="form-input" id="dueno-email" placeholder="carlos@empresa.com">
+          </div>
+          <div class="form-field span-2">
+            <label class="form-label">Contraseña temporal *</label>
+            <input type="text" class="form-input" id="dueno-password" placeholder="Mín. 6 caracteres">
+            <span class="form-hint">El usuario deberá cambiarla en su primer acceso.</span>
+          </div>
+        </div>
+      </div>
+      <div id="modal-org-error" style="display:none;font-size:12px;color:var(--red);background:var(--red-light);border-radius:8px;padding:10px 14px;"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="cerrarModal('modal-nueva-org')">Cancelar</button>
+      <button class="btn-primary" id="btn-crear-org" onclick="crearOrganizacion()">
+        <i data-lucide="plus"></i> Crear organización
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ━━━ MODAL NUEVO COLABORADOR ━━━ -->
+<div class="modal-overlay" id="modal-nuevo-colab" onclick="cerrarModalSiFuera(event,'modal-nuevo-colab')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Agregar colaborador</div>
+      <button class="modal-close" onclick="cerrarModal('modal-nuevo-colab')"><i data-lucide="x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-field">
+          <label class="form-label">Nombre *</label>
+          <input type="text" class="form-input" id="colab-nombre" placeholder="Ana">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Apellido</label>
+          <input type="text" class="form-input" id="colab-apellido" placeholder="García">
+        </div>
+        <div class="form-field span-2">
+          <label class="form-label">Email *</label>
+          <input type="email" class="form-input" id="colab-email" placeholder="ana@empresa.com">
+        </div>
+        <div class="form-field span-2">
+          <label class="form-label">Contraseña temporal *</label>
+          <input type="text" class="form-input" id="colab-password" placeholder="Mín. 6 caracteres">
+          <span class="form-hint">El usuario deberá cambiarla en su primer acceso.</span>
+        </div>
+        <div class="form-field span-2">
+          <label class="form-label">Cargo / Puesto</label>
+          <input type="text" class="form-input" id="colab-cargo" placeholder="Gerente de Operaciones">
+        </div>
+      </div>
+      <div id="modal-colab-error" style="display:none;font-size:12px;color:var(--red);background:var(--red-light);border-radius:8px;padding:10px 14px;"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="cerrarModal('modal-nuevo-colab')">Cancelar</button>
+      <button class="btn-primary" id="btn-crear-colab" onclick="crearColaborador()">
+        <i data-lucide="user-plus"></i> Agregar colaborador
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script>lucide.createIcons()</script>
+<script type="module" src="/assets/js/configuracion.js"></script>
+<script type="module" src="/assets/js/portal-shell.js"></script>
+
+<script>
+  function toggleTheme() {
+    const html = document.documentElement
+    const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'
+    html.setAttribute('data-theme', next)
+    localStorage.setItem('scalex-theme', next)
+    const icon = document.getElementById('theme-icon')
+    if (icon) { icon.setAttribute('data-lucide', next === 'dark' ? 'sun' : 'moon'); lucide.createIcons() }
+  }
+  ;(function() {
+    const saved = localStorage.getItem('scalex-theme')
+    if (saved) {
+      document.documentElement.setAttribute('data-theme', saved)
+      const icon = document.getElementById('theme-icon')
+      if (icon) icon.setAttribute('data-lucide', saved === 'dark' ? 'sun' : 'moon')
+    }
+  })()
+  async function logout() {
+    const { signOut } = await import('/assets/js/supabase-client.js')
+    await signOut()
+  }
+  function cerrarModal(id) {
+    document.getElementById(id)?.classList.remove('open')
+  }
+  function cerrarModalSiFuera(e, id) {
+    if (e.target === document.getElementById(id)) cerrarModal(id)
+  }
+</script>
+
+</body>
+</html>
