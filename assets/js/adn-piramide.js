@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Cargar respuestas existentes
   const { data: respExist } = await supabase
-    .from('adn_respuestas_p0')
+    .from('adn_paso0_respuestas')
     .select('tesis_numero, respuesta_tipo, notas_consultor')
     .eq('sesion_id', sesionId)
 
@@ -146,7 +146,7 @@ async function guardarRespuesta(num, tipo) {
   const puntaje = PUNTAJE_RESPUESTA[tipo]
 
   const { error } = await supabase
-    .from('adn_respuestas_p0')
+    .from('adn_paso0_respuestas')
     .upsert(
       { sesion_id: sesionId, tesis_numero: num, respuesta_tipo: tipo, puntaje, notas_consultor: notas },
       { onConflict: 'sesion_id,tesis_numero' }
@@ -166,7 +166,7 @@ async function guardarNotas(num, notas) {
 
   const puntaje = PUNTAJE_RESPUESTA[tipo]
   const { error } = await supabase
-    .from('adn_respuestas_p0')
+    .from('adn_paso0_respuestas')
     .upsert(
       { sesion_id: sesionId, tesis_numero: num, respuesta_tipo: tipo, puntaje, notas_consultor: notas },
       { onConflict: 'sesion_id,tesis_numero' }
@@ -306,9 +306,9 @@ async function generarAgendas(tipoCodigo) {
   if (!agendas) return
 
   const filas = [
-    { sesion_id: sesionId, paso: 0, horizonte: '7_dias', texto: agendas['7_dias'] },
-    { sesion_id: sesionId, paso: 0, horizonte: '30_dias', texto: agendas['30_dias'] },
-    { sesion_id: sesionId, paso: 0, horizonte: '90_dias', texto: agendas['90_dias'] }
+    { sesion_id: sesionId, paso: 'paso_0', horizonte: '7_dias', contenido: agendas['7_dias'] },
+    { sesion_id: sesionId, paso: 'paso_0', horizonte: '30_dias', contenido: agendas['30_dias'] },
+    { sesion_id: sesionId, paso: 'paso_0', horizonte: '90_dias', contenido: agendas['90_dias'] }
   ]
 
   const { error } = await supabase

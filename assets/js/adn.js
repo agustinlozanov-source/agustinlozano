@@ -161,13 +161,13 @@ function unlockCard(cardId) {
 // ──────────────────────────────────────────────
 async function contarRectoresActivos(sesionId) {
   const { data, error } = await supabase
-    .from('adn_rectores')
-    .select('id, anio_construccion')
+    .from('adn_paso2_rectores')
+    .select('id, ano_construccion')
     .eq('sesion_id', sesionId)
 
   if (error) return
 
-  const conAnio = (data || []).filter(r => r.anio_construccion).length
+  const conAnio = (data || []).filter(r => r.ano_construccion).length
   const total = (data || []).length
   if (total > 0) {
     document.getElementById('result-2-val').textContent = `${conAnio}/${total} con año asignado`
