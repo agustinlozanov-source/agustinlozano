@@ -125,6 +125,12 @@ async function cargarRectores() {
   if (data) {
     data.forEach(r => { rectores[r.rector_codigo] = r })
   }
+  // Inicializar los que no existen con estado ausente (default válido)
+  RECTORES.forEach(rec => {
+    if (!rectores[rec.codigo]) {
+      rectores[rec.codigo] = { rector_codigo: rec.codigo, estado_actual: 'ausente', ano_construccion: null, notas_consultor: '', _local: true }
+    }
+  })
 }
 
 // ──────────────────────────────────────────────
@@ -693,23 +699,22 @@ function verificarCompletable() {
   const tienePublicos = publicos.filter(p => p.nombre?.trim()).length >= 1
   const tieneDiferenciadores = diferenciadores.filter(d => d.nombre?.trim()).length >= 1
   const tieneHabilitadores = habilitadores.filter(h => h.nombre?.trim()).length >= 1
-  const rectoresEvaluados = Object.values(rectores).filter(r => r.estado_actual).length
-
+  // Los 6 rectores siempre están evaluados: ausente es un estado válido (default)
   const wrap = document.getElementById('completar-wrap')
   const hint = document.getElementById('completar-hint')
+  const listo = tienePublicos && tieneDiferenciadores && tieneHabilitadores
 
-  if (tienePublicos && tieneDiferenciadores && tieneHabilitadores && rectoresEvaluados === 6) {
-    wrap.style.display = 'flex'
+  wrap.style.display = 'flex'
+  if (listo) {
     hint.textContent = 'Mapa completo — listo para completar'
+    document.getElementById('btn-completar').disabled = false
   } else {
     const falta = []
     if (!tienePublicos) falta.push('1+ público')
     if (!tieneDiferenciadores) falta.push('1+ diferenciador')
     if (!tieneHabilitadores) falta.push('1+ habilitador')
-    if (rectoresEvaluados < 6) falta.push(`${6 - rectoresEvaluados} rector(es)`)
-    wrap.style.display = 'flex'
     hint.textContent = `Falta: ${falta.join(', ')}`
-    document.getElementById('btn-completar').disabled = falta.length > 0
+    document.getElementById('btn-completar').disabled = true
   }
 }
 
