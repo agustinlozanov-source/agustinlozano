@@ -500,6 +500,7 @@ export async function regenerarAgendasSesion(sesionId, sesionData, containerEl) 
   }
 
   // Paso 2 — rectores año 1
+  const filasRectores = []
   if (sesion.paso_2_estado === 'completado') {
     const { data: rdata } = await supabase
       .from('adn_paso2_rectores')
@@ -510,7 +511,7 @@ export async function regenerarAgendasSesion(sesionId, sesionData, containerEl) 
     for (const r of rdata || []) {
       const info = RECTORES.find(rec => rec.codigo === r.rector_codigo)
       const nombre = info?.nombre || r.rector_codigo
-      filas.push(
+      filasRectores.push(
         { sesion_id: sesionId, paso: 'paso_2_rector', horizonte: '7_dias',  contenido: `[${nombre}] ${AGENDA_PASO_2_RECTOR_TEMPLATE['7_dias']}`,  referencia_id: r.id },
         { sesion_id: sesionId, paso: 'paso_2_rector', horizonte: '30_dias', contenido: `[${nombre}] ${AGENDA_PASO_2_RECTOR_TEMPLATE['30_dias']}`, referencia_id: r.id },
         { sesion_id: sesionId, paso: 'paso_2_rector', horizonte: '90_dias', contenido: `[${nombre}] ${AGENDA_PASO_2_RECTOR_TEMPLATE['90_dias']}`, referencia_id: r.id }
@@ -518,10 +519,22 @@ export async function regenerarAgendasSesion(sesionId, sesionData, containerEl) 
     }
   }
 
+  // Upsert paso_0 y paso_1 (constraint único por sesion+paso+horizonte)
   if (filas.length > 0) {
     const { error } = await supabase.from('adn_agendas').upsert(filas, { onConflict: 'sesion_id,paso,horizonte' })
     if (error) {
-      console.error('❌ regenerarAgendasSesion:', error.message)
+      console.error('❌ regenerarAgendasSesion (p0/p1):', error.message)
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i data-lucide="refresh-cw"></i> Reintentar'; lucide.createIcons() }
+      return
+    }
+  }
+
+  // Para rectores: DELETE + INSERT (múltiples rectores por horizonte, constraint no aplica)
+  if (filasRectores.length > 0) {
+    await supabase.from('adn_agendas').delete().eq('sesion_id', sesionId).eq('paso', 'paso_2_rector')
+    const { error: errR } = await supabase.from('adn_agendas').insert(filasRectores)
+    if (errR) {
+      console.error('❌ regenerarAgendasSesion (rectores):', errR.message)
       if (btn) { btn.disabled = false; btn.innerHTML = '<i data-lucide="refresh-cw"></i> Reintentar'; lucide.createIcons() }
       return
     }

@@ -786,10 +786,9 @@ async function generarAgendasRectores() {
     )
   }
 
-  const { error } = await supabase
-    .from('adn_agendas')
-    .upsert(filas, { onConflict: 'sesion_id,paso,horizonte' })
-
+  // Para rectores: DELETE + INSERT (múltiples rectores comparten horizonte, el constraint único no aplica)
+  await supabase.from('adn_agendas').delete().eq('sesion_id', sesionId).eq('paso', 'paso_2_rector')
+  const { error } = await supabase.from('adn_agendas').insert(filas)
   if (error) console.error('❌ adn_agendas rectores:', error.message)
 }
 
