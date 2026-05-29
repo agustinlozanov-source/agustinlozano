@@ -2,16 +2,11 @@
 // SCALEx · flujo-diagnostico.js — Diagnóstico Financiero (PRISMA del Flujo)
 // ════════════════════════════════════════════════════════════════════════════
 
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+import { supabase, getMyProfile, getMyOrganization } from '/assets/js/supabase-client.js'
 import {
   VARIABLES_DIAGNOSTICO, UMBRALES_INDICES, MATRICES, VEREDICTOS, AGENDAS_DIAGNOSTICO,
   calcularMUN, calcularCCE, calcularCrecimiento, sumarComponentes, calcularIndices, evaluarIndice
 } from '/assets/js/flujo-diagnostico-catalogo.js'
-
-// ── Supabase ────────────────────────────────────────────────────────────────
-const SUPABASE_URL = 'https://jxhyzmvgwmhxevjlfbcm.supabase.co'
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp4aHl6bXZnd21oeGV2amxmYmNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYwMTk5OTEsImV4cCI6MjA1MTU5NTk5MX0.LS_7k4KuCUJBTVT1HrSFJlnA0XzVSPSSYCzMbgqVj3o'
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON)
 
 // ── Estado global ────────────────────────────────────────────────────────────
 let state = {
@@ -63,17 +58,17 @@ function fmtPct(num) {
 
 // ── Init ─────────────────────────────────────────────────────────────────────
 async function init() {
-  const { data: { session } } = await supabase.auth.getSession()
-  if (!session) return
+  const perfil = await getMyProfile()
+  if (!perfil) return
 
-  state.consultorId = session.user.id
-
-  // Leer orgId del localStorage (portal-shell lo setea)
-  state.orgId = localStorage.getItem('scalex-org-id')
-  if (!state.orgId) {
+  const org = await getMyOrganization()
+  if (!org) {
     renderBienvenidaError('No se encontró la organización activa. Regresa al Dashboard y selecciona una organización.')
     return
   }
+
+  state.consultorId = perfil.id
+  state.orgId = org.id
 
   // Cargar diagnóstico activo + historial
   await cargarEstadoInicial()
