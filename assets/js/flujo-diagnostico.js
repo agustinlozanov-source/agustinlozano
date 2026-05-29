@@ -805,20 +805,16 @@ async function completarDiagnostico() {
 function renderResultado(data) {
   // Obtener índices calculados
   let indices, veredictoKey
-  if (data && data.indices) {
+
+  if (data && data.indices && typeof data.indices === 'object' && Object.keys(data.indices).length > 0) {
     indices = data.indices
     veredictoKey = data.veredicto
   } else {
-    // Calcular local
+    // Calcular local — usar variables_snapshot si viene del RPC, si no usar state.valores
+    const src = (data && data.variables_snapshot) ? data.variables_snapshot : state.valores
     const d = {
-      fcn: state.valores.fcn,
-      im: state.valores.im,
-      mun: state.valores.mun,
-      gfm: state.valores.gfm,
-      cce: state.valores.cce,
-      pt: state.valores.pt,
-      ci: state.valores.ci,
-      cc: state.valores.cc
+      fcn: src.fcn, im: src.im, mun: src.mun, gfm: src.gfm,
+      cce: src.cce, pt: src.pt, ci: src.ci, cc: src.cc
     }
     indices = calcularIndices(d)
     const evaluaciones = {
@@ -826,7 +822,7 @@ function renderResultado(data) {
       iafi: evaluarIndice('iafi', indices.iafi),
       ie: evaluarIndice('ie', indices.ie)
     }
-    veredictoKey = determinarVeredictoLocal(evaluaciones)
+    veredictoKey = data?.veredicto || determinarVeredictoLocal(evaluaciones)
   }
 
   const veredicto = VEREDICTOS[veredictoKey] || VEREDICTOS.estresado
@@ -884,6 +880,9 @@ function renderResultado(data) {
     state.valores = {}
     state.paso = 0
   })
+
+  mostrarPantalla('pantalla-resultado')
+  $pr()?.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 function renderResultadoLocal() {
