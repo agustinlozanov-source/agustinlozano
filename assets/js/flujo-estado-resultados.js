@@ -154,8 +154,10 @@ function renderTablaComparativa() {
   if (!tabla) return
 
   // Tomar últimos 6 meses (ordenados por mes desc → invertir para mostrar asc)
+  // Normalizar mes a YYYY-MM por si Supabase devuelve YYYY-MM-DD
+  const mesNorm = m => (m.mes || '').slice(0, 7)
   const meses = [...state.lista]
-    .sort((a, b) => (b.mes || '').localeCompare(a.mes || ''))
+    .sort((a, b) => mesNorm(b).localeCompare(mesNorm(a)))
     .slice(0, 6)
     .reverse()
 
@@ -186,8 +188,8 @@ function renderTablaComparativa() {
   const thead = `<thead><tr>
     <th class="col-concepto">Concepto</th>
     ${meses.map(m => `
-      <th class="mes-header" data-mes="${m.mes}" title="Editar ${mesLabelLargo(m.mes)}">
-        ${mesLabel(m.mes)}
+      <th class="mes-header" data-mes="${mesNorm(m)}" title="Editar ${mesLabelLargo(mesNorm(m))}">
+        ${mesLabel(mesNorm(m))}
         <button class="btn-eliminar-mes" data-mes-id="${m.id}" title="Eliminar" onclick="event.stopPropagation()">
           <i data-lucide="x"></i>
         </button>
@@ -256,7 +258,7 @@ async function abrirEditorConMes(mes) {
   $('selector-mes').value = mes
 
   // ¿Existe ya un registro para este mes?
-  const existente = state.lista.find(e => e.mes === mes)
+  const existente = state.lista.find(e => (e.mes || '').slice(0, 7) === mes)
   if (existente) {
     state.eorId = existente.id
     cargarDatosEnForm(existente)
@@ -425,7 +427,7 @@ function buildParams() {
   return {
     p_eor_id: state.eorId,
     p_org_id: state.orgId,
-    p_mes: state.mesActual,
+    p_mes: state.mesActual + '-01',
     p_ingresos_ventas: leerNum('input-ingresos-ventas'),
     p_ingresos_otros: leerNum('input-ingresos-otros'),
     p_costo_productos: leerNum('input-costo-productos'),
