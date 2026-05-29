@@ -518,4 +518,16 @@ async function accionDesmarcarAnual() {
 }
 
 // ─── Arranque ──────────────────────────────────────────────────────────────
+const _html = document.documentElement
+const _saved = localStorage.getItem('scalex-theme') || 'dark'
+_html.setAttribute('data-theme', _saved)
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('theme-toggle')
+  if (btn) btn.addEventListener('click', () => {
+    const next = _html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'
+    _html.setAttribute('data-theme', next)
+    localStorage.setItem('scalex-theme', next)
+  })
+})
+
 init()
