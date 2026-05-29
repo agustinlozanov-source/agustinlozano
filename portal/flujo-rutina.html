@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCALEx Portal — Rutina Financiera</title>
+  <link rel="icon" type="image/png" href="/logos/SX Icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script type="module" src="/assets/js/auth-guard.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal: #1aab99; --teal-light: rgba(26,171,153,0.12);
+      --indigo: #3533cd; --indigo-light: rgba(53,51,205,0.12);
+      --gradient: linear-gradient(135deg, #1aab99, #3533cd);
+      --pink: #ec4899; --pink-light: rgba(236,72,153,0.12);
+      --green: #00c853; --green-light: rgba(0,200,83,0.12);
+      --amber: #ff9500; --amber-light: rgba(255,149,0,0.12);
+      --red: #ff3b30; --red-light: rgba(255,59,48,0.12);
+      --purple: #7c3aed; --purple-light: rgba(124,58,237,0.12);
+      --radius-xl: 28px; --radius-lg: 20px; --radius: 14px; --radius-sm: 9px;
+      --sidebar-w: 80px;
+      font-family: 'Inter', sans-serif; line-height: 1.6;
+    }
+    [data-theme="dark"] {
+      --bg-page: #0a0a0c; --bg-shell: #141416; --bg-card: #1c1c1e; --bg-card-2: #242426;
+      --surface: rgba(255,255,255,0.04); --surface-hover: rgba(255,255,255,0.07);
+      --border: rgba(255,255,255,0.08); --border-strong: rgba(255,255,255,0.13);
+      --text: #fff; --text-2: #c7c7cc; --text-3: #8e8e93; --text-4: #48484a;
+      --sidebar-bg: #050506;
+    }
+    [data-theme="light"] {
+      --bg-page: #eef0f5; --bg-shell: #fff; --bg-card: #f5f5f7; --bg-card-2: #ebebef;
+      --surface: rgba(0,0,0,0.03); --surface-hover: rgba(0,0,0,0.055);
+      --border: rgba(0,0,0,0.08); --border-strong: rgba(0,0,0,0.14);
+      --text: #070708; --text-2: #3a3a3c; --text-3: #6e6e73; --text-4: #c7c7cc;
+      --sidebar-bg: #0a0a0c;
+    }
+
+    body { background: var(--bg-page); color: var(--text); min-height:100vh; overflow:hidden; transition: background .3s, color .3s; }
+    .app-layout { display:flex; min-height:100vh; padding:16px; gap:16px; }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: var(--sidebar-w); background: var(--sidebar-bg);
+      border-radius: var(--radius-xl); padding: 20px 0;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      flex-shrink: 0; position: sticky; top: 16px; height: calc(100vh - 32px);
+    }
+    .sidebar-logo { width:44px; display:flex; align-items:center; justify-content:center; margin-bottom:16px; text-decoration:none; }
+    .sidebar-logo img { width:100%; display:block; }
+    .sidebar-divider { width:28px; height:1px; background:rgba(255,255,255,0.08); margin:4px 0; }
+    .sidebar-icon {
+      width:44px; height:44px; border-radius:12px;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:all .2s; color:rgba(255,255,255,0.5);
+      position:relative; text-decoration:none; background:none; border:none;
+    }
+    .sidebar-icon:hover { background:rgba(255,255,255,0.06); color:white; }
+    .sidebar-icon.active { background:var(--gradient); color:white; }
+    .sidebar-icon.active::before {
+      content:''; position:absolute; left:-16px; top:50%; transform:translateY(-50%);
+      width:3px; height:24px; background:var(--teal); border-radius:0 3px 3px 0;
+    }
+    .sidebar-icon svg { width:20px; height:20px; }
+    .sidebar-nav { flex:1; width:100%; overflow-y:auto; overflow-x:hidden; min-height:0; display:flex; flex-direction:column; align-items:center; gap:8px; padding:4px 0; }
+    .sidebar-bottom { display:flex; flex-direction:column; gap:8px; align-items:center; padding-bottom:4px; }
+
+    /* SHELL */
+    .shell {
+      flex:1; background:var(--bg-shell); border-radius:var(--radius-xl);
+      overflow:hidden; display:flex; flex-direction:column;
+      height:calc(100vh - 32px);
+    }
+
+    /* TOPBAR */
+    .topbar { padding:18px 28px; display:flex; align-items:center; gap:16px; border-bottom:1px solid var(--border); flex-shrink:0; }
+    .topbar-back {
+      width:36px; height:36px; border-radius:10px;
+      background:var(--surface); border:1px solid var(--border);
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:all .2s; color:var(--text-2); text-decoration:none;
+    }
+    .topbar-back:hover { background:var(--surface-hover); color:var(--text); }
+    .topbar-back svg { width:16px; height:16px; }
+    .topbar-title-block { flex:1; }
+    .topbar-eyebrow { font-size:11px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; color:var(--amber); }
+    .topbar-title { font-family:'Plus Jakarta Sans',sans-serif; font-size:18px; font-weight:800; color:var(--text); letter-spacing:-0.3px; margin-top:2px; }
+    .topbar-subtitle { font-size:12px; color:var(--text-3); margin-top:2px; }
+    .topbar-actions { display:flex; align-items:center; gap:8px; }
+    .topbar-icon-btn {
+      width:36px; height:36px; border-radius:10px;
+      background:var(--surface); border:1px solid var(--border);
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:all .2s; color:var(--text-2);
+    }
+    .topbar-icon-btn:hover { background:var(--surface-hover); color:var(--text); }
+    .topbar-icon-btn svg { width:16px; height:16px; }
+
+    /* BODY SCROLL */
+    .body-scroll { flex:1; overflow-y:auto; padding:28px 32px; display:flex; flex-direction:column; gap:20px; }
+    .body-scroll::-webkit-scrollbar { width:5px; }
+    .body-scroll::-webkit-scrollbar-thumb { background:var(--border-strong); border-radius:99px; }
+
+    /* ── RESUMEN HEADER ── */
+    .resumen-header {
+      border-radius:var(--radius-lg); padding:24px 28px;
+      display:flex; align-items:center; justify-content:space-between; gap:24px;
+      border:1px solid var(--border);
+    }
+    .resumen-header.sano { background:rgba(0,200,83,0.07); border-color:rgba(0,200,83,0.2); }
+    .resumen-header.atencion { background:rgba(255,149,0,0.07); border-color:rgba(255,149,0,0.2); }
+    .resumen-header.alerta { background:rgba(255,59,48,0.07); border-color:rgba(255,59,48,0.2); }
+    .resumen-left { display:flex; flex-direction:column; gap:6px; }
+    .resumen-label { font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--text-3); }
+    .resumen-estado { display:flex; align-items:center; gap:10px; }
+    .resumen-estado-text { font-family:'Plus Jakarta Sans',sans-serif; font-size:22px; font-weight:800; letter-spacing:-0.3px; }
+    .resumen-right { display:flex; flex-direction:column; gap:8px; min-width:220px; }
+    .cumplimiento-label { font-size:12px; color:var(--text-3); }
+    .cumplimiento-row { display:flex; align-items:center; gap:10px; }
+    .progress-bar-track { flex:1; height:8px; background:var(--surface); border-radius:99px; overflow:hidden; border:1px solid var(--border); }
+    .progress-bar-fill { height:100%; border-radius:99px; transition:width .6s ease; }
+    .cumplimiento-pct { font-size:14px; font-weight:700; min-width:36px; text-align:right; }
+
+    /* ── BADGE ── */
+    .nivel-badge {
+      font-size:10px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase;
+      padding:3px 9px; border-radius:99px;
+    }
+    .nivel-badge.ok { background:rgba(0,200,83,0.14); color:#00c853; }
+    .nivel-badge.atencion { background:rgba(255,149,0,0.14); color:#ff9500; }
+    .nivel-badge.alerta { background:rgba(255,59,48,0.14); color:#ff3b30; }
+
+    /* ── HORIZONTE CARDS ── */
+    .horizonte-card {
+      background:var(--bg-card); border:1px solid var(--border);
+      border-radius:var(--radius-lg); padding:22px 24px; display:flex; flex-direction:column; gap:14px;
+      border-left-width:4px;
+    }
+    .horizonte-card.borde-ok { border-left-color:#00c853; }
+    .horizonte-card.borde-atencion { border-left-color:#ff9500; }
+    .horizonte-card.borde-alerta { border-left-color:#ff3b30; }
+
+    .horizonte-header { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+    .horizonte-title-row { display:flex; align-items:center; gap:10px; }
+    .horizonte-icon {
+      width:36px; height:36px; border-radius:10px;
+      display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    }
+    .horizonte-icon svg { width:18px; height:18px; }
+    .horizonte-title-block { display:flex; flex-direction:column; gap:2px; }
+    .horizonte-freq { font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--text-3); }
+    .horizonte-nombre { font-family:'Plus Jakarta Sans',sans-serif; font-size:15px; font-weight:700; color:var(--text); }
+
+    .horizonte-body { display:flex; flex-direction:column; gap:10px; }
+
+    .estado-hoy { display:flex; align-items:center; gap:8px; font-size:14px; font-weight:600; }
+    .estado-hoy.capturado { color:#00c853; }
+    .estado-hoy.pendiente { color:var(--text-3); }
+    .estado-hoy svg { width:16px; height:16px; }
+
+    /* Dots semana */
+    .semana-dots { display:flex; align-items:center; gap:6px; }
+    .semana-dot-wrap { display:flex; flex-direction:column; align-items:center; gap:4px; }
+    .semana-dot {
+      width:28px; height:28px; border-radius:8px;
+      display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;
+    }
+    .semana-dot.ok { background:rgba(0,200,83,0.14); color:#00c853; }
+    .semana-dot.pendiente-pasado { background:rgba(255,59,48,0.12); color:#ff3b30; }
+    .semana-dot.futuro { background:var(--surface); color:var(--text-4); }
+    .semana-dot.hoy { outline:2px solid var(--amber); outline-offset:2px; }
+    .dia-label { font-size:10px; color:var(--text-4); font-weight:500; }
+
+    .racha-row { display:flex; align-items:center; gap:6px; font-size:13px; color:var(--text-2); }
+    .racha-row svg { width:14px; height:14px; color:var(--amber); }
+
+    .alerta-row { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--red); background:var(--red-light); border-radius:var(--radius-sm); padding:8px 12px; }
+    .alerta-row svg { width:14px; height:14px; flex-shrink:0; }
+
+    .info-row { font-size:13px; color:var(--text-3); }
+    .info-row span { color:var(--text-2); font-weight:600; }
+
+    /* Lista pedagógica */
+    .checklist { display:flex; flex-direction:column; gap:5px; }
+    .checklist-item { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text-3); }
+    .checklist-item svg { width:13px; height:13px; color:var(--text-4); flex-shrink:0; }
+
+    /* Acciones */
+    .horizonte-actions { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .btn-primary {
+      display:inline-flex; align-items:center; gap:6px;
+      background:var(--amber); color:#000; font-size:13px; font-weight:700;
+      padding:9px 18px; border-radius:var(--radius-sm); border:none; cursor:pointer;
+      transition:all .2s; text-decoration:none; font-family:'Inter',sans-serif;
+    }
+    .btn-primary:hover { opacity:.85; }
+    .btn-primary svg { width:14px; height:14px; }
+    .btn-primary.green { background:var(--green); color:#000; }
+    .btn-ghost {
+      display:inline-flex; align-items:center; gap:6px;
+      background:var(--surface); color:var(--text-2); font-size:13px; font-weight:600;
+      padding:9px 18px; border-radius:var(--radius-sm); border:1px solid var(--border);
+      cursor:pointer; transition:all .2s; text-decoration:none; font-family:'Inter',sans-serif;
+    }
+    .btn-ghost:hover { background:var(--surface-hover); color:var(--text); }
+    .btn-ghost svg { width:14px; height:14px; }
+    .btn-ghost.danger { color:var(--red); border-color:rgba(255,59,48,0.25); }
+    .btn-ghost.danger:hover { background:var(--red-light); }
+
+    /* Loading */
+    .loading-state { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:80px 0; color:var(--text-3); }
+    .spinner { width:28px; height:28px; border:3px solid var(--border); border-top-color:var(--amber); border-radius:50%; animation:spin .8s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    @media (max-width: 640px) {
+      .body-scroll { padding:20px 16px; }
+      .resumen-header { flex-direction:column; align-items:flex-start; }
+      .resumen-right { min-width:unset; width:100%; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <a href="/portal/dashboard.html" class="sidebar-logo">
+      <img src="/logos/SX Icon.png" alt="SCALEx">
+    </a>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-nav" id="sidebar-nav">
+      <a href="/portal/dashboard.html" class="sidebar-icon" title="Dashboard">
+        <i data-lucide="layout-dashboard"></i>
+      </a>
+      <a href="/portal/opsp.html" class="sidebar-icon" title="OPSP">
+        <i data-lucide="compass"></i>
+      </a>
+      <a href="/portal/adn.html" class="sidebar-icon" title="ADN Empresarial">
+        <i data-lucide="dna"></i>
+      </a>
+      <a href="/portal/flujo.html" class="sidebar-icon active" title="Flujo Financiero">
+        <i data-lucide="coins"></i>
+      </a>
+    </div>
+    <div class="sidebar-bottom" id="sidebar-bottom"></div>
+  </nav>
+
+  <!-- SHELL -->
+  <main class="shell">
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <a href="/portal/flujo.html" class="topbar-back">
+        <i data-lucide="arrow-left"></i>
+      </a>
+      <div class="topbar-title-block">
+        <div class="topbar-eyebrow">Pilar Flujo · Herramienta 7</div>
+        <div class="topbar-title">Rutina Financiera</div>
+        <div class="topbar-subtitle">La disciplina que evita que el negocio se ahogue</div>
+      </div>
+      <div class="topbar-actions">
+        <button class="topbar-icon-btn" id="btn-refresh" title="Refrescar">
+          <i data-lucide="refresh-cw"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- BODY -->
+    <div class="body-scroll" id="body-scroll">
+      <div class="loading-state" id="loading-state">
+        <div class="spinner"></div>
+        <span>Cargando rutina financiera…</span>
+      </div>
+      <div id="contenido-rutina" style="display:none; display:flex; flex-direction:column; gap:20px;"></div>
+    </div>
+  </main>
+</div>
+
+<script type="module" src="/assets/js/flujo-rutina.js"></script>
+<script type="module" src="/assets/js/portal-shell.js"></script>
+</body>
+</html>
