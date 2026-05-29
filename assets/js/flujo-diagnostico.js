@@ -1009,46 +1009,35 @@ function renderMatrizCard(clave, indices) {
 }
 
 function renderCuadranteSVG(clave, cuadranteKey) {
-  // Cuadrantes: TL, TR, BL, BR
-  // Para matriz1: sano=TR, liquidez=TL, riesgo=BR, crisis=BL
-  // Para matriz2: crecimiento_saludable=TR, riesgo_financiero=BR, riesgo_liquidez=TL, peligro_colapso=BL → invertido (CCE eje Y invertido)
-  // Para matriz3: escalabilidad_positiva=TR, crecimiento_deficiente=BR, crecimiento_insostenible=TL, recesion=BL
-
   const cuadrantePosicion = {
-    // matriz1
     sano: 'TR', liquidez: 'TL', riesgo: 'BR', crisis: 'BL',
-    // matriz2
     crecimiento_saludable: 'TR', riesgo_financiero: 'BR', riesgo_liquidez: 'TL', peligro_colapso: 'BL',
-    // matriz3
     escalabilidad_positiva: 'TR', crecimiento_deficiente: 'BR', crecimiento_insostenible: 'TL', recesion: 'BL'
   }
-
-  const cuadranteColor = {
-    sano: '#00c853', liquidez: '#ff9500', riesgo: '#ff9500', crisis: '#ff3b30',
-    crecimiento_saludable: '#00c853', riesgo_financiero: '#ff9500', riesgo_liquidez: '#ff9500', peligro_colapso: '#ff3b30',
-    escalabilidad_positiva: '#00c853', crecimiento_deficiente: '#ff9500', crecimiento_insostenible: '#ff9500', recesion: '#ff3b30'
+  const cuadranteColorVar = {
+    sano: 'green', liquidez: 'amber', riesgo: 'amber', crisis: 'red',
+    crecimiento_saludable: 'green', riesgo_financiero: 'amber', riesgo_liquidez: 'amber', peligro_colapso: 'red',
+    escalabilidad_positiva: 'green', crecimiento_deficiente: 'amber', crecimiento_insostenible: 'amber', recesion: 'red'
   }
 
   const pos = cuadrantePosicion[cuadranteKey]
-  const activoColor = cuadranteColor[cuadranteKey] || '#ff9500'
-
+  const colorName = cuadranteColorVar[cuadranteKey] || 'amber'
   const m = MATRICES[clave]
-  const cx = pos === 'TR' || pos === 'BR' ? 74 : 26
-  const cy = pos === 'TL' || pos === 'TR' ? 26 : 74
+
+  // Cada celda: TL TR / BL BR
+  const celdas = ['TL', 'TR', 'BL', 'BR']
+  const celdasHtml = celdas.map(c => {
+    const esActivo = c === pos && cuadranteKey
+    const dot = esActivo ? `<div class="mq-dot mq-dot-${colorName}"></div>` : ''
+    return `<div class="mq-cell ${esActivo ? `mq-cell-${colorName}` : ''}">  ${dot}</div>`
+  }).join('')
 
   return `
-    <svg viewBox="0 0 100 100" class="cuadrante-svg">
-      <rect x="1" y="1" width="48" height="48" rx="3" fill="${pos === 'TL' && cuadranteKey ? activoColor + '33' : 'rgba(255,255,255,0.04)'}" stroke="${pos === 'TL' && cuadranteKey ? activoColor : 'rgba(255,255,255,0.1)'}" stroke-width="${pos === 'TL' ? '1.5' : '1'}"/>
-      <rect x="51" y="1" width="48" height="48" rx="3" fill="${pos === 'TR' && cuadranteKey ? activoColor + '33' : 'rgba(255,255,255,0.04)'}" stroke="${pos === 'TR' && cuadranteKey ? activoColor : 'rgba(255,255,255,0.1)'}" stroke-width="${pos === 'TR' ? '1.5' : '1'}"/>
-      <rect x="1" y="51" width="48" height="48" rx="3" fill="${pos === 'BL' && cuadranteKey ? activoColor + '33' : 'rgba(255,255,255,0.04)'}" stroke="${pos === 'BL' && cuadranteKey ? activoColor : 'rgba(255,255,255,0.1)'}" stroke-width="${pos === 'BL' ? '1.5' : '1'}"/>
-      <rect x="51" y="51" width="48" height="48" rx="3" fill="${pos === 'BR' && cuadranteKey ? activoColor + '33' : 'rgba(255,255,255,0.04)'}" stroke="${pos === 'BR' && cuadranteKey ? activoColor : 'rgba(255,255,255,0.1)'}" stroke-width="${pos === 'BR' ? '1.5' : '1'}"/>
-      <!-- Ejes labels -->
-      <text x="50" y="97" text-anchor="middle" font-size="4.5" fill="rgba(255,255,255,0.4)">${m.eje_x.label} →</text>
-      <text x="4" y="52" text-anchor="middle" font-size="4.5" fill="rgba(255,255,255,0.4)" transform="rotate(-90,4,52)">${m.eje_y.label} →</text>
-      <!-- Punto activo -->
-      ${cuadranteKey ? `<circle cx="${cx}" cy="${cy}" r="5" fill="${activoColor}" opacity="0.9"/>
-      <circle cx="${cx}" cy="${cy}" r="8" fill="${activoColor}" opacity="0.25"/>` : ''}
-    </svg>`
+    <div class="mq-wrap">
+      <div class="mq-eje-y">${m.eje_y.label} ↑</div>
+      <div class="mq-grid">${celdasHtml}</div>
+      <div class="mq-eje-x">${m.eje_x.label} →</div>
+    </div>`
 }
 
 function renderAgendaCards(veredictoKey) {
