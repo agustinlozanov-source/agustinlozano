@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCALEx Portal — Flujo de Caja Diario</title>
+  <link rel="icon" type="image/png" href="/logos/SX Icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script type="module" src="/assets/js/auth-guard.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal: #1aab99; --teal-light: rgba(26,171,153,0.12);
+      --indigo: #3533cd; --indigo-light: rgba(53,51,205,0.12);
+      --gradient: linear-gradient(135deg, #1aab99, #3533cd);
+      --pink: #ec4899; --pink-light: rgba(236,72,153,0.12);
+      --green: #00c853; --green-light: rgba(0,200,83,0.12);
+      --amber: #ff9500; --amber-light: rgba(255,149,0,0.12);
+      --red: #ff3b30; --red-light: rgba(255,59,48,0.12);
+      --purple: #7c3aed; --purple-light: rgba(124,58,237,0.12);
+      --radius-xl: 28px; --radius-lg: 20px; --radius: 14px; --radius-sm: 9px;
+      --sidebar-w: 80px;
+      font-family: 'Inter', sans-serif; line-height: 1.6;
+    }
+    [data-theme="dark"] {
+      --bg-page: #0a0a0c; --bg-shell: #141416; --bg-card: #1c1c1e; --bg-card-2: #242426;
+      --surface: rgba(255,255,255,0.04); --surface-hover: rgba(255,255,255,0.07);
+      --border: rgba(255,255,255,0.08); --border-strong: rgba(255,255,255,0.13);
+      --text: #fff; --text-2: #c7c7cc; --text-3: #8e8e93; --text-4: #48484a;
+      --sidebar-bg: #050506;
+    }
+    [data-theme="light"] {
+      --bg-page: #eef0f5; --bg-shell: #fff; --bg-card: #f5f5f7; --bg-card-2: #ebebef;
+      --surface: rgba(0,0,0,0.03); --surface-hover: rgba(0,0,0,0.055);
+      --border: rgba(0,0,0,0.08); --border-strong: rgba(0,0,0,0.14);
+      --text: #070708; --text-2: #3a3a3c; --text-3: #6e6e73; --text-4: #c7c7cc;
+      --sidebar-bg: #0a0a0c;
+    }
+
+    body { background: var(--bg-page); color: var(--text); min-height:100vh; overflow:hidden; transition: background .3s, color .3s; }
+    .app-layout { display:flex; min-height:100vh; padding:16px; gap:16px; }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: var(--sidebar-w); background: var(--sidebar-bg);
+      border-radius: var(--radius-xl); padding: 20px 0;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      flex-shrink: 0; position: sticky; top: 16px; height: calc(100vh - 32px);
+    }
+    .sidebar-logo { width:44px; display:flex; align-items:center; justify-content:center; margin-bottom:16px; text-decoration:none; }
+    .sidebar-logo img { width:100%; display:block; }
+    .sidebar-divider { width:28px; height:1px; background:rgba(255,255,255,0.08); margin:4px 0; }
+    .sidebar-icon {
+      width:44px; height:44px; border-radius:12px;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:all .2s; color:rgba(255,255,255,0.5);
+      position:relative; text-decoration:none; background:none; border:none;
+    }
+    .sidebar-icon:hover { background:rgba(255,255,255,0.06); color:white; }
+    .sidebar-icon.active { background:var(--gradient); color:white; }
+    .sidebar-icon.active::before {
+      content:''; position:absolute; left:-16px; top:50%; transform:translateY(-50%);
+      width:3px; height:24px; background:var(--teal); border-radius:0 3px 3px 0;
+    }
+    .sidebar-icon svg { width:20px; height:20px; }
+    .sidebar-nav { flex:1; width:100%; overflow-y:auto; overflow-x:hidden; min-height:0; display:flex; flex-direction:column; align-items:center; gap:8px; padding:4px 0; }
+    .sidebar-bottom { display:flex; flex-direction:column; gap:8px; align-items:center; padding-bottom:4px; }
+
+    /* SHELL */
+    .shell {
+      flex:1; background:var(--bg-shell); border-radius:var(--radius-xl);
+      overflow:hidden; display:flex; flex-direction:column;
+      height:calc(100vh - 32px);
+    }
+
+    /* TOPBAR */
+    .topbar { padding:18px 28px; display:flex; align-items:center; gap:16px; border-bottom:1px solid var(--border); flex-shrink:0; }
+    .topbar-back {
+      width:36px; height:36px; border-radius:10px;
+      background:var(--surface); border:1px solid var(--border);
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:all .2s; color:var(--text-2); text-decoration:none;
+    }
+    .topbar-back:hover { background:var(--surface-hover); color:var(--text); }
+    .topbar-back svg { width:16px; height:16px; }
+    .topbar-title-block { flex:1; }
+    .topbar-eyebrow { font-size:11px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; color:var(--amber); }
+    .topbar-title { font-family:'Plus Jakarta Sans',sans-serif; font-size:18px; font-weight:800; color:var(--text); letter-spacing:-0.3px; margin-top:2px; }
+    .topbar-actions { display:flex; align-items:center; gap:8px; }
+    .topbar-icon-btn {
+      width:36px; height:36px; border-radius:10px;
+      background:var(--surface); border:1px solid var(--border);
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:all .2s; color:var(--text-2); background:none; border:none;
+    }
+    .topbar-icon-btn:hover { background:var(--surface-hover); color:var(--text); }
+    .topbar-icon-btn svg { width:16px; height:16px; }
+
+    /* SAVE INDICATOR */
+    .save-indicator { display:flex; align-items:center; gap:6px; font-size:11px; padding:4px 10px; border-radius:50px; transition:all .3s; }
+    .save-indicator.idle { background:transparent; color:var(--text-4); }
+    .save-indicator.saving { background:var(--amber-light); color:var(--amber); }
+    .save-indicator.saved { background:var(--green-light); color:var(--green); }
+    .save-indicator.error { background:var(--red-light); color:var(--red); }
+    .save-indicator svg { width:12px; height:12px; }
+
+    /* BODY SCROLL */
+    .body-scroll { flex:1; overflow-y:auto; padding:28px 32px; display:flex; flex-direction:column; gap:24px; }
+    .body-scroll::-webkit-scrollbar { width:5px; }
+    .body-scroll::-webkit-scrollbar-thumb { background:var(--border-strong); border-radius:99px; }
+
+    /* ── SECCIÓN 1: STATS BAR ── */
+    .stats-bar { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+    .stat-card {
+      background:var(--bg-card); border:1px solid var(--border);
+      border-radius:var(--radius-lg); padding:20px 22px;
+    }
+    .stat-label { font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--text-3); margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+    .stat-label svg { width:14px; height:14px; }
+    .stat-value { font-family:'Plus Jakarta Sans',sans-serif; font-size:26px; font-weight:800; color:var(--text); letter-spacing:-0.5px; }
+    .stat-sub { font-size:11px; color:var(--text-3); margin-top:4px; }
+    .stat-value.green { color:var(--green); }
+    .stat-value.amber { color:var(--amber); }
+    .stat-value.red { color:var(--red); }
+
+    .alert-banner {
+      display:none; padding:12px 18px; border-radius:var(--radius-sm);
+      align-items:flex-start; gap:12px;
+    }
+    .alert-banner.visible { display:flex; }
+    .alert-banner.atencion { background:var(--amber-light); border:1px solid rgba(255,149,0,0.25); }
+    .alert-banner.alerta { background:var(--red-light); border:1px solid rgba(255,59,48,0.25); }
+    .alert-banner svg { width:16px; height:16px; flex-shrink:0; margin-top:2px; }
+    .alert-banner.atencion svg { color:var(--amber); }
+    .alert-banner.alerta svg { color:var(--red); }
+    .alert-banner-text strong { font-size:13px; font-weight:700; display:block; margin-bottom:2px; }
+    .alert-banner.atencion .alert-banner-text strong { color:var(--amber); }
+    .alert-banner.alerta .alert-banner-text strong { color:var(--red); }
+    .alert-banner-text p { font-size:12px; color:var(--text-2); }
+
+    /* ── SECCIÓN 2: FORMULARIO ── */
+    .seccion-titulo {
+      font-family:'Plus Jakarta Sans',sans-serif; font-size:14px; font-weight:700;
+      color:var(--text); margin-bottom:16px; display:flex; align-items:center; gap:8px;
+    }
+    .seccion-titulo svg { width:16px; height:16px; color:var(--amber); }
+
+    .form-card {
+      background:var(--bg-card); border:1px solid var(--border);
+      border-radius:var(--radius-lg); padding:24px;
+    }
+
+    .form-row { display:flex; align-items:flex-start; gap:16px; margin-bottom:18px; flex-wrap:wrap; }
+    .form-group { display:flex; flex-direction:column; gap:6px; flex:1; min-width:180px; }
+    .form-label { font-size:12px; font-weight:600; color:var(--text-3); letter-spacing:0.3px; }
+    .form-input {
+      background:var(--surface); border:1px solid var(--border-strong);
+      color:var(--text); border-radius:var(--radius-sm);
+      padding:11px 14px; font-size:16px; font-family:'Inter',sans-serif;
+      outline:none; transition:all .2s; width:100%;
+    }
+    .form-input:focus { border-color:var(--amber); background:var(--surface-hover); }
+    .form-input::placeholder { color:var(--text-4); }
+    .form-input:read-only { color:var(--text-3); cursor:default; }
+    .form-input[type="date"] { font-size:14px; }
+
+    .saldo-hint { font-size:11px; color:var(--text-4); margin-top:4px; }
+
+    /* INGRESOS / EGRESOS GROUP */
+    .flujo-group {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:var(--radius); padding:16px; margin-bottom:18px;
+    }
+    .flujo-group-header { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+    .flujo-group-label { font-size:13px; font-weight:700; color:var(--text); flex:1; }
+    .flujo-group-label.ing { color:var(--green); }
+    .flujo-group-label.egr { color:var(--red); }
+    .btn-desglosar {
+      font-size:11px; font-weight:700; padding:5px 11px; border-radius:7px;
+      background:var(--surface); border:1px solid var(--border-strong); color:var(--text-2);
+      cursor:pointer; transition:all .2s; display:flex; align-items:center; gap:5px;
+    }
+    .btn-desglosar svg { width:12px; height:12px; }
+    .btn-desglosar:hover { background:var(--surface-hover); color:var(--text); }
+
+    .flujo-main-row { display:flex; gap:10px; align-items:center; }
+    .input-prefix-wrap { flex:1; position:relative; }
+    .input-prefix { position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:14px; font-weight:600; color:var(--text-3); }
+    .form-input.with-prefix { padding-left:26px; }
+
+    /* COMPONENTES LIST */
+    .componentes-list { margin-top:12px; display:flex; flex-direction:column; gap:8px; }
+    .componente-row { display:flex; align-items:center; gap:8px; }
+    .componente-row .form-input { font-size:14px; }
+    .componente-row .form-input.label-input { flex:2; }
+    .componente-row .form-input.monto-input { flex:1; max-width:140px; }
+    .btn-remove-comp {
+      width:28px; height:28px; border-radius:7px; flex-shrink:0;
+      background:var(--surface); border:1px solid var(--border); color:var(--text-4);
+      display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .2s;
+    }
+    .btn-remove-comp:hover { background:var(--red-light); border-color:rgba(255,59,48,.3); color:var(--red); }
+    .btn-remove-comp svg { width:13px; height:13px; }
+    .btn-add-comp {
+      font-size:12px; font-weight:600; padding:6px 12px; border-radius:7px;
+      background:none; border:1px dashed var(--border-strong); color:var(--text-3);
+      cursor:pointer; transition:all .2s; display:flex; align-items:center; gap:6px; margin-top:4px; width:100%;
+    }
+    .btn-add-comp:hover { border-color:var(--amber); color:var(--amber); }
+    .btn-add-comp svg { width:13px; height:13px; }
+
+    /* SALDO FINAL */
+    .saldo-final-row {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 18px; background:var(--surface); border-radius:var(--radius-sm);
+      border:1px solid var(--border); margin-bottom:18px;
+    }
+    .saldo-final-label { font-size:13px; font-weight:700; color:var(--text-2); }
+    .saldo-final-value { font-family:'Plus Jakarta Sans',sans-serif; font-size:22px; font-weight:800; color:var(--text); letter-spacing:-0.4px; }
+    .saldo-final-value.positive { color:var(--green); }
+    .saldo-final-value.negative { color:var(--red); }
+
+    textarea.form-input { resize:vertical; min-height:72px; font-size:14px; }
+
+    .btn {
+      display:inline-flex; align-items:center; gap:8px; padding:12px 22px;
+      border-radius:10px; font-size:14px; font-weight:700; cursor:pointer; border:none;
+      font-family:'Plus Jakarta Sans',sans-serif; transition:all .2s; text-decoration:none;
+    }
+    .btn-amber { background:linear-gradient(135deg,#ff9500,#ff6b00); color:white; }
+    .btn-amber:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(255,149,0,.35); }
+    .btn-amber:disabled { opacity:.5; cursor:not-allowed; transform:none; box-shadow:none; }
+    .btn-secondary { background:var(--surface); border:1px solid var(--border); color:var(--text-2); }
+    .btn-secondary:hover { background:var(--surface-hover); color:var(--text); }
+    .btn svg { width:15px; height:15px; }
+
+    /* ── SECCIÓN 3: GRÁFICA ── */
+    .grafica-card {
+      background:var(--bg-card); border:1px solid var(--border);
+      border-radius:var(--radius-lg); padding:24px;
+    }
+    .grafica-wrap { width:100%; height:200px; position:relative; overflow:hidden; }
+    .grafica-empty { display:flex; align-items:center; justify-content:center; height:200px; }
+    .grafica-empty-text { font-size:13px; color:var(--text-4); text-align:center; }
+    #grafica-tooltip {
+      position:absolute; pointer-events:none; display:none;
+      background:var(--bg-card-2); border:1px solid var(--border-strong);
+      border-radius:var(--radius-sm); padding:8px 12px; font-size:12px; line-height:1.55;
+      color:var(--text); z-index:10; white-space:nowrap;
+    }
+
+    /* ── SECCIÓN 4: HISTORIAL ── */
+    .historial-toggle {
+      display:flex; align-items:center; gap:8px; cursor:pointer; padding:14px 20px;
+      background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+      font-size:13px; font-weight:700; color:var(--text-2); transition:all .2s;
+    }
+    .historial-toggle:hover { background:var(--surface-hover); color:var(--text); }
+    .historial-toggle svg { width:15px; height:15px; transition:transform .2s; }
+    .historial-toggle.open svg.chev { transform:rotate(180deg); }
+
+    .historial-body { display:none; margin-top:8px; }
+    .historial-body.open { display:block; }
+    .historial-table-wrap { overflow-x:auto; border-radius:var(--radius); border:1px solid var(--border); }
+    table { width:100%; border-collapse:collapse; font-size:13px; }
+    thead tr { background:var(--surface); }
+    th { padding:10px 14px; text-align:left; font-size:11px; font-weight:700; letter-spacing:.8px; text-transform:uppercase; color:var(--text-3); border-bottom:1px solid var(--border); white-space:nowrap; }
+    td { padding:10px 14px; color:var(--text-2); border-bottom:1px solid var(--border); vertical-align:middle; }
+    tbody tr:last-child td { border-bottom:none; }
+    tbody tr { cursor:pointer; transition:background .15s; }
+    tbody tr:hover td { background:var(--surface-hover); }
+    .td-fecha { font-weight:600; color:var(--text); white-space:nowrap; }
+    .td-monto.pos { color:var(--green); font-weight:600; }
+    .td-monto.neg { color:var(--red); font-weight:600; }
+    .td-saldo { font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; color:var(--text); }
+    .td-notas { color:var(--text-4); font-size:12px; max-width:160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .paginacion { display:flex; align-items:center; gap:8px; padding:12px 14px; border-top:1px solid var(--border); }
+    .paginacion-btn { padding:5px 12px; border-radius:7px; font-size:12px; font-weight:600; cursor:pointer; background:var(--surface); border:1px solid var(--border); color:var(--text-2); transition:all .2s; }
+    .paginacion-btn:hover { background:var(--surface-hover); color:var(--text); }
+    .paginacion-btn:disabled { opacity:.4; cursor:not-allowed; }
+    .paginacion-info { font-size:12px; color:var(--text-3); flex:1; }
+
+    /* ── MODALES ── */
+    .modal-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,.6); backdrop-filter:blur(6px);
+      display:none; align-items:center; justify-content:center; z-index:100; padding:16px;
+    }
+    .modal-overlay.visible { display:flex; }
+    .modal {
+      background:var(--bg-card); border:1px solid var(--border-strong);
+      border-radius:var(--radius-xl); padding:32px; width:100%; max-width:440px;
+      animation:modalIn .25s ease;
+    }
+    @keyframes modalIn { from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)} }
+    .modal-icon {
+      width:56px; height:56px; border-radius:16px; margin-bottom:20px;
+      background:linear-gradient(135deg,#ff9500,#ff3b30);
+      display:flex; align-items:center; justify-content:center;
+    }
+    .modal-icon svg { width:26px; height:26px; color:white; }
+    .modal h2 { font-family:'Plus Jakarta Sans',sans-serif; font-size:20px; font-weight:800; color:var(--text); margin-bottom:8px; }
+    .modal p { font-size:13.5px; color:var(--text-2); line-height:1.6; margin-bottom:24px; }
+    .modal-footer { display:flex; gap:10px; margin-top:24px; flex-wrap:wrap; }
+
+    .radio-group { display:flex; flex-direction:column; gap:10px; margin-bottom:16px; }
+    .radio-option { display:flex; align-items:center; gap:10px; cursor:pointer; padding:12px 14px; border-radius:var(--radius-sm); border:1px solid var(--border); transition:all .2s; }
+    .radio-option:hover { background:var(--surface); }
+    .radio-option.selected { border-color:var(--amber); background:var(--amber-light); }
+    .radio-option input { display:none; }
+    .radio-dot { width:16px; height:16px; border-radius:50%; border:2px solid var(--border-strong); flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:all .2s; }
+    .radio-option.selected .radio-dot { border-color:var(--amber); background:var(--amber); }
+    .radio-option.selected .radio-dot::after { content:''; width:6px; height:6px; border-radius:50%; background:white; }
+    .radio-label { font-size:13.5px; font-weight:600; color:var(--text); }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <a href="/portal/dashboard.html" class="sidebar-logo">
+      <img src="/logos/SX Icon.png" alt="SCALEx">
+    </a>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-nav" id="sidebar-nav">
+      <a href="/portal/dashboard.html" class="sidebar-icon" title="Dashboard">
+        <i data-lucide="layout-dashboard"></i>
+      </a>
+      <a href="/portal/opsp.html" class="sidebar-icon" title="OPSP">
+        <i data-lucide="compass"></i>
+      </a>
+      <a href="/portal/adn.html" class="sidebar-icon" title="ADN Empresarial">
+        <i data-lucide="dna"></i>
+      </a>
+      <a href="/portal/flujo.html" class="sidebar-icon active" title="Flujo Financiero">
+        <i data-lucide="coins"></i>
+      </a>
+    </div>
+    <div class="sidebar-bottom" id="sidebar-bottom"></div>
+  </nav>
+
+  <!-- SHELL -->
+  <main class="shell">
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <a href="/portal/flujo.html" class="topbar-back">
+        <i data-lucide="arrow-left"></i>
+      </a>
+      <div class="topbar-title-block">
+        <div class="topbar-eyebrow">Pilar Flujo · Flujo de Caja Diario</div>
+        <div class="topbar-title">El latido financiero</div>
+      </div>
+      <div class="topbar-actions">
+        <div class="save-indicator idle" id="save-indicator">
+          <i data-lucide="check"></i>
+          <span id="save-text">—</span>
+        </div>
+        <button class="topbar-icon-btn" id="btn-config" title="Configuración">
+          <i data-lucide="settings"></i>
+        </button>
+        <button class="topbar-icon-btn theme-btn" id="theme-toggle" title="Cambiar tema">
+          <i data-lucide="sun"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- BODY SCROLL -->
+    <div class="body-scroll" id="body-scroll">
+
+      <!-- SECCIÓN 1: STATS BAR -->
+      <section id="seccion-stats">
+        <div class="stats-bar" id="stats-bar">
+          <div class="stat-card">
+            <div class="stat-label"><i data-lucide="wallet"></i> Saldo hoy</div>
+            <div class="stat-value skeleton" id="stat-saldo" style="height:32px;border-radius:8px;width:120px">&nbsp;</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label"><i data-lucide="trending-up"></i> Promedio 7 días</div>
+            <div class="stat-value skeleton" id="stat-promedio7" style="height:32px;border-radius:8px;width:120px">&nbsp;</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label"><i data-lucide="activity"></i> Tendencia</div>
+            <div class="stat-value skeleton" id="stat-tendencia" style="height:32px;border-radius:8px;width:80px">&nbsp;</div>
+            <div class="stat-sub" id="stat-tendencia-sub"></div>
+          </div>
+        </div>
+        <div class="alert-banner" id="alert-banner" style="margin-top:12px">
+          <i data-lucide="alert-triangle"></i>
+          <div class="alert-banner-text">
+            <strong id="alert-title"></strong>
+            <p id="alert-desc"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECCIÓN 2: FORMULARIO CAPTURA -->
+      <section id="seccion-form">
+        <div class="seccion-titulo">
+          <i data-lucide="calendar"></i>
+          Captura del día
+        </div>
+        <div class="form-card">
+          <!-- Fecha + Saldo inicial -->
+          <div class="form-row">
+            <div class="form-group" style="max-width:220px">
+              <label class="form-label">Fecha</label>
+              <input type="date" class="form-input" id="input-fecha">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Saldo inicial</label>
+              <div class="input-prefix-wrap">
+                <span class="input-prefix">$</span>
+                <input type="text" class="form-input with-prefix" id="input-saldo-inicial" readonly placeholder="0">
+              </div>
+              <div class="saldo-hint" id="saldo-inicial-hint">viene del saldo final de ayer</div>
+            </div>
+          </div>
+
+          <!-- INGRESOS -->
+          <div class="flujo-group">
+            <div class="flujo-group-header">
+              <span class="flujo-group-label ing">↑ Ingresos</span>
+              <button class="btn-desglosar" id="btn-desglosar-ing">
+                <i data-lucide="plus"></i> Desglosar
+              </button>
+            </div>
+            <div class="flujo-main-row" id="ing-main-row">
+              <div class="input-prefix-wrap" style="flex:1">
+                <span class="input-prefix">$</span>
+                <input type="number" class="form-input with-prefix" id="input-ingresos" placeholder="0" min="0" step="1">
+              </div>
+            </div>
+            <div class="componentes-list" id="ing-componentes" style="display:none"></div>
+            <div id="ing-add-wrap" style="display:none">
+              <button class="btn-add-comp" id="btn-add-ing">
+                <i data-lucide="plus"></i> Agregar componente
+              </button>
+            </div>
+          </div>
+
+          <!-- EGRESOS -->
+          <div class="flujo-group">
+            <div class="flujo-group-header">
+              <span class="flujo-group-label egr">↓ Egresos</span>
+              <button class="btn-desglosar" id="btn-desglosar-egr">
+                <i data-lucide="plus"></i> Desglosar
+              </button>
+            </div>
+            <div class="flujo-main-row" id="egr-main-row">
+              <div class="input-prefix-wrap" style="flex:1">
+                <span class="input-prefix">$</span>
+                <input type="number" class="form-input with-prefix" id="input-egresos" placeholder="0" min="0" step="1">
+              </div>
+            </div>
+            <div class="componentes-list" id="egr-componentes" style="display:none"></div>
+            <div id="egr-add-wrap" style="display:none">
+              <button class="btn-add-comp" id="btn-add-egr">
+                <i data-lucide="plus"></i> Agregar componente
+              </button>
+            </div>
+          </div>
+
+          <!-- SALDO FINAL -->
+          <div class="saldo-final-row">
+            <span class="saldo-final-label">Saldo final calculado</span>
+            <span class="saldo-final-value" id="saldo-final-display">$—</span>
+          </div>
+
+          <!-- NOTAS -->
+          <div class="form-group" style="margin-bottom:20px">
+            <label class="form-label">📝 Notas del día (opcional)</label>
+            <textarea class="form-input" id="input-notas" placeholder="¿Algo relevante hoy? Pagos pendientes, cobros esperados..."></textarea>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <button class="btn btn-amber" id="btn-guardar">
+              <i data-lucide="save"></i>
+              Guardar día
+            </button>
+            <span id="form-feedback" style="font-size:13px;color:var(--text-3)"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECCIÓN 3: GRÁFICA -->
+      <section id="seccion-grafica">
+        <div class="seccion-titulo">
+          <i data-lucide="trending-up"></i>
+          Tendencia 30 días
+        </div>
+        <div class="grafica-card">
+          <div class="grafica-wrap" id="grafica-wrap">
+            <div class="grafica-empty" id="grafica-empty">
+              <div class="grafica-empty-text">
+                <i data-lucide="bar-chart-2" style="width:28px;height:28px;color:var(--text-4);display:block;margin:0 auto 8px"></i>
+                Captura más días para ver la tendencia
+              </div>
+            </div>
+            <div id="grafica-tooltip"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECCIÓN 4: HISTORIAL -->
+      <section id="seccion-historial">
+        <div class="historial-toggle" id="historial-toggle">
+          <i data-lucide="clock"></i>
+          <span>Ver historial completo</span>
+          <i data-lucide="chevron-down" class="chev"></i>
+        </div>
+        <div class="historial-body" id="historial-body">
+          <div class="historial-table-wrap">
+            <table id="historial-table">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Saldo inicial</th>
+                  <th>Ingresos</th>
+                  <th>Egresos</th>
+                  <th>Saldo final</th>
+                  <th>Notas</th>
+                </tr>
+              </thead>
+              <tbody id="historial-tbody"></tbody>
+            </table>
+            <div class="paginacion" id="paginacion">
+              <button class="paginacion-btn" id="pag-prev" disabled>‹ Anterior</button>
+              <span class="paginacion-info" id="pag-info"></span>
+              <button class="paginacion-btn" id="pag-next" disabled>Siguiente ›</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div style="height:32px"></div>
+    </div>
+  </main>
+</div>
+
+<!-- MODAL SETUP INICIAL -->
+<div class="modal-overlay" id="modal-setup">
+  <div class="modal">
+    <div class="modal-icon"><i data-lucide="wallet"></i></div>
+    <h2>Bienvenido al Flujo de Caja</h2>
+    <p>Para empezar, necesitamos saber cuánto tienes hoy en bancos y caja. Esto será tu saldo inicial y el punto de partida de tu historial financiero diario.</p>
+    <div class="form-group" style="margin-bottom:8px">
+      <label class="form-label">Saldo inicial hoy</label>
+      <div class="input-prefix-wrap">
+        <span class="input-prefix">$</span>
+        <input type="number" class="form-input with-prefix" id="setup-saldo" placeholder="0" min="0" step="1" style="font-size:20px">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-amber" id="btn-setup-guardar">
+        <i data-lucide="check"></i>
+        Comenzar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONFIGURACIÓN -->
+<div class="modal-overlay" id="modal-config">
+  <div class="modal">
+    <h2>Configuración</h2>
+    <p style="margin-bottom:16px">Ajusta el umbral de alerta y el saldo inicial de la cadena.</p>
+
+    <div class="form-group" style="margin-bottom:16px">
+      <label class="form-label" style="margin-bottom:8px">Umbral de alerta</label>
+      <div class="radio-group">
+        <label class="radio-option" id="radio-auto-label">
+          <input type="radio" name="umbral-tipo" value="automatico" id="radio-auto">
+          <div class="radio-dot"></div>
+          <span class="radio-label">Automático (GFM del último diagnóstico)</span>
+        </label>
+        <label class="radio-option" id="radio-manual-label">
+          <input type="radio" name="umbral-tipo" value="manual" id="radio-manual">
+          <div class="radio-dot"></div>
+          <span class="radio-label">Manual</span>
+        </label>
+      </div>
+      <div id="umbral-manual-wrap" style="display:none;margin-top:8px">
+        <div class="input-prefix-wrap">
+          <span class="input-prefix">$</span>
+          <input type="number" class="form-input with-prefix" id="config-umbral" placeholder="0" min="0">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group" style="margin-bottom:8px">
+      <label class="form-label">Saldo inicial de la cadena</label>
+      <div class="input-prefix-wrap" style="margin-bottom:8px">
+        <span class="input-prefix">$</span>
+        <input type="number" class="form-input with-prefix" id="config-saldo-inicial" placeholder="0" min="0">
+      </div>
+      <button class="btn-desglosar" id="btn-recalcular" style="margin-top:4px;font-size:12px;padding:7px 13px">
+        <i data-lucide="refresh-cw"></i> Recalcular cadena desde el inicio
+      </button>
+      <div style="font-size:11px;color:var(--text-4);margin-top:6px">Recalcula todos los saldos en cascada desde la primera entrada.</div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-amber" id="btn-config-guardar">
+        <i data-lucide="check"></i>
+        Guardar configuración
+      </button>
+      <button class="btn btn-secondary" id="btn-config-cerrar">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="/assets/js/flujo-caja.js"></script>
+<script type="module" src="/assets/js/portal-shell.js"></script>
+<script>
+  lucide.createIcons()
+  const html = document.documentElement
+  const saved = localStorage.getItem('scalex-theme') || 'dark'
+  html.setAttribute('data-theme', saved)
+  document.getElementById('theme-toggle').addEventListener('click', () => {
+    const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'
+    html.setAttribute('data-theme', next)
+    localStorage.setItem('scalex-theme', next)
+    lucide.createIcons()
+  })
+</script>
+</body>
+</html>
