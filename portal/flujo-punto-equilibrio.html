@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCALEx Portal — Punto de Equilibrio</title>
+  <link rel="icon" type="image/png" href="/logos/SX Icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script type="module" src="/assets/js/auth-guard.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal: #1aab99; --teal-light: rgba(26,171,153,0.12);
+      --indigo: #3533cd; --indigo-light: rgba(53,51,205,0.12);
+      --gradient: linear-gradient(135deg, #1aab99, #3533cd);
+      --pink: #ec4899; --pink-light: rgba(236,72,153,0.12);
+      --green: #00c853; --green-light: rgba(0,200,83,0.12);
+      --amber: #ff9500; --amber-light: rgba(255,149,0,0.12);
+      --red: #ff3b30; --red-light: rgba(255,59,48,0.12);
+      --purple: #7c3aed; --purple-light: rgba(124,58,237,0.12);
+      --radius-xl: 28px; --radius-lg: 20px; --radius: 14px; --radius-sm: 9px;
+      --sidebar-w: 80px;
+      font-family: 'Inter', sans-serif; line-height: 1.6;
+    }
+    [data-theme="dark"] {
+      --bg-page: #0a0a0c; --bg-shell: #141416; --bg-card: #1c1c1e; --bg-card-2: #242426;
+      --surface: rgba(255,255,255,0.04); --surface-hover: rgba(255,255,255,0.07);
+      --border: rgba(255,255,255,0.08); --border-strong: rgba(255,255,255,0.13);
+      --text: #fff; --text-2: #c7c7cc; --text-3: #8e8e93; --text-4: #48484a;
+      --sidebar-bg: #050506;
+    }
+    [data-theme="light"] {
+      --bg-page: #eef0f5; --bg-shell: #fff; --bg-card: #f5f5f7; --bg-card-2: #ebebef;
+      --surface: rgba(0,0,0,0.03); --surface-hover: rgba(0,0,0,0.055);
+      --border: rgba(0,0,0,0.08); --border-strong: rgba(0,0,0,0.14);
+      --text: #070708; --text-2: #3a3a3c; --text-3: #6e6e73; --text-4: #c7c7cc;
+      --sidebar-bg: #0a0a0c;
+    }
+
+    body { background: var(--bg-page); color: var(--text); min-height:100vh; overflow:hidden; transition: background .3s, color .3s; }
+    .app-layout { display:flex; min-height:100vh; padding:16px; gap:16px; }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: var(--sidebar-w); background: var(--sidebar-bg);
+      border-radius: var(--radius-xl); padding: 20px 0;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      flex-shrink: 0; position: sticky; top: 16px; height: calc(100vh - 32px);
+    }
+    .sidebar-logo { width:44px; display:flex; align-items:center; justify-content:center; margin-bottom:16px; text-decoration:none; }
+    .sidebar-logo img { width:100%; display:block; }
+    .sidebar-divider { width:28px; height:1px; background:rgba(255,255,255,0.08); margin:4px 0; }
+    .sidebar-icon {
+      width:44px; height:44px; border-radius:12px;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:all .2s; color:rgba(255,255,255,0.5);
+      position:relative; text-decoration:none; background:none; border:none;
+    }
+    .sidebar-icon:hover { background:rgba(255,255,255,0.06); color:white; }
+    .sidebar-icon.active { background:var(--gradient); color:white; }
+    .sidebar-icon.active::before {
+      content:''; position:absolute; left:-16px; top:50%; transform:translateY(-50%);
+      width:3px; height:24px; background:var(--teal); border-radius:0 3px 3px 0;
+    }
+    .sidebar-icon svg { width:20px; height:20px; }
+    .sidebar-nav { flex:1; width:100%; overflow-y:auto; overflow-x:hidden; min-height:0; display:flex; flex-direction:column; align-items:center; gap:8px; padding:4px 0; }
+    .sidebar-bottom { display:flex; flex-direction:column; gap:8px; align-items:center; padding-bottom:4px; }
+
+    /* SHELL */
+    .shell {
+      flex:1; background:var(--bg-shell); border-radius:var(--radius-xl);
+      overflow:hidden; display:flex; flex-direction:column;
+      height:calc(100vh - 32px);
+    }
+
+    /* TOPBAR */
+    .topbar { padding:18px 28px; display:flex; align-items:center; gap:16px; border-bottom:1px solid var(--border); flex-shrink:0; }
+    .topbar-back {
+      width:36px; height:36px; border-radius:10px;
+      background:var(--surface); border:1px solid var(--border);
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:all .2s; color:var(--text-2); text-decoration:none;
+    }
+    .topbar-back:hover { background:var(--surface-hover); color:var(--text); }
+    .topbar-back svg { width:16px; height:16px; }
+    .topbar-title-block { flex:1; }
+    .topbar-eyebrow { font-size:11px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; color:var(--amber); }
+    .topbar-title { font-family:'Plus Jakarta Sans',sans-serif; font-size:18px; font-weight:800; color:var(--text); letter-spacing:-0.3px; margin-top:2px; }
+    .topbar-actions { display:flex; align-items:center; gap:8px; }
+    .topbar-icon-btn {
+      width:36px; height:36px; border-radius:10px;
+      background:var(--surface); border:1px solid var(--border);
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:all .2s; color:var(--text-2); background:none; border:none;
+    }
+    .topbar-icon-btn:hover { background:var(--surface-hover); color:var(--text); }
+    .topbar-icon-btn svg { width:16px; height:16px; }
+
+    /* SAVE INDICATOR */
+    .save-indicator { display:flex; align-items:center; gap:6px; font-size:11px; padding:4px 10px; border-radius:50px; transition:all .3s; }
+    .save-indicator.idle { background:transparent; color:var(--text-4); }
+    .save-indicator.saving { background:var(--amber-light); color:var(--amber); }
+    .save-indicator.saved { background:var(--green-light); color:var(--green); }
+    .save-indicator.error { background:var(--red-light); color:var(--red); }
+    .save-indicator svg { width:12px; height:12px; }
+
+    /* BODY SCROLL */
+    .body-scroll { flex:1; overflow-y:auto; padding:28px 32px; display:flex; flex-direction:column; gap:0; }
+    .body-scroll::-webkit-scrollbar { width:5px; }
+    .body-scroll::-webkit-scrollbar-thumb { background:var(--border-strong); border-radius:99px; }
+
+    /* PANTALLAS */
+    .pantalla { display:none; }
+    .pantalla.visible { display:block; }
+
+    /* ══════════════════════════════════
+       PANTALLA A — LISTA
+    ══════════════════════════════════ */
+
+    /* HERO VACÍO */
+    .hero-vacio {
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      text-align:center; padding:64px 32px; gap:20px;
+    }
+    .hero-vacio-icon {
+      width:80px; height:80px; border-radius:24px;
+      background:linear-gradient(135deg, #ff9500, #ff3b30);
+      display:flex; align-items:center; justify-content:center;
+      margin-bottom:8px;
+    }
+    .hero-vacio-icon svg { width:36px; height:36px; color:white; }
+    .hero-vacio h1 {
+      font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:26px; font-weight:800; color:var(--text); letter-spacing:-0.4px;
+    }
+    .hero-vacio h2 {
+      font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:16px; font-weight:600; color:var(--text-2); margin-top:4px;
+    }
+    .hero-vacio p { font-size:14px; color:var(--text-3); max-width:480px; line-height:1.7; }
+
+    /* LISTA HEADER */
+    .lista-header {
+      display:flex; align-items:center; justify-content:space-between;
+      margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border);
+    }
+    .lista-header h2 {
+      font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:16px; font-weight:800; color:var(--text);
+    }
+
+    /* PE CARDS */
+    .pe-grid { display:flex; flex-direction:column; gap:14px; padding-bottom:32px; }
+    .pe-card {
+      background:var(--bg-card); border:1px solid var(--border);
+      border-radius:var(--radius-lg); padding:22px 24px;
+      transition:border-color .2s;
+    }
+    .pe-card.peligro { border-color:rgba(255,59,48,0.4); }
+    .pe-card-header { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:14px; }
+    .pe-card-nombre {
+      display:flex; align-items:center; gap:10px;
+    }
+    .pe-card-icon {
+      width:36px; height:36px; border-radius:10px;
+      background:var(--amber-light); display:flex; align-items:center; justify-content:center;
+      flex-shrink:0;
+    }
+    .pe-card-icon svg { width:18px; height:18px; color:var(--amber); }
+    .pe-card-nombre-text { font-family:'Plus Jakarta Sans',sans-serif; font-size:15px; font-weight:700; color:var(--text); }
+    .pe-card-producto { font-size:12px; color:var(--text-3); margin-top:2px; }
+    .pe-card-actions { display:flex; gap:8px; flex-shrink:0; }
+    .btn-card-action {
+      width:32px; height:32px; border-radius:8px;
+      background:var(--surface); border:1px solid var(--border);
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:all .2s; color:var(--text-3);
+    }
+    .btn-card-action:hover { background:var(--surface-hover); color:var(--text); }
+    .btn-card-action.danger:hover { background:var(--red-light); color:var(--red); border-color:rgba(255,59,48,0.3); }
+    .btn-card-action svg { width:14px; height:14px; }
+
+    .pe-card-body { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .pe-resultado-bloque { }
+    .pe-resultado-label { font-size:11px; font-weight:600; letter-spacing:.6px; text-transform:uppercase; color:var(--text-3); margin-bottom:4px; }
+    .pe-resultado-valor { font-family:'Plus Jakarta Sans',sans-serif; font-size:18px; font-weight:800; color:var(--text); }
+    .pe-resultado-sub { font-size:12px; color:var(--text-3); margin-top:2px; }
+
+    .pe-card-footer { display:flex; align-items:center; justify-content:space-between; margin-top:14px; padding-top:12px; border-top:1px solid var(--border); }
+    .pe-margen-badge {
+      display:inline-flex; align-items:center; gap:5px;
+      padding:4px 10px; border-radius:50px; font-size:12px; font-weight:600;
+    }
+    .pe-margen-badge.verde { background:var(--green-light); color:var(--green); }
+    .pe-margen-badge.amber { background:var(--amber-light); color:var(--amber); }
+    .pe-margen-badge.rojo { background:var(--red-light); color:var(--red); }
+    .pe-fecha { font-size:11px; color:var(--text-4); }
+
+    .alerta-peligro {
+      display:flex; align-items:flex-start; gap:10px;
+      background:var(--red-light); border:1px solid rgba(255,59,48,0.25);
+      border-radius:var(--radius-sm); padding:12px 14px;
+      font-size:13px; color:var(--red); margin-top:12px;
+    }
+    .alerta-peligro svg { width:16px; height:16px; flex-shrink:0; margin-top:2px; }
+
+    /* ══════════════════════════════════
+       PANTALLA B — EDITOR
+    ══════════════════════════════════ */
+    .editor-header {
+      display:flex; align-items:center; gap:14px;
+      margin-bottom:24px; padding-bottom:20px; border-bottom:1px solid var(--border);
+    }
+    .btn-volver {
+      display:flex; align-items:center; gap:6px;
+      font-size:13px; font-weight:600; color:var(--text-3);
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:var(--radius-sm); padding:8px 14px;
+      cursor:pointer; transition:all .2s;
+    }
+    .btn-volver:hover { background:var(--surface-hover); color:var(--text); }
+    .btn-volver svg { width:14px; height:14px; }
+    .editor-header-title {
+      font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:17px; font-weight:800; color:var(--text);
+    }
+
+    /* SECCIONES DEL FORM */
+    .form-seccion {
+      background:var(--bg-card); border:1px solid var(--border);
+      border-radius:var(--radius-lg); padding:22px 24px;
+      margin-bottom:16px;
+    }
+    .form-seccion-titulo {
+      font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:13px; font-weight:700; color:var(--text);
+      margin-bottom:16px; display:flex; align-items:center; gap:8px;
+    }
+    .form-seccion-titulo svg { width:16px; height:16px; color:var(--amber); }
+
+    .form-row { display:flex; gap:16px; flex-wrap:wrap; }
+    .form-group { display:flex; flex-direction:column; gap:6px; flex:1; min-width:180px; }
+    .form-label { font-size:12px; font-weight:600; color:var(--text-3); letter-spacing:.3px; }
+    .form-input {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:var(--radius-sm); padding:11px 14px;
+      font-size:14px; font-family:'Inter',sans-serif; color:var(--text);
+      transition:border-color .2s; outline:none; width:100%;
+    }
+    .form-input:focus { border-color:var(--amber); }
+    .form-input::placeholder { color:var(--text-4); }
+    .form-input:disabled { opacity:.5; cursor:not-allowed; }
+    .form-input[readonly] { opacity:.6; }
+    textarea.form-input { resize:vertical; min-height:80px; }
+    select.form-input { cursor:pointer; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%238e8e93'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; background-size:16px; padding-right:36px; }
+
+    .input-prefix-wrap { display:flex; align-items:center; position:relative; }
+    .input-prefix { position:absolute; left:12px; font-size:14px; color:var(--text-3); font-weight:600; pointer-events:none; }
+    .form-input.with-prefix { padding-left:26px; }
+
+    .form-help { font-size:11.5px; color:var(--text-4); line-height:1.5; margin-top:4px; }
+
+    /* SELECTOR BLOQUEADO */
+    .campo-desde-costeo {
+      display:flex; align-items:center; gap:6px;
+      font-size:11px; color:var(--teal); background:var(--teal-light);
+      border:1px solid rgba(26,171,153,0.2); border-radius:50px;
+      padding:3px 10px; margin-top:4px; width:fit-content;
+    }
+    .campo-desde-costeo svg { width:11px; height:11px; }
+    .btn-editar-manual {
+      font-size:11px; font-weight:600; color:var(--amber);
+      background:none; border:none; cursor:pointer; padding:0;
+      margin-top:4px; display:inline-flex; align-items:center; gap:4px;
+    }
+    .btn-editar-manual svg { width:11px; height:11px; }
+
+    /* GFM PILL */
+    .gfm-pill {
+      display:inline-flex; align-items:center; gap:6px;
+      padding:6px 12px; border-radius:50px;
+      background:var(--amber-light); border:1px solid rgba(255,149,0,0.25);
+      font-size:12px; font-weight:600; color:var(--amber);
+      cursor:pointer; transition:all .2s; margin-top:6px;
+    }
+    .gfm-pill:hover { background:rgba(255,149,0,0.2); }
+    .gfm-pill svg { width:12px; height:12px; }
+
+    /* MARGEN EN VIVO */
+    .margen-en-vivo {
+      display:flex; align-items:center; gap:10px;
+      padding:12px 16px; border-radius:var(--radius-sm);
+      background:var(--surface); border:1px solid var(--border);
+      margin-top:8px;
+    }
+    .margen-en-vivo-label { font-size:12px; color:var(--text-3); flex:1; }
+    .margen-en-vivo-valor { font-family:'Plus Jakarta Sans',sans-serif; font-size:15px; font-weight:800; }
+    .margen-en-vivo-valor.verde { color:var(--green); }
+    .margen-en-vivo-valor.amber { color:var(--amber); }
+    .margen-en-vivo-valor.rojo { color:var(--red); }
+
+    /* SLIDER */
+    .slider-wrap { display:flex; align-items:center; gap:12px; }
+    .slider-wrap input[type=range] {
+      flex:1; height:6px; border-radius:99px; cursor:pointer;
+      accent-color:var(--amber);
+    }
+    .slider-valor {
+      font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:16px; font-weight:800; color:var(--amber);
+      min-width:42px; text-align:right;
+    }
+
+    /* BOTONES */
+    .btn {
+      display:inline-flex; align-items:center; gap:8px;
+      padding:12px 22px; border-radius:var(--radius-sm);
+      font-size:14px; font-weight:700; font-family:'Inter',sans-serif;
+      cursor:pointer; transition:all .2s; border:none; text-decoration:none;
+    }
+    .btn svg { width:16px; height:16px; }
+    .btn-amber { background:var(--amber); color:white; }
+    .btn-amber:hover { background:#e08600; }
+    .btn-amber:disabled { opacity:.5; cursor:not-allowed; }
+    .btn-secondary {
+      background:var(--surface); color:var(--text-2);
+      border:1px solid var(--border);
+    }
+    .btn-secondary:hover { background:var(--surface-hover); color:var(--text); }
+    .btn-nuevo {
+      display:inline-flex; align-items:center; gap:8px;
+      padding:10px 18px; border-radius:var(--radius-sm);
+      font-size:13px; font-weight:700;
+      background:var(--amber); color:white;
+      cursor:pointer; transition:all .2s; border:none;
+    }
+    .btn-nuevo:hover { background:#e08600; }
+    .btn-nuevo svg { width:15px; height:15px; }
+
+    /* ══════════════════════════════════
+       SECCIÓN 6 — RESULTADO
+    ══════════════════════════════════ */
+    .resultado-wrap { display:flex; flex-direction:column; gap:14px; margin-top:4px; }
+
+    .banner-peligro {
+      background:var(--red-light); border:1px solid rgba(255,59,48,0.3);
+      border-radius:var(--radius-lg); padding:24px 28px;
+    }
+    .banner-peligro-header { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+    .banner-peligro-header svg { width:22px; height:22px; color:var(--red); }
+    .banner-peligro h3 { font-family:'Plus Jakarta Sans',sans-serif; font-size:16px; font-weight:800; color:var(--red); }
+    .banner-peligro p { font-size:13.5px; color:var(--text-2); line-height:1.6; margin-bottom:8px; }
+    .banner-peligro ul { padding-left:18px; font-size:13.5px; color:var(--text-2); line-height:1.8; }
+
+    .resultado-nivel {
+      background:var(--bg-card); border:1px solid var(--border);
+      border-radius:var(--radius-lg); padding:24px 28px;
+    }
+    .resultado-nivel.principal { border-color:var(--amber); border-width:2px; }
+    .resultado-nivel-label {
+      font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase;
+      color:var(--text-3); margin-bottom:14px;
+      display:flex; align-items:center; gap:6px;
+    }
+    .resultado-nivel-label svg { width:13px; height:13px; color:var(--amber); }
+    .resultado-main-number {
+      font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:42px; font-weight:900; color:var(--amber); line-height:1;
+      letter-spacing:-1px;
+    }
+    .resultado-main-label { font-size:13px; color:var(--text-3); margin-top:6px; }
+    .resultado-dinero {
+      font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:22px; font-weight:700; color:var(--text); margin-top:10px;
+    }
+    .resultado-margen-row {
+      display:flex; align-items:center; gap:10px; margin-top:14px;
+      padding-top:14px; border-top:1px solid var(--border);
+    }
+    .resultado-margen-label { font-size:12.5px; color:var(--text-3); flex:1; }
+    .resultado-margen-valor { font-size:14px; font-weight:700; }
+
+    .resultado-seguro-number {
+      font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:32px; font-weight:800; color:var(--text); line-height:1;
+    }
+    .resultado-seguro-sub { font-size:12px; color:var(--text-3); margin-top:6px; }
+
+    /* ESCENARIOS */
+    .escenarios-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+    .escenario-card {
+      background:var(--bg-card-2); border:1px solid var(--border);
+      border-radius:var(--radius); padding:18px 16px; text-align:center;
+    }
+    .escenario-nombre { font-size:11px; font-weight:700; letter-spacing:.8px; text-transform:uppercase; color:var(--text-3); margin-bottom:8px; }
+    .escenario-unidades { font-family:'Plus Jakarta Sans',sans-serif; font-size:24px; font-weight:800; color:var(--text); }
+    .escenario-sub { font-size:12px; color:var(--text-3); margin-top:2px; }
+    .escenario-pesos { font-size:14px; font-weight:600; color:var(--text-2); margin-top:6px; }
+    .escenario-desc { font-size:11px; color:var(--text-4); margin-top:8px; line-height:1.4; }
+
+    /* MISC */
+    .divider { height:1px; background:var(--border); margin:8px 0; }
+
+    @media (max-width: 640px) {
+      .body-scroll { padding:20px 16px; }
+      .pe-card-body { grid-template-columns:1fr; }
+      .escenarios-grid { grid-template-columns:1fr; }
+      .form-row { flex-direction:column; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <a href="/portal/dashboard.html" class="sidebar-logo">
+      <img src="/logos/SX Icon.png" alt="SCALEx">
+    </a>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-nav" id="sidebar-nav">
+      <a href="/portal/dashboard.html" class="sidebar-icon" title="Dashboard">
+        <i data-lucide="layout-dashboard"></i>
+      </a>
+      <a href="/portal/opsp.html" class="sidebar-icon" title="OPSP">
+        <i data-lucide="compass"></i>
+      </a>
+      <a href="/portal/adn.html" class="sidebar-icon" title="ADN Empresarial">
+        <i data-lucide="dna"></i>
+      </a>
+      <a href="/portal/flujo.html" class="sidebar-icon active" title="Flujo Financiero">
+        <i data-lucide="coins"></i>
+      </a>
+    </div>
+    <div class="sidebar-bottom" id="sidebar-bottom"></div>
+  </nav>
+
+  <!-- SHELL -->
+  <main class="shell">
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <a href="/portal/flujo.html" class="topbar-back">
+        <i data-lucide="arrow-left"></i>
+      </a>
+      <div class="topbar-title-block">
+        <div class="topbar-eyebrow">Pilar Flujo · Punto de Equilibrio</div>
+        <div class="topbar-title">¿Cuánto necesito vender para no perder?</div>
+      </div>
+      <div class="topbar-actions">
+        <div class="save-indicator idle" id="save-indicator">
+          <i data-lucide="check"></i>
+          <span id="save-text">—</span>
+        </div>
+        <button class="topbar-icon-btn" id="theme-toggle" title="Cambiar tema">
+          <i data-lucide="sun"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- BODY SCROLL -->
+    <div class="body-scroll" id="body-scroll">
+
+      <!-- ═══════════════════════════════════════
+           PANTALLA A — LISTA
+      ═══════════════════════════════════════ -->
+      <div class="pantalla" id="pantalla-lista">
+
+        <!-- Estado vacío -->
+        <div id="estado-vacio" style="display:none">
+          <div class="hero-vacio">
+            <div class="hero-vacio-icon">
+              <i data-lucide="scale"></i>
+            </div>
+            <h1>Punto de Equilibrio</h1>
+            <h2>¿Cuánto necesitas vender este mes para no perder?</h2>
+            <p>Calcula cuántas unidades de tu producto debes vender para cubrir todos tus costos. Saber esto te da control absoluto sobre cuánto debes producir mes a mes.</p>
+            <button class="btn btn-amber" id="btn-crear-primero" style="margin-top:8px">
+              <i data-lucide="plus"></i>
+              Crear mi primer cálculo
+            </button>
+          </div>
+        </div>
+
+        <!-- Lista con registros -->
+        <div id="estado-lista" style="display:none">
+          <div class="lista-header">
+            <h2>Mis cálculos de Punto de Equilibrio</h2>
+            <button class="btn-nuevo" id="btn-nuevo-calculo">
+              <i data-lucide="plus"></i>
+              Nuevo cálculo
+            </button>
+          </div>
+          <div class="pe-grid" id="pe-grid">
+            <!-- Cards generadas por JS -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ═══════════════════════════════════════
+           PANTALLA B — EDITOR
+      ═══════════════════════════════════════ -->
+      <div class="pantalla" id="pantalla-editor">
+
+        <div class="editor-header">
+          <button class="btn-volver" id="btn-volver">
+            <i data-lucide="arrow-left"></i>
+            Volver a la lista
+          </button>
+          <span class="editor-header-title" id="editor-titulo">Nuevo cálculo</span>
+        </div>
+
+        <!-- SECCIÓN 1 — Nombre -->
+        <div class="form-seccion">
+          <div class="form-seccion-titulo">
+            <i data-lucide="tag"></i>
+            Datos básicos
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nombre del cálculo</label>
+            <input type="text" class="form-input" id="input-nombre" placeholder="Ej: PE de Hamburguesa clásica, PE general">
+          </div>
+        </div>
+
+        <!-- SECCIÓN 2 — Producto -->
+        <div class="form-seccion">
+          <div class="form-seccion-titulo">
+            <i data-lucide="package"></i>
+            Producto
+          </div>
+          <div class="form-group">
+            <label class="form-label">Selecciona un producto del Costeo</label>
+            <select class="form-input" id="selector-producto">
+              <option value="">— Sin producto, capturar manual —</option>
+            </select>
+            <div class="form-help">Si seleccionas un producto del Costeo, se autocompletan precio y costo variable.</div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN 3 — Variables principales -->
+        <div class="form-seccion">
+          <div class="form-seccion-titulo">
+            <i data-lucide="sliders-horizontal"></i>
+            Variables del cálculo
+          </div>
+
+          <div class="form-row" style="margin-bottom:16px">
+            <!-- Costos Fijos -->
+            <div class="form-group">
+              <label class="form-label">Costos fijos mensuales</label>
+              <div class="input-prefix-wrap">
+                <span class="input-prefix">$</span>
+                <input type="number" class="form-input with-prefix" id="input-costos-fijos" placeholder="0" min="0" step="1">
+              </div>
+              <div id="gfm-pill-wrap" style="display:none">
+                <button class="gfm-pill" id="btn-usar-gfm">
+                  <i data-lucide="zap"></i>
+                  <span id="gfm-pill-label">Usar $0 del Diagnóstico</span>
+                </button>
+              </div>
+              <div class="form-help">Renta, sueldos, servicios — lo que pagas mes a mes sin importar si vendes o no.</div>
+            </div>
+
+            <!-- Precio de venta -->
+            <div class="form-group">
+              <label class="form-label">Precio de venta unitario</label>
+              <div class="input-prefix-wrap">
+                <span class="input-prefix">$</span>
+                <input type="number" class="form-input with-prefix" id="input-precio-venta" placeholder="0" min="0" step="0.01">
+              </div>
+              <div id="precio-desde-costeo" class="campo-desde-costeo" style="display:none">
+                <i data-lucide="lock"></i>
+                Desde Costeo
+                <button class="btn-editar-manual" id="btn-desbloquear-precio">
+                  <i data-lucide="pencil"></i> Editar
+                </button>
+              </div>
+              <div class="form-help">Lo que cobras al cliente por cada unidad.</div>
+            </div>
+
+            <!-- Costo variable -->
+            <div class="form-group">
+              <label class="form-label">Costo variable unitario</label>
+              <div class="input-prefix-wrap">
+                <span class="input-prefix">$</span>
+                <input type="number" class="form-input with-prefix" id="input-costo-variable" placeholder="0" min="0" step="0.01">
+              </div>
+              <div id="costo-desde-costeo" class="campo-desde-costeo" style="display:none">
+                <i data-lucide="lock"></i>
+                Desde Costeo
+                <button class="btn-editar-manual" id="btn-desbloquear-costo">
+                  <i data-lucide="pencil"></i> Editar
+                </button>
+              </div>
+              <div class="form-help">Insumos, empaque, comisión — todo lo que sube con cada venta extra.</div>
+            </div>
+          </div>
+
+          <!-- Margen en vivo -->
+          <div class="margen-en-vivo" id="margen-en-vivo">
+            <span class="margen-en-vivo-label">Margen unitario en vivo</span>
+            <span class="margen-en-vivo-valor" id="margen-en-vivo-valor">—</span>
+          </div>
+        </div>
+
+        <!-- SECCIÓN 4 — Margen de seguridad -->
+        <div class="form-seccion">
+          <div class="form-seccion-titulo">
+            <i data-lucide="shield"></i>
+            Margen de seguridad
+          </div>
+          <div class="form-group">
+            <div class="slider-wrap">
+              <input type="range" id="slider-margen" min="0" max="50" value="15" step="1">
+              <span class="slider-valor" id="slider-valor-display">15%</span>
+            </div>
+            <div class="form-help" style="margin-top:8px">Porcentaje adicional sobre el PE para cubrir eventualidades (inflación, mermas, etc.). Recomendado: 10–20%.</div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN 5 — Notas -->
+        <div class="form-seccion">
+          <div class="form-seccion-titulo">
+            <i data-lucide="notebook-pen"></i>
+            Notas internas
+          </div>
+          <div class="form-group">
+            <textarea class="form-input" id="input-notas" placeholder="Notas del consultor sobre este cálculo (opcional)..."></textarea>
+          </div>
+        </div>
+
+        <!-- Botón calcular -->
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:24px;flex-wrap:wrap">
+          <button class="btn btn-amber" id="btn-calcular">
+            <i data-lucide="calculator"></i>
+            Calcular y guardar
+          </button>
+          <span id="form-feedback" style="font-size:13px;color:var(--text-3)"></span>
+        </div>
+
+        <!-- SECCIÓN 6 — RESULTADO -->
+        <div id="seccion-resultado" style="display:none">
+          <div class="divider" style="margin-bottom:24px"></div>
+          <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-3);margin-bottom:16px;display:flex;align-items:center;gap:6px;">
+            <i data-lucide="bar-chart-2" style="width:14px;height:14px;color:var(--amber)"></i>
+            Resultado del cálculo
+          </div>
+          <div class="resultado-wrap" id="resultado-wrap">
+            <!-- Generado por JS -->
+          </div>
+        </div>
+
+        <div style="height:40px"></div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script type="module" src="/assets/js/flujo-punto-equilibrio.js"></script>
+<script type="module" src="/assets/js/portal-shell.js"></script>
+<script>
+  lucide.createIcons()
+  const html = document.documentElement
+  const saved = localStorage.getItem('scalex-theme') || 'dark'
+  html.setAttribute('data-theme', saved)
+  document.getElementById('theme-toggle').addEventListener('click', () => {
+    const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'
+    html.setAttribute('data-theme', next)
+    localStorage.setItem('scalex-theme', next)
+    lucide.createIcons()
+  })
+</script>
+</body>
+</html>
