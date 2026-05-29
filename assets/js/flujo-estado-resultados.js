@@ -78,6 +78,35 @@ function mesLabelLargo(yyyymm) {
     .replace(/^\w/, c => c.toUpperCase())
 }
 
+// ─── COMPUTAR TOTALES DESDE CAMPOS CRUDOS ──────────────────────────────────────
+// flujo_eor_listar puede devolver solo los inputs; calculamos los derivados aquí
+function computarEOR(m) {
+  const n = v => parseFloat(v) || 0
+  const totalIngresos = n(m.total_ingresos) || (n(m.ingresos_ventas) + n(m.ingresos_otros))
+  const totalCV       = n(m.total_costos_variables) || (n(m.costo_productos) + n(m.costo_comisiones) + n(m.costo_var_otros))
+  const utilBruta     = m.utilidad_bruta != null ? n(m.utilidad_bruta) : totalIngresos - totalCV
+  const margenBruta   = m.margen_bruto_pct != null ? n(m.margen_bruto_pct) : (totalIngresos > 0 ? (utilBruta / totalIngresos) * 100 : null)
+  const totalGF       = n(m.total_gastos_fijos) || (n(m.gasto_renta) + n(m.gasto_sueldos) + n(m.gasto_servicios) + n(m.gasto_fijos_otros))
+  const utilOp        = m.utilidad_operativa != null ? n(m.utilidad_operativa) : utilBruta - totalGF
+  const margenOp      = m.margen_operativo_pct != null ? n(m.margen_operativo_pct) : (totalIngresos > 0 ? (utilOp / totalIngresos) * 100 : null)
+  const totalImpOtros = n(m.total_impuestos_otros) || (n(m.impuestos) + n(m.otros_gastos))
+  const utilNeta      = m.utilidad_neta != null ? n(m.utilidad_neta) : utilOp - totalImpOtros
+  const margenNeta    = m.margen_neto_pct != null ? n(m.margen_neto_pct) : (totalIngresos > 0 ? (utilNeta / totalIngresos) * 100 : null)
+  return {
+    ...m,
+    _total_ingresos:      totalIngresos,
+    _total_cv:            totalCV,
+    _util_bruta:          utilBruta,
+    _margen_bruta:        margenBruta,
+    _total_gf:            totalGF,
+    _util_operativa:      utilOp,
+    _margen_operativa:    margenOp,
+    _total_imp_otros:     totalImpOtros,
+    _util_neta:           utilNeta,
+    _margen_neta:         margenNeta,
+  }
+}
+
 // ─── INIT ────────────────────────────────────────────────────────────────────
 async function init() {
   try {
@@ -206,22 +235,25 @@ function renderTablaComparativa() {
     ${vals.map(v => `<td class="${clsFn(parseFloat(v))}">${v != null && !isNaN(parseFloat(v)) ? fmt(v, 1) + '%' : '—'}</td>`).join('')}
   </tr>`
 
-  tbody = `<tbody>
-    ${row('Ingresos', meses.map(m => fmtMoney(m.total_ingresos)), 'total')}
-    ${row('Costos variables', meses.map(m => fmtMoney(m.total_costos_variables)))}
+  // Computar totales/márgenes del lado cliente (el listar puede devolver solo crudos)
+  const mc = meses.map(computarEOR)
+
+  const tbody = `<tbody>
+    ${row('Ingresos', mc.map(m => fmtMoney(m._total_ingresos)), 'total')}
+    ${row('Costos variables', mc.map(m => fmtMoney(m._total_cv)))}
     ${sepRow}
-    ${row('Utilidad Bruta', meses.map(m => fmtMoney(m.utilidad_bruta)), 'resultado')}
-    ${margenRow('Margen Bruto', meses.map(m => m.margen_bruto_pct), claseMargenBruto)}
+    ${row('Utilidad Bruta', mc.map(m => fmtMoney(m._util_bruta)), 'resultado')}
+    ${margenRow('Margen Bruto', mc.map(m => m._margen_bruta), claseMargenBruto)}
     ${sepRow}
-    ${row('Gastos fijos', meses.map(m => fmtMoney(m.total_gastos_fijos)))}
+    ${row('Gastos fijos', mc.map(m => fmtMoney(m._total_gf)))}
     ${sepRow}
-    ${row('Utilidad Operativa', meses.map(m => fmtMoney(m.utilidad_operativa)), 'resultado')}
-    ${margenRow('Margen Operativo', meses.map(m => m.margen_operativo_pct), claseMargenOperativo)}
+    ${row('Utilidad Operativa', mc.map(m => fmtMoney(m._util_operativa)), 'resultado')}
+    ${margenRow('Margen Operativo', mc.map(m => m._margen_operativa), claseMargenOperativo)}
     ${sepRow}
-    ${row('Impuestos y otros', meses.map(m => fmtMoney(m.total_impuestos_otros)))}
+    ${row('Impuestos y otros', mc.map(m => fmtMoney(m._total_imp_otros)))}
     ${sepRow}
-    ${row('Utilidad Neta', meses.map(m => fmtMoney(m.utilidad_neta)), 'resultado')}
-    ${margenRow('Margen Neto', meses.map(m => m.margen_neto_pct), claseMargenNeto)}
+    ${row('Utilidad Neta', mc.map(m => fmtMoney(m._util_neta)), 'resultado')}
+    ${margenRow('Margen Neto', mc.map(m => m._margen_neta), claseMargenNeto)}
   </tbody>`
 
   tabla.innerHTML = thead + tbody
@@ -462,8 +494,9 @@ async function guardar() {
     setSave('saved', 'Guardado')
     setFeedback('✓ Estado de Resultados guardado', 'var(--green)')
 
-    // Refrescar lista silencioso
-    refrescarListaSilencioso()
+    // Refrescar lista y navegar a ella
+    await refrescarListaSilencioso()
+    await cargarLista()
 
   } catch (e) {
     console.error('guardar EOR:', e)
