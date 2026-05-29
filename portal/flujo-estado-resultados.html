@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCALEx Portal — Estado de Resultados</title>
+  <link rel="icon" type="image/png" href="/logos/SX Icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script type="module" src="/assets/js/auth-guard.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal: #1aab99; --teal-light: rgba(26,171,153,0.12);
+      --indigo: #3533cd; --indigo-light: rgba(53,51,205,0.12);
+      --gradient: linear-gradient(135deg, #1aab99, #3533cd);
+      --pink: #ec4899; --pink-light: rgba(236,72,153,0.12);
+      --green: #00c853; --green-light: rgba(0,200,83,0.12);
+      --amber: #ff9500; --amber-light: rgba(255,149,0,0.12);
+      --red: #ff3b30; --red-light: rgba(255,59,48,0.12);
+      --purple: #7c3aed; --purple-light: rgba(124,58,237,0.12);
+      --radius-xl: 28px; --radius-lg: 20px; --radius: 14px; --radius-sm: 9px;
+      --sidebar-w: 80px;
+      font-family: 'Inter', sans-serif; line-height: 1.6;
+    }
+    [data-theme="dark"] {
+      --bg-page: #0a0a0c; --bg-shell: #141416; --bg-card: #1c1c1e; --bg-card-2: #242426;
+      --surface: rgba(255,255,255,0.04); --surface-hover: rgba(255,255,255,0.07);
+      --border: rgba(255,255,255,0.08); --border-strong: rgba(255,255,255,0.13);
+      --text: #fff; --text-2: #c7c7cc; --text-3: #8e8e93; --text-4: #48484a;
+      --sidebar-bg: #050506;
+    }
+    [data-theme="light"] {
+      --bg-page: #eef0f5; --bg-shell: #fff; --bg-card: #f5f5f7; --bg-card-2: #ebebef;
+      --surface: rgba(0,0,0,0.03); --surface-hover: rgba(0,0,0,0.055);
+      --border: rgba(0,0,0,0.08); --border-strong: rgba(0,0,0,0.14);
+      --text: #070708; --text-2: #3a3a3c; --text-3: #6e6e73; --text-4: #c7c7cc;
+      --sidebar-bg: #0a0a0c;
+    }
+
+    body { background: var(--bg-page); color: var(--text); min-height:100vh; overflow:hidden; transition: background .3s, color .3s; }
+    .app-layout { display:flex; min-height:100vh; padding:16px; gap:16px; }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: var(--sidebar-w); background: var(--sidebar-bg);
+      border-radius: var(--radius-xl); padding: 20px 0;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      flex-shrink: 0; position: sticky; top: 16px; height: calc(100vh - 32px);
+    }
+    .sidebar-logo { width:44px; display:flex; align-items:center; justify-content:center; margin-bottom:16px; text-decoration:none; }
+    .sidebar-logo img { width:100%; display:block; }
+    .sidebar-divider { width:28px; height:1px; background:rgba(255,255,255,0.08); margin:4px 0; }
+    .sidebar-icon {
+      width:44px; height:44px; border-radius:12px;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:all .2s; color:rgba(255,255,255,0.5);
+      position:relative; text-decoration:none; background:none; border:none;
+    }
+    .sidebar-icon:hover { background:rgba(255,255,255,0.06); color:white; }
+    .sidebar-icon.active { background:var(--gradient); color:white; }
+    .sidebar-icon.active::before {
+      content:''; position:absolute; left:-16px; top:50%; transform:translateY(-50%);
+      width:3px; height:24px; background:var(--teal); border-radius:0 3px 3px 0;
+    }
+    .sidebar-icon svg { width:20px; height:20px; }
+    .sidebar-nav { flex:1; width:100%; overflow-y:auto; overflow-x:hidden; min-height:0; display:flex; flex-direction:column; align-items:center; gap:8px; padding:4px 0; }
+    .sidebar-bottom { display:flex; flex-direction:column; gap:8px; align-items:center; padding-bottom:4px; }
+
+    /* SHELL */
+    .shell {
+      flex:1; background:var(--bg-shell); border-radius:var(--radius-xl);
+      overflow:hidden; display:flex; flex-direction:column;
+      height:calc(100vh - 32px);
+    }
+
+    /* TOPBAR */
+    .topbar { padding:18px 28px; display:flex; align-items:center; gap:16px; border-bottom:1px solid var(--border); flex-shrink:0; }
+    .topbar-back {
+      width:36px; height:36px; border-radius:10px;
+      background:var(--surface); border:1px solid var(--border);
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:all .2s; color:var(--text-2); text-decoration:none;
+    }
+    .topbar-back:hover { background:var(--surface-hover); color:var(--text); }
+    .topbar-back svg { width:16px; height:16px; }
+    .topbar-title-block { flex:1; }
+    .topbar-eyebrow { font-size:11px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; color:var(--amber); }
+    .topbar-title { font-family:'Plus Jakarta Sans',sans-serif; font-size:18px; font-weight:800; color:var(--text); letter-spacing:-0.3px; margin-top:2px; }
+    .topbar-actions { display:flex; align-items:center; gap:8px; }
+    .topbar-icon-btn {
+      width:36px; height:36px; border-radius:10px;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:all .2s; color:var(--text-2); background:none; border:none;
+    }
+    .topbar-icon-btn:hover { background:var(--surface-hover); color:var(--text); }
+    .topbar-icon-btn svg { width:16px; height:16px; }
+
+    /* SAVE INDICATOR */
+    .save-indicator { display:flex; align-items:center; gap:6px; font-size:11px; padding:4px 10px; border-radius:50px; transition:all .3s; }
+    .save-indicator.idle { background:transparent; color:var(--text-4); }
+    .save-indicator.saving { background:var(--amber-light); color:var(--amber); }
+    .save-indicator.saved { background:var(--green-light); color:var(--green); }
+    .save-indicator.error { background:var(--red-light); color:var(--red); }
+    .save-indicator svg { width:12px; height:12px; }
+
+    /* BODY SCROLL */
+    .body-scroll { flex:1; overflow-y:auto; padding:28px 32px; display:flex; flex-direction:column; gap:0; }
+    .body-scroll::-webkit-scrollbar { width:5px; }
+    .body-scroll::-webkit-scrollbar-thumb { background:var(--border-strong); border-radius:99px; }
+
+    /* PANTALLAS */
+    .pantalla { display:none; }
+    .pantalla.visible { display:block; }
+
+    /* BOTONES */
+    .btn {
+      display:inline-flex; align-items:center; gap:8px;
+      padding:12px 22px; border-radius:var(--radius-sm);
+      font-size:14px; font-weight:700; font-family:'Inter',sans-serif;
+      cursor:pointer; transition:all .2s; border:none;
+    }
+    .btn svg { width:16px; height:16px; }
+    .btn-amber { background:var(--amber); color:white; }
+    .btn-amber:hover { background:#e08600; }
+    .btn-amber:disabled { opacity:.5; cursor:not-allowed; }
+    .btn-secondary { background:var(--surface); color:var(--text-2); border:1px solid var(--border); }
+    .btn-secondary:hover { background:var(--surface-hover); color:var(--text); }
+    .btn-nuevo {
+      display:inline-flex; align-items:center; gap:8px;
+      padding:10px 18px; border-radius:var(--radius-sm);
+      font-size:13px; font-weight:700;
+      background:var(--amber); color:white;
+      cursor:pointer; transition:all .2s; border:none;
+    }
+    .btn-nuevo:hover { background:#e08600; }
+    .btn-nuevo svg { width:15px; height:15px; }
+
+    /* ══════════════════════════════════
+       PANTALLA A — LISTA
+    ══════════════════════════════════ */
+    .hero-vacio {
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      text-align:center; padding:64px 32px; gap:20px;
+    }
+    .hero-vacio-icon {
+      width:80px; height:80px; border-radius:24px;
+      background:linear-gradient(135deg, #ff9500, #ff3b30);
+      display:flex; align-items:center; justify-content:center; margin-bottom:8px;
+    }
+    .hero-vacio-icon svg { width:36px; height:36px; color:white; }
+    .hero-vacio h1 { font-family:'Plus Jakarta Sans',sans-serif; font-size:26px; font-weight:800; color:var(--text); letter-spacing:-0.4px; }
+    .hero-vacio h2 { font-family:'Plus Jakarta Sans',sans-serif; font-size:16px; font-weight:600; color:var(--text-2); margin-top:4px; }
+    .hero-vacio p { font-size:14px; color:var(--text-3); max-width:520px; line-height:1.7; }
+
+    .lista-header {
+      display:flex; align-items:center; justify-content:space-between;
+      margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border);
+    }
+    .lista-header h2 { font-family:'Plus Jakarta Sans',sans-serif; font-size:16px; font-weight:800; color:var(--text); }
+
+    /* TABLA COMPARATIVA */
+    .tabla-wrap { overflow-x:auto; border-radius:var(--radius-lg); border:1px solid var(--border); margin-bottom:32px; }
+    .tabla-comparativa {
+      width:100%; border-collapse:collapse; min-width:600px;
+      font-size:13px;
+    }
+    .tabla-comparativa th {
+      background:var(--bg-card); padding:12px 16px;
+      font-size:11px; font-weight:700; letter-spacing:.6px; text-transform:uppercase;
+      color:var(--text-3); text-align:right; white-space:nowrap;
+      border-bottom:1px solid var(--border);
+    }
+    .tabla-comparativa th.col-concepto { text-align:left; }
+    .tabla-comparativa th.mes-header {
+      cursor:pointer; color:var(--amber); transition:color .2s;
+    }
+    .tabla-comparativa th.mes-header:hover { color:var(--text); }
+    .tabla-comparativa td {
+      padding:11px 16px; border-bottom:1px solid var(--border);
+      text-align:right; color:var(--text-2); white-space:nowrap;
+    }
+    .tabla-comparativa td.col-concepto { text-align:left; color:var(--text-3); font-size:12px; }
+    .tabla-comparativa tr.row-total td { color:var(--text); font-weight:700; }
+    .tabla-comparativa tr.row-margen td { font-weight:700; font-size:12px; }
+    .tabla-comparativa tr.row-separator td { padding:4px 16px; border-bottom:1px solid var(--border-strong); }
+    .tabla-comparativa tr.row-resultado td.col-concepto { font-weight:700; color:var(--text); }
+    .tabla-comparativa tr:last-child td { border-bottom:none; }
+    .margen-verde { color:var(--green) !important; }
+    .margen-amber { color:var(--amber) !important; }
+    .margen-rojo { color:var(--red) !important; }
+    .btn-eliminar-mes {
+      background:none; border:none; cursor:pointer;
+      color:var(--text-4); padding:2px 4px; border-radius:4px; transition:color .2s;
+    }
+    .btn-eliminar-mes:hover { color:var(--red); }
+    .btn-eliminar-mes svg { width:13px; height:13px; }
+
+    /* ══════════════════════════════════
+       PANTALLA B — EDITOR
+    ══════════════════════════════════ */
+    .editor-header {
+      display:flex; align-items:center; gap:14px;
+      margin-bottom:24px; padding-bottom:20px; border-bottom:1px solid var(--border);
+      flex-wrap:wrap;
+    }
+    .btn-volver {
+      display:flex; align-items:center; gap:6px;
+      font-size:13px; font-weight:600; color:var(--text-3);
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:var(--radius-sm); padding:8px 14px;
+      cursor:pointer; transition:all .2s;
+    }
+    .btn-volver:hover { background:var(--surface-hover); color:var(--text); }
+    .btn-volver svg { width:14px; height:14px; }
+    .editor-mes-select {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:var(--radius-sm); padding:9px 36px 9px 14px;
+      font-size:14px; font-weight:700; color:var(--text);
+      cursor:pointer; outline:none; transition:border-color .2s;
+      appearance:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%238e8e93'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+      background-repeat:no-repeat; background-position:right 12px center; background-size:16px;
+    }
+    .editor-mes-select:focus { border-color:var(--amber); }
+
+    /* SECCIONES DEL EOR */
+    .eor-seccion {
+      background:var(--bg-card); border:1px solid var(--border);
+      border-radius:var(--radius-lg); padding:24px 26px; margin-bottom:14px;
+    }
+    .eor-seccion-titulo {
+      display:flex; align-items:center; gap:10px;
+      font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:14px; font-weight:800; color:var(--text);
+      margin-bottom:4px;
+    }
+    .eor-seccion-titulo svg { width:17px; height:17px; color:var(--amber); }
+    .eor-seccion-subtitulo { font-size:12px; color:var(--text-4); margin-bottom:20px; }
+
+    /* LÍNEAS DE INPUT */
+    .eor-linea {
+      display:flex; align-items:flex-start; gap:16px;
+      padding:10px 0; border-bottom:1px solid var(--border);
+    }
+    .eor-linea:last-of-type { border-bottom:none; }
+    .eor-linea-left { flex:1; }
+    .eor-linea-label { font-size:13.5px; font-weight:600; color:var(--text-2); line-height:1.4; }
+    .eor-linea-ayuda { font-size:11.5px; color:var(--text-4); margin-top:3px; line-height:1.5; }
+    .eor-linea-input-wrap { display:flex; align-items:center; gap:6px; min-width:160px; }
+    .eor-prefix { font-size:13px; color:var(--text-3); font-weight:600; }
+    .eor-input {
+      width:140px; background:var(--surface); border:1px solid var(--border);
+      border-radius:var(--radius-sm); padding:9px 12px;
+      font-size:14px; font-family:'Inter',sans-serif; font-weight:600;
+      color:var(--text); text-align:right; outline:none; transition:border-color .2s;
+    }
+    .eor-input:focus { border-color:var(--amber); }
+    .eor-input::placeholder { color:var(--text-4); font-weight:400; }
+
+    /* TOTAL DE SECCIÓN */
+    .eor-total {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 0 2px; border-top:2px solid var(--border-strong);
+      margin-top:12px;
+    }
+    .eor-total-label { font-size:12px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; color:var(--text-3); }
+    .eor-total-valor { font-family:'Plus Jakarta Sans',sans-serif; font-size:18px; font-weight:800; color:var(--text); }
+
+    /* BANNERS DE RESULTADO */
+    .eor-resultado {
+      border-radius:var(--radius-lg); padding:22px 26px; margin-bottom:14px;
+      border:2px solid; transition:all .3s;
+    }
+    .eor-resultado.verde { background:var(--green-light); border-color:rgba(0,200,83,0.3); }
+    .eor-resultado.amber { background:var(--amber-light); border-color:rgba(255,149,0,0.3); }
+    .eor-resultado.rojo { background:var(--red-light); border-color:rgba(255,59,48,0.3); }
+    .eor-resultado.neutro { background:var(--surface); border-color:var(--border); }
+    .eor-resultado-header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+    .eor-resultado-titulo { font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--text-3); margin-bottom:6px; }
+    .eor-resultado-valor {
+      font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:32px; font-weight:900; letter-spacing:-0.5px; line-height:1;
+    }
+    .eor-resultado-valor.verde { color:var(--green); }
+    .eor-resultado-valor.amber { color:var(--amber); }
+    .eor-resultado-valor.rojo { color:var(--red); }
+    .eor-resultado-margen-wrap { text-align:right; }
+    .eor-resultado-margen-label { font-size:11px; font-weight:600; color:var(--text-3); margin-bottom:4px; }
+    .eor-resultado-margen {
+      font-family:'Plus Jakarta Sans',sans-serif;
+      font-size:26px; font-weight:800; line-height:1;
+    }
+    .eor-resultado-margen.verde { color:var(--green); }
+    .eor-resultado-margen.amber { color:var(--amber); }
+    .eor-resultado-margen.rojo { color:var(--red); }
+    .eor-resultado-ayuda {
+      font-size:12px; color:var(--text-3); margin-top:14px;
+      padding-top:12px; border-top:1px solid var(--border);
+      line-height:1.6;
+    }
+    .eor-resultado-ayuda strong { color:var(--text-2); font-weight:600; }
+
+    /* RESULTADO FINAL MÁS GRANDE */
+    .eor-resultado.final .eor-resultado-valor { font-size:42px; }
+    .eor-resultado.final .eor-resultado-margen { font-size:34px; }
+
+    /* NOTAS */
+    .eor-notas-textarea {
+      width:100%; background:var(--surface); border:1px solid var(--border);
+      border-radius:var(--radius-sm); padding:12px 14px;
+      font-size:13.5px; font-family:'Inter',sans-serif; color:var(--text);
+      resize:vertical; min-height:100px; outline:none; transition:border-color .2s;
+    }
+    .eor-notas-textarea:focus { border-color:var(--amber); }
+    .eor-notas-textarea::placeholder { color:var(--text-4); }
+
+    @media (max-width:640px) {
+      .body-scroll { padding:20px 16px; }
+      .eor-linea { flex-direction:column; gap:8px; }
+      .eor-input { width:100%; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <a href="/portal/dashboard.html" class="sidebar-logo">
+      <img src="/logos/SX Icon.png" alt="SCALEx">
+    </a>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-nav" id="sidebar-nav">
+      <a href="/portal/dashboard.html" class="sidebar-icon" title="Dashboard">
+        <i data-lucide="layout-dashboard"></i>
+      </a>
+      <a href="/portal/opsp.html" class="sidebar-icon" title="OPSP">
+        <i data-lucide="compass"></i>
+      </a>
+      <a href="/portal/adn.html" class="sidebar-icon" title="ADN Empresarial">
+        <i data-lucide="dna"></i>
+      </a>
+      <a href="/portal/flujo.html" class="sidebar-icon active" title="Flujo Financiero">
+        <i data-lucide="coins"></i>
+      </a>
+    </div>
+    <div class="sidebar-bottom" id="sidebar-bottom"></div>
+  </nav>
+
+  <!-- SHELL -->
+  <main class="shell">
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <a href="/portal/flujo.html" class="topbar-back">
+        <i data-lucide="arrow-left"></i>
+      </a>
+      <div class="topbar-title-block">
+        <div class="topbar-eyebrow">Pilar Flujo · Estado de Resultados</div>
+        <div class="topbar-title">La radiografía mensual de rentabilidad</div>
+      </div>
+      <div class="topbar-actions">
+        <div class="save-indicator idle" id="save-indicator">
+          <i data-lucide="check"></i>
+          <span id="save-text">—</span>
+        </div>
+        <button class="topbar-icon-btn" id="theme-toggle" title="Cambiar tema">
+          <i data-lucide="sun"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- BODY SCROLL -->
+    <div class="body-scroll" id="body-scroll">
+
+      <!-- ═══════════════════════════════════════
+           PANTALLA A — LISTA
+      ═══════════════════════════════════════ -->
+      <div class="pantalla" id="pantalla-lista">
+
+        <!-- Estado vacío -->
+        <div id="estado-vacio" style="display:none">
+          <div class="hero-vacio">
+            <div class="hero-vacio-icon">
+              <i data-lucide="file-bar-chart"></i>
+            </div>
+            <h1>Estado de Resultados Mensual</h1>
+            <h2>La radiografía de tu rentabilidad, mes a mes</h2>
+            <p>El Estado de Resultados es una herramienta clásica de finanzas que te dice si tu empresa REALMENTE está ganando dinero. No es un reporte automático — es un ejercicio que haces a fin de cada mes para entender tus números. Vamos a aprender a construirlo paso a paso.</p>
+            <button class="btn btn-amber" id="btn-crear-primero" style="margin-top:8px">
+              <i data-lucide="plus"></i>
+              Crear mi primer Estado de Resultados
+            </button>
+          </div>
+        </div>
+
+        <!-- Lista con registros -->
+        <div id="estado-lista" style="display:none">
+          <div class="lista-header">
+            <h2>Mis Estados de Resultados</h2>
+            <button class="btn-nuevo" id="btn-nuevo-mes">
+              <i data-lucide="plus"></i>
+              Nuevo mes
+            </button>
+          </div>
+          <div class="tabla-wrap">
+            <table class="tabla-comparativa" id="tabla-comparativa">
+              <!-- Generada por JS -->
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ═══════════════════════════════════════
+           PANTALLA B — EDITOR
+      ═══════════════════════════════════════ -->
+      <div class="pantalla" id="pantalla-editor">
+
+        <div class="editor-header">
+          <button class="btn-volver" id="btn-volver">
+            <i data-lucide="arrow-left"></i>
+            Volver a la lista
+          </button>
+          <select class="editor-mes-select" id="selector-mes">
+            <!-- Generado por JS -->
+          </select>
+        </div>
+
+        <!-- SECCIÓN 1: INGRESOS -->
+        <div class="eor-seccion">
+          <div class="eor-seccion-titulo">
+            <i data-lucide="trending-up"></i>
+            Ingresos
+          </div>
+          <div class="eor-seccion-subtitulo">Todo el dinero que generó tu empresa este mes</div>
+
+          <div class="eor-linea">
+            <div class="eor-linea-left">
+              <div class="eor-linea-label">Ventas totales del mes</div>
+              <div class="eor-linea-ayuda">↪ Lo que facturaste, no lo que cobraste. Si entregaste el producto o servicio este mes, va aquí.</div>
+            </div>
+            <div class="eor-linea-input-wrap">
+              <span class="eor-prefix">$</span>
+              <input type="number" class="eor-input" id="input-ingresos-ventas" placeholder="0" min="0" step="1">
+            </div>
+          </div>
+
+          <div class="eor-linea">
+            <div class="eor-linea-left">
+              <div class="eor-linea-label">Otros ingresos</div>
+              <div class="eor-linea-ayuda">↪ Renta de un local subarrendado, intereses, devoluciones de impuestos, etc.</div>
+            </div>
+            <div class="eor-linea-input-wrap">
+              <span class="eor-prefix">$</span>
+              <input type="number" class="eor-input" id="input-ingresos-otros" placeholder="0" min="0" step="1">
+            </div>
+          </div>
+
+          <div class="eor-total">
+            <span class="eor-total-label">Total Ingresos</span>
+            <span class="eor-total-valor" id="total-ingresos">$—</span>
+          </div>
+        </div>
+
+        <!-- SECCIÓN 2: COSTOS VARIABLES -->
+        <div class="eor-seccion">
+          <div class="eor-seccion-titulo">
+            <i data-lucide="package"></i>
+            Costos Variables
+          </div>
+          <div class="eor-seccion-subtitulo">Los que crecen con cada venta extra</div>
+
+          <div class="eor-linea">
+            <div class="eor-linea-left">
+              <div class="eor-linea-label">Costo de productos vendidos</div>
+              <div class="eor-linea-ayuda">↪ Si vendiste 100 hamburguesas: panes + carne + queso + papas de esas 100. Solo insumos directos.</div>
+            </div>
+            <div class="eor-linea-input-wrap">
+              <span class="eor-prefix">$</span>
+              <input type="number" class="eor-input" id="input-costo-productos" placeholder="0" min="0" step="1">
+            </div>
+          </div>
+
+          <div class="eor-linea">
+            <div class="eor-linea-left">
+              <div class="eor-linea-label">Comisiones de venta</div>
+              <div class="eor-linea-ayuda">↪ Comisiones a vendedores, comisiones de plataformas (tarjetas, marketplaces). Lo que pagas por vender.</div>
+            </div>
+            <div class="eor-linea-input-wrap">
+              <span class="eor-prefix">$</span>
+              <input type="number" class="eor-input" id="input-costo-comisiones" placeholder="0" min="0" step="1">
+            </div>
+          </div>
+
+          <div class="eor-linea">
+            <div class="eor-linea-left">
+              <div class="eor-linea-label">Otros costos variables</div>
+              <div class="eor-linea-ayuda">↪ Empaque, fletes, cualquier otro costo que suba con cada venta adicional.</div>
+            </div>
+            <div class="eor-linea-input-wrap">
+              <span class="eor-prefix">$</span>
+              <input type="number" class="eor-input" id="input-costo-var-otros" placeholder="0" min="0" step="1">
+            </div>
+          </div>
+
+          <div class="eor-total">
+            <span class="eor-total-label">Total Costos Variables</span>
+            <span class="eor-total-valor" id="total-costos-variables">$—</span>
+          </div>
+        </div>
+
+        <!-- RESULTADO 1: UTILIDAD BRUTA -->
+        <div class="eor-resultado neutro" id="resultado-bruta">
+          <div class="eor-resultado-header">
+            <div>
+              <div class="eor-resultado-titulo">Utilidad Bruta</div>
+              <div class="eor-resultado-valor neutro" id="valor-utilidad-bruta">$—</div>
+            </div>
+            <div class="eor-resultado-margen-wrap">
+              <div class="eor-resultado-margen-label">Margen Bruto</div>
+              <div class="eor-resultado-margen neutro" id="margen-bruto">—%</div>
+            </div>
+          </div>
+          <div class="eor-resultado-ayuda">
+            ↪ De cada $100 vendidos, te quedan <strong id="ayuda-bruta-monto">$X</strong> después de pagar lo que cuesta producir el producto.
+            Este margen <strong>NO incluye</strong> renta, sueldos ni gastos fijos — solo lo directamente atribuible a cada venta.
+          </div>
+        </div>
+
+        <!-- SECCIÓN 3: GASTOS FIJOS -->
+        <div class="eor-seccion">
+          <div class="eor-seccion-titulo">
+            <i data-lucide="building-2"></i>
+            Gastos Fijos
+          </div>
+          <div class="eor-seccion-subtitulo">Los que pagas pase lo que pase, vendas o no vendas</div>
+
+          <div class="eor-linea">
+            <div class="eor-linea-left">
+              <div class="eor-linea-label">Renta</div>
+              <div class="eor-linea-ayuda">↪ Renta del local, oficinas, bodegas.</div>
+            </div>
+            <div class="eor-linea-input-wrap">
+              <span class="eor-prefix">$</span>
+              <input type="number" class="eor-input" id="input-gasto-renta" placeholder="0" min="0" step="1">
+            </div>
+          </div>
+
+          <div class="eor-linea">
+            <div class="eor-linea-left">
+              <div class="eor-linea-label">Sueldos</div>
+              <div class="eor-linea-ayuda">↪ Nómina total + prestaciones + IMSS + INFONAVIT.</div>
+            </div>
+            <div class="eor-linea-input-wrap">
+              <span class="eor-prefix">$</span>
+              <input type="number" class="eor-input" id="input-gasto-sueldos" placeholder="0" min="0" step="1">
+            </div>
+          </div>
+
+          <div class="eor-linea">
+            <div class="eor-linea-left">
+              <div class="eor-linea-label">Servicios</div>
+              <div class="eor-linea-ayuda">↪ Luz, agua, internet, teléfono, gas — los recurrentes.</div>
+            </div>
+            <div class="eor-linea-input-wrap">
+              <span class="eor-prefix">$</span>
+              <input type="number" class="eor-input" id="input-gasto-servicios" placeholder="0" min="0" step="1">
+            </div>
+          </div>
+
+          <div class="eor-linea">
+            <div class="eor-linea-left">
+              <div class="eor-linea-label">Otros gastos fijos</div>
+              <div class="eor-linea-ayuda">↪ Suscripciones, asesorías, créditos, marketing fijo.</div>
+            </div>
+            <div class="eor-linea-input-wrap">
+              <span class="eor-prefix">$</span>
+              <input type="number" class="eor-input" id="input-gasto-fijos-otros" placeholder="0" min="0" step="1">
+            </div>
+          </div>
+
+          <div class="eor-total">
+            <span class="eor-total-label">Total Gastos Fijos</span>
+            <span class="eor-total-valor" id="total-gastos-fijos">$—</span>
+          </div>
+        </div>
+
+        <!-- RESULTADO 2: UTILIDAD OPERATIVA -->
+        <div class="eor-resultado neutro" id="resultado-operativa">
+          <div class="eor-resultado-header">
+            <div>
+              <div class="eor-resultado-titulo">Utilidad Operativa</div>
+              <div class="eor-resultado-valor neutro" id="valor-utilidad-operativa">$—</div>
+            </div>
+            <div class="eor-resultado-margen-wrap">
+              <div class="eor-resultado-margen-label">Margen Operativo</div>
+              <div class="eor-resultado-margen neutro" id="margen-operativo">—%</div>
+            </div>
+          </div>
+          <div class="eor-resultado-ayuda">
+            ↪ Lo que ganaste <strong>ANTES de impuestos</strong>. Este es el verdadero indicador de qué tan bien opera tu empresa —
+            ya descuenta TODO lo operativo: ventas, costos, sueldos, renta, servicios.
+          </div>
+        </div>
+
+        <!-- SECCIÓN 4: IMPUESTOS Y OTROS -->
+        <div class="eor-seccion">
+          <div class="eor-seccion-titulo">
+            <i data-lucide="landmark"></i>
+            Impuestos y Otros
+          </div>
+          <div class="eor-seccion-subtitulo">Lo que le vas a pagar al fisco y gastos no-operativos</div>
+
+          <div class="eor-linea">
+            <div class="eor-linea-left">
+              <div class="eor-linea-label">Impuestos sobre la renta</div>
+              <div class="eor-linea-ayuda">↪ ISR estimado del mes. Si tu contador no te lo da mensual, usa ~30% sobre la utilidad operativa como aproximación.</div>
+            </div>
+            <div class="eor-linea-input-wrap">
+              <span class="eor-prefix">$</span>
+              <input type="number" class="eor-input" id="input-impuestos" placeholder="0" min="0" step="1">
+            </div>
+          </div>
+
+          <div class="eor-linea">
+            <div class="eor-linea-left">
+              <div class="eor-linea-label">Otros (intereses, etc.)</div>
+              <div class="eor-linea-ayuda">↪ Intereses bancarios, gastos no-operativos, diferencias de tipo de cambio, etc.</div>
+            </div>
+            <div class="eor-linea-input-wrap">
+              <span class="eor-prefix">$</span>
+              <input type="number" class="eor-input" id="input-otros-gastos" placeholder="0" min="0" step="1">
+            </div>
+          </div>
+
+          <div class="eor-total">
+            <span class="eor-total-label">Total Impuestos y Otros</span>
+            <span class="eor-total-valor" id="total-impuestos-otros">$—</span>
+          </div>
+        </div>
+
+        <!-- RESULTADO FINAL: UTILIDAD NETA -->
+        <div class="eor-resultado final neutro" id="resultado-neta">
+          <div class="eor-resultado-header">
+            <div>
+              <div class="eor-resultado-titulo">✦ Utilidad Neta</div>
+              <div class="eor-resultado-valor neutro" id="valor-utilidad-neta">$—</div>
+            </div>
+            <div class="eor-resultado-margen-wrap">
+              <div class="eor-resultado-margen-label">Margen Neto</div>
+              <div class="eor-resultado-margen neutro" id="margen-neto">—%</div>
+            </div>
+          </div>
+          <div class="eor-resultado-ayuda">
+            ↪ Lo que <strong>REALMENTE quedó</strong>. Esto es lo que tu empresa generó de riqueza este mes.
+            Si este número es bajo o negativo, algo del proceso de arriba está mal — revisa sección por sección para encontrar dónde se va el dinero.
+          </div>
+        </div>
+
+        <!-- NOTAS -->
+        <div class="eor-seccion">
+          <div class="eor-seccion-titulo">
+            <i data-lucide="notebook-pen"></i>
+            Notas del mes
+          </div>
+          <textarea class="eor-notas-textarea" id="input-notas" placeholder="Anotaciones sobre eventos del mes, explicaciones de variaciones, decisiones tomadas... (opcional)"></textarea>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:32px;flex-wrap:wrap">
+          <button class="btn btn-amber" id="btn-guardar">
+            <i data-lucide="save"></i>
+            Guardar Estado de Resultados
+          </button>
+          <span id="form-feedback" style="font-size:13px;color:var(--text-3)"></span>
+        </div>
+
+        <div style="height:32px"></div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script type="module" src="/assets/js/flujo-estado-resultados.js"></script>
+<script type="module" src="/assets/js/portal-shell.js"></script>
+<script>
+  lucide.createIcons()
+  const html = document.documentElement
+  const saved = localStorage.getItem('scalex-theme') || 'dark'
+  html.setAttribute('data-theme', saved)
+  document.getElementById('theme-toggle').addEventListener('click', () => {
+    const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'
+    html.setAttribute('data-theme', next)
+    localStorage.setItem('scalex-theme', next)
+    lucide.createIcons()
+  })
+</script>
+</body>
+</html>
