@@ -1,34 +1,19 @@
 # ════════════════════════════════════════════════════════════════════════════
 # SCALEx · Netlify _redirects
 # ════════════════════════════════════════════════════════════════════════════
-#
-# Configuración de qué muestra cada dominio del sitio.
-#
-# Dominios apuntando a este sitio:
-#   - scalexlatam.com        (primary)
-#   - www.scalexlatam.com    (auto-redirige a primary)
-#   - app.scalexlatam.com    (alias del portal)
-#   - agustinlozano.com      (alias retención)
-#
-# Reglas:
-#
-# 1. app.scalexlatam.com sirve la carpeta /portal/ del repo
-# 2. scalexlatam.com sirve la raíz del repo (landing actual por ahora)
-# 3. agustinlozano.com/portal/* redirige al portal nuevo
-# ════════════════════════════════════════════════════════════════════════════
 
-
-# ── 1. app.scalexlatam.com → sirve /portal/ ────────────────────────────────
-# Rewrite (status 200): la URL del navegador NO cambia.
-# Cuando alguien visita app.scalexlatam.com/algo, internamente sirve
-# /portal/algo pero el navegador sigue viendo app.scalexlatam.com/algo
-
-https://app.scalexlatam.com/     /portal/login.html  200!
-https://app.scalexlatam.com/*    /portal/:splat       200!
-
-
-# ── 2. agustinlozano.com/portal/* → redirige al portal nuevo ──────────────
-# Redirect 301 (permanente). Links viejos guardados llevan al portal nuevo.
-
+# ── 1. agustinlozano.com/portal/* → redirige al portal nuevo (301) ────────
 https://agustinlozano.com/portal/*       https://app.scalexlatam.com/:splat   301!
 https://www.agustinlozano.com/portal/*   https://app.scalexlatam.com/:splat   301!
+
+# ── 2. app.scalexlatam.com — assets COMPARTIDOS sirven desde raíz ─────────
+# Estas reglas van ANTES de la genérica de /portal/ porque los assets
+# viven en /assets/ en la raíz del repo, no dentro de /portal/.
+
+https://app.scalexlatam.com/assets/*    /assets/:splat    200!
+
+# ── 3. app.scalexlatam.com — el resto sirve /portal/ ──────────────────────
+# Cualquier otra ruta se sirve desde /portal/
+
+https://app.scalexlatam.com/     /portal/login.html    200!
+https://app.scalexlatam.com/*    /portal/:splat         200!
