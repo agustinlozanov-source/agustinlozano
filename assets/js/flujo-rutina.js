@@ -88,7 +88,9 @@ async function cargarEstado() {
     return null
   }
   // El RPC devuelve un array con un solo objeto
-  return Array.isArray(data) ? data[0] : data
+  const result = Array.isArray(data) ? data[0] : data
+  console.log('[flujo_rutina_estado] respuesta raw:', result)
+  return result
 }
 
 async function init() {
@@ -186,7 +188,7 @@ function renderResumen(egClase, egLabel, egColor, pct, progBg) {
 function renderCardDiario(d) {
   const nivel = nivelClase(d.diario_alerta_nivel)
   const label = nivelLabel(d.diario_alerta_nivel)
-  const hoyCap = d.diario_hoy_capturado === true
+  const hoyCap = !!d.diario_hoy_capturado
   const diasCap = d.diario_dias_capturados_7 ?? 0
   const racha = d.diario_racha_actual ?? 0
 
@@ -259,7 +261,7 @@ function renderCardDiario(d) {
 function renderCardSemanal(d) {
   const nivel = nivelClase(d.semanal_alerta_nivel)
   const label = nivelLabel(d.semanal_alerta_nivel)
-  const hecha = d.semanal_esta_semana_hecha === true
+  const hecha = !!d.semanal_esta_semana_hecha
   const diasDesde = d.semanal_dias_desde_ultima ?? null
 
   const estadoHtml = hecha
@@ -316,7 +318,7 @@ function renderCardSemanal(d) {
 function renderCardMensual(d) {
   const nivel = nivelClase(d.mensual_alerta_nivel)
   const label = nivelLabel(d.mensual_alerta_nivel)
-  const hecho = d.mensual_mes_anterior_hecho === true
+  const hecho = !!d.mensual_mes_anterior_hecho
   const diasDesde = d.mensual_dias_desde_cierre ?? null
 
   const estadoHtml = hecho
