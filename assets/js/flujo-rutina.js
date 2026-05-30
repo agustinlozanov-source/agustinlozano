@@ -89,7 +89,6 @@ async function cargarEstado() {
   }
   // El RPC devuelve un array con un solo objeto
   const result = Array.isArray(data) ? data[0] : data
-  console.log('[flujo_rutina_estado] respuesta raw:', result)
   return result
 }
 
