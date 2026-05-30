@@ -1,0 +1,33 @@
+# ════════════════════════════════════════════════════════════════════════════
+# SCALEx · Netlify _redirects
+# ════════════════════════════════════════════════════════════════════════════
+#
+# Configuración de qué muestra cada dominio del sitio.
+#
+# Dominios apuntando a este sitio:
+#   - scalexlatam.com        (primary)
+#   - www.scalexlatam.com    (auto-redirige a primary)
+#   - app.scalexlatam.com    (alias del portal)
+#   - agustinlozano.com      (alias retención)
+#
+# Reglas:
+#
+# 1. app.scalexlatam.com sirve la carpeta /portal/ del repo
+# 2. scalexlatam.com sirve la raíz del repo (landing actual por ahora)
+# 3. agustinlozano.com/portal/* redirige al portal nuevo
+# ════════════════════════════════════════════════════════════════════════════
+
+
+# ── 1. app.scalexlatam.com → sirve /portal/ ────────────────────────────────
+# Rewrite (status 200): la URL del navegador NO cambia.
+# Cuando alguien visita app.scalexlatam.com/algo, internamente sirve
+# /portal/algo pero el navegador sigue viendo app.scalexlatam.com/algo
+
+https://app.scalexlatam.com/*    /portal/:splat   200!
+
+
+# ── 2. agustinlozano.com/portal/* → redirige al portal nuevo ──────────────
+# Redirect 301 (permanente). Links viejos guardados llevan al portal nuevo.
+
+https://agustinlozano.com/portal/*       https://app.scalexlatam.com/:splat   301!
+https://www.agustinlozano.com/portal/*   https://app.scalexlatam.com/:splat   301!
