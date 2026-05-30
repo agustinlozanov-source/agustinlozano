@@ -13,7 +13,9 @@ https://www.agustinlozano.com/portal/*   https://app.scalexlatam.com/:splat   30
 https://app.scalexlatam.com/assets/*    /assets/:splat    200!
 
 # ── 3. app.scalexlatam.com — el resto sirve /portal/ ──────────────────────
-# Cualquier otra ruta se sirve desde /portal/
+# Rutas que YA incluyen /portal/ → se sirven tal cual (sin doblar el prefijo)
+# Rutas sin /portal/ → se reescriben añadiendo /portal/
 
 https://app.scalexlatam.com/     /portal/login.html    200!
+https://app.scalexlatam.com/portal/*    /portal/:splat  200!
 https://app.scalexlatam.com/*    /portal/:splat         200!
