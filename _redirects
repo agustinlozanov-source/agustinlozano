@@ -8,9 +8,11 @@ https://www.agustinlozano.com/portal/*   https://app.scalexlatam.com/:splat   30
 
 # ── 2. app.scalexlatam.com — assets COMPARTIDOS sirven desde raíz ─────────
 # Estas reglas van ANTES de la genérica de /portal/ porque los assets
-# viven en /assets/ en la raíz del repo, no dentro de /portal/.
+# viven en /assets/ y /logos/ en la raíz del repo, no dentro de /portal/.
 
 https://app.scalexlatam.com/assets/*    /assets/:splat    200!
+https://app.scalexlatam.com/logos/*     /logos/:splat     200!
+https://app.scalexlatam.com/imagenes/*  /imagenes/:splat  200!
 
 # ── 3. app.scalexlatam.com — el resto sirve /portal/ ──────────────────────
 # Rutas que YA incluyen /portal/ → se sirven tal cual (sin doblar el prefijo)
