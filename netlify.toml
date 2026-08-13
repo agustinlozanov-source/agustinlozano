@@ -44,6 +44,14 @@
   [headers.values]
     Cache-Control = "no-cache, no-store, must-revalidate"
 
+# Sección OCULTA de evaluaciones — no indexar en buscadores
+[[headers]]
+  for = "/evaluaciones/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
 # Las páginas HTML del portal NO se cachean (data dinámica)
 [[headers]]
   for = "/portal/*.html"
