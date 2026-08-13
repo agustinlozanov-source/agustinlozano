@@ -31,3 +31,10 @@ export async function evalCalificar({ intentoId, respuestas }) {
   if (error) throw error
   return data
 }
+
+// Usada por /resultados (acceso abierto por decisión del dueño).
+export async function evalResultados() {
+  const { data, error } = await supabase.rpc('eval_resultados')
+  if (error) throw error
+  return data
+}

@@ -301,3 +301,64 @@ join lateral (
   limit 1
 ) i on true
 order by i.enviado_en desc;
+
+-- ============================================================================
+-- FUNCIÓN 3 — eval_resultados: payload para la página /resultados.
+-- OJO: expuesta a anon (la página es de acceso abierto por decisión del dueño).
+-- Devuelve resumen + participantes (última nota) + analítica por pregunta.
+-- ============================================================================
+create or replace function eval_resultados()
+returns jsonb
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select jsonb_build_object(
+    'resumen', (
+      select jsonb_build_object(
+        'participantes', count(*),
+        'aprobados',     count(*) filter (where aprobado),
+        'reprobados',    count(*) filter (where not aprobado),
+        'promedio',      coalesce(round(avg(puntaje), 2), 0)
+      )
+      from (
+        select distinct on (participante_id) participante_id, puntaje, aprobado
+        from eval_intentos
+        where enviado_en is not null
+        order by participante_id, enviado_en desc
+      ) x
+    ),
+    'participantes', coalesce((
+      select jsonb_agg(row_to_json(t) order by t.enviado_en desc)
+      from (
+        select pa.nombre, pa.email, pa.empresa,
+               i.puntaje, i.aprobado, i.enviado_en,
+               (select count(*) from eval_intentos ii
+                 where ii.participante_id = pa.id and ii.enviado_en is not null) as intentos
+        from eval_participantes pa
+        join lateral (
+          select puntaje, aprobado, enviado_en
+          from eval_intentos
+          where participante_id = pa.id and enviado_en is not null
+          order by enviado_en desc limit 1
+        ) i on true
+      ) t
+    ), '[]'::jsonb),
+    'preguntas', coalesce((
+      select jsonb_agg(row_to_json(p) order by p.id)
+      from (
+        select q.id, q.bloque, q.tipo, q.enunciado,
+               count(r.*)                              as respuestas,
+               count(r.*) filter (where r.es_correcta) as aciertos,
+               round(100.0 * count(r.*) filter (where r.es_correcta) / nullif(count(r.*), 0), 1) as pct_acierto
+        from eval_preguntas q
+        left join eval_respuestas r on r.pregunta_id = q.id
+        group by q.id, q.bloque, q.tipo, q.enunciado
+      ) p
+    ), '[]'::jsonb)
+  );
+$$;
+
+revoke all on function eval_resultados() from public;
+grant execute on function eval_resultados() to anon, authenticated;
