@@ -218,6 +218,22 @@ begin
 end; $$;
 grant execute on function admin_upsert_pregunta(bigint, jsonb) to anon, authenticated;
 
+-- ── Borrar intentos de una evaluación (desbloquea edición de preguntas) ───────
+-- Descarta explícitamente los intentos + sus respuestas (cascade) para poder
+-- editar/reimportar las preguntas. Acción consciente del admin.
+create or replace function admin_reset_intentos(p_evaluacion_id bigint)
+returns jsonb language plpgsql security definer set search_path = public as $$
+declare v_n int;
+begin
+  if not eval_is_admin() then return jsonb_build_object('ok',false,'error','no_autorizado'); end if;
+  if not exists (select 1 from evaluaciones where id=p_evaluacion_id) then
+    return jsonb_build_object('ok',false,'error','evaluacion_inexistente'); end if;
+  select count(*) into v_n from eval_intentos where evaluacion_id=p_evaluacion_id;
+  delete from eval_intentos where evaluacion_id=p_evaluacion_id;  -- respuestas caen por cascade
+  return jsonb_build_object('ok',true,'borrados',v_n);
+end; $$;
+grant execute on function admin_reset_intentos(bigint) to anon, authenticated;
+
 -- ── Borrar UNA pregunta ───────────────────────────────────────────────────────
 create or replace function admin_delete_pregunta(p_pregunta_id bigint)
 returns jsonb language plpgsql security definer set search_path = public as $$

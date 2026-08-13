@@ -185,12 +185,25 @@ async function guardarEvaluacion() {
 function mostrarPreguntas() {
   $('#bloque-preguntas').classList.remove('hidden')
   const bloqueado = state.intentos > 0
-  $('#preg-notice').innerHTML = bloqueado
-    ? `<div class="notice">Esta evaluación ya tiene <b>${state.intentos}</b> intento(s). Las preguntas quedan bloqueadas para no alterar resultados ya emitidos.</div>` : ''
+  const notice = $('#preg-notice')
+  if (bloqueado) {
+    notice.innerHTML = `<div class="notice">Esta evaluación ya tiene <b>${state.intentos}</b> intento(s). Las preguntas están bloqueadas para no alterar resultados ya emitidos.<br>
+      <button id="btn-reset-intentos" class="btn danger sm" style="margin-top:10px;">Borrar intentos y desbloquear edición</button></div>`
+    $('#btn-reset-intentos').addEventListener('click', resetIntentos)
+  } else {
+    notice.innerHTML = ''
+  }
   $('#btn-add-preg').disabled = bloqueado
   $('#btn-importar').disabled = bloqueado
   $('#preg-count').textContent = `${state.preguntas.length} pregunta(s)`
   renderListaPreguntas(bloqueado)
+}
+
+async function resetIntentos() {
+  if (!confirm(`Se borrarán ${state.intentos} intento(s) y TODAS sus respuestas de esta evaluación. No se puede deshacer.\n\n¿Continuar?`)) return
+  const r = await rpc('admin_reset_intentos', { p_evaluacion_id: state.evalId })
+  if (!r?.ok) return alert(msgError(r?.error))
+  await recargarPreguntas()
 }
 
 function renderListaPreguntas(bloqueado) {

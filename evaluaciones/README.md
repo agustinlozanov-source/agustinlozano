@@ -55,7 +55,9 @@ redirige al login del portal; sin rol admin muestra "acceso restringido". Las RP
 Permite: crear/editar/borrar evaluaciones, publicar/despublicar, y cargar preguntas
 por **formulario** (una a una) o **importador** (pegar JSON o el Markdown del banco).
 Las preguntas quedan **bloqueadas si la evaluación ya tiene intentos** (no alterar
-resultados emitidos).
+resultados emitidos). Para editarlas igual, hay un botón **"Borrar intentos y
+desbloquear"** (`admin_reset_intentos`) que descarta esos intentos + respuestas de
+forma explícita. La *metadata* (título, umbral, publicada…) se puede editar siempre.
 
 ## Puesta en marcha
 
