@@ -112,6 +112,7 @@ select * from eval_analitica_participantes;    -- última nota por participante 
 ## Roadmap
 
 - **Fase 1 (hecha):** motor multi-evaluación + selección en cascada + reintentos por evaluación.
-- **Fase 2 (hecha):** Superadmin protegido (login portal + admin) con importador + formulario.
-- **Fase 3:** `/resultados` con selector de evaluación y export por evaluación.
+- **Fase 2 (hecha):** Superadmin protegido (login portal + admin) con importador + formulario;
+  lista en tarjetas con Ver / Editar / Eliminar por evaluación.
+- **Fase 3 (hecha):** `/resultados` con selector de evaluación (`eval_resultados_lista`) y export por evaluación.
 - **Diagnósticos:** replicar el patrón en `/diagnosticos/` con su propio bloque en `_redirects`.

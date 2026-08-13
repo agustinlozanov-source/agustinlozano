@@ -4,12 +4,13 @@
 // Acceso ABIERTO (decisión del dueño). Lee vía RPC eval_resultados() con la
 // anon key. Exporta a .xlsx nativo con SheetJS (CDN).
 // ============================================================================
-import { evalResultados } from '/evaluaciones/assets/eval-client.js'
+import { evalResultados, evalResultadosLista } from '/evaluaciones/assets/eval-client.js'
 
 const $ = (s, r = document) => r.querySelector(s)
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]))
 
-const state = { data: null, sortP: { key: 'enviado_en', dir: -1 }, sortQ: { key: 'pct_acierto', dir: 1 } }
+const state = { lista: [], evalId: null, data: null, sortP: { key: 'enviado_en', dir: -1 }, sortQ: { key: 'pct_acierto', dir: 1 } }
+const slug = (s) => String(s || 'evaluacion').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40)
 
 const fmtFecha = (iso) => {
   if (!iso) return '—'
@@ -19,11 +20,31 @@ const fmtFecha = (iso) => {
 }
 const nombreBloque = (b) => ({ innovacion: 'Innovación', automatizacion: 'Automatización' }[b] || b)
 
+const evalActual = () => state.lista.find(e => e.id === state.evalId)
+
 // ── Carga ─────────────────────────────────────────────────────────────────────
+async function initSelector() {
+  state.lista = await evalResultadosLista()
+  if (!state.lista.length) {
+    $('#selector-bar').classList.add('hidden')
+    $('#app').innerHTML = `<div class="card"><div class="empty">Todavía no hay evaluaciones con resultados enviados.</div></div>`
+    $('#btn-export').disabled = true
+    return false
+  }
+  const sel = $('#sel-eval')
+  sel.innerHTML = state.lista.map(e =>
+    `<option value="${e.id}">${esc(e.titulo)} — ${esc(e.modulo)} · ${esc(e.bloque)} (${e.anio}) · ${e.intentos} intento(s)</option>`
+  ).join('')
+  if (!state.lista.some(e => e.id === state.evalId)) state.evalId = state.lista[0].id
+  sel.value = String(state.evalId)
+  $('#selector-bar').classList.remove('hidden')
+  return true
+}
+
 async function cargar() {
   try {
-    const data = await evalResultados()
-    state.data = data
+    $('#app').innerHTML = '<div class="loading">Cargando resultados…</div>'
+    state.data = await evalResultados(state.evalId)
     render()
   } catch (ex) {
     console.error(ex)
@@ -161,7 +182,7 @@ async function exportarExcel() {
     XLSX.utils.book_append_sheet(wb, wsQ, 'Analítica')
 
     const hoy = new Date().toISOString().slice(0, 10)
-    XLSX.writeFile(wb, `resultados-modulo6-${hoy}.xlsx`)
+    XLSX.writeFile(wb, `resultados-${slug(evalActual()?.titulo)}-${hoy}.xlsx`)
   } catch (ex) {
     console.error(ex)
     alert('No se pudo generar el Excel. Revisa tu conexión e inténtalo de nuevo.')
@@ -172,6 +193,7 @@ async function exportarExcel() {
 }
 
 // ── Init ────────────────────────────────────────────────────────────────────────
-$('#btn-refresh').addEventListener('click', cargar)
+$('#sel-eval').addEventListener('change', () => { state.evalId = Number($('#sel-eval').value); cargar() })
+$('#btn-refresh').addEventListener('click', async () => { if (await initSelector()) cargar() })
 $('#btn-export').addEventListener('click', exportarExcel)
-cargar()
+;(async () => { if (await initSelector()) cargar() })()

@@ -38,9 +38,16 @@ export async function evalCalificar({ intentoId, respuestas }) {
   return data
 }
 
-// Usada por /resultados (acceso abierto por decisión del dueño).
-export async function evalResultados() {
-  const { data, error } = await supabase.rpc('eval_resultados')
+// Usadas por /resultados (acceso abierto por decisión del dueño).
+export async function evalResultadosLista() {
+  const { data, error } = await supabase.rpc('eval_resultados_lista')
+  if (error) throw error
+  return data || []
+}
+
+export async function evalResultados(evaluacionId) {
+  const args = evaluacionId ? { p_evaluacion_id: evaluacionId } : {}
+  const { data, error } = await supabase.rpc('eval_resultados', args)
   if (error) throw error
   return data
 }

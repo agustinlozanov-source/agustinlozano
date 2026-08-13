@@ -11,14 +11,21 @@
   <main class="wrap">
     <header class="head">
       <div>
-        <p class="kicker">Diplomado Anáhuac Cancún · Módulo 6</p>
-        <h1>Resultados de la evaluación</h1>
+        <p class="kicker">Universidad Anáhuac Cancún</p>
+        <h1>Resultados de evaluaciones</h1>
       </div>
       <div class="tools">
         <button id="btn-refresh" class="btn ghost" type="button">↻ Actualizar</button>
         <button id="btn-export" class="btn" type="button" disabled>⬇ Exportar a Excel</button>
       </div>
     </header>
+
+    <div id="selector-bar" class="card hidden" style="margin-top:18px;padding:16px 20px;">
+      <div class="field" style="margin:0;">
+        <label for="sel-eval" style="font-weight:600;font-size:14px;">Evaluación</label>
+        <select id="sel-eval"></select>
+      </div>
+    </div>
 
     <div id="app">
       <div class="loading">Cargando resultados…</div>

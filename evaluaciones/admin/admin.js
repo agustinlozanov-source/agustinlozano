@@ -54,6 +54,8 @@ function bind() {
   $('#btn-nueva').addEventListener('click', () => showEditor(null))
   $('#btn-refresh').addEventListener('click', showList)
   $('#btn-volver').addEventListener('click', showList)
+  $('#btn-detalle-volver').addEventListener('click', showList)
+  $('#btn-detalle-editar').addEventListener('click', () => showEditor(detalleId))
   $('#btn-guardar-eval').addEventListener('click', guardarEvaluacion)
   $('#btn-add-preg').addEventListener('click', () => abrirFormPregunta(null))
   $('#btn-importar').addEventListener('click', abrirImportador)
@@ -78,6 +80,7 @@ async function loadTaxonomia() {
 // ── Vista LISTA ─────────────────────────────────────────────────────────────
 async function showList() {
   $('#view-editor').classList.add('hidden')
+  $('#view-detalle').classList.add('hidden')
   $('#view-list').classList.remove('hidden')
   const res = await rpc('admin_list_evaluaciones')
   const cont = $('#lista-cont')
@@ -85,26 +88,32 @@ async function showList() {
   const evs = res.evaluaciones
   if (!evs.length) { cont.innerHTML = '<div class="empty" style="padding:30px;text-align:center;color:var(--gris)">Todavía no hay evaluaciones. Crea la primera.</div>'; return }
 
-  cont.innerHTML = `<div class="table-scroll"><table class="adm">
-    <thead><tr><th>Programa</th><th>Año</th><th>Módulo</th><th>Bloque</th><th>Preg.</th><th>Intentos</th><th>Estado</th><th></th></tr></thead>
-    <tbody>${evs.map(e => `
-      <tr>
-        <td class="wrap">${esc(e.programa)}</td><td>${e.anio}</td>
-        <td class="wrap">${esc(e.modulo)}</td><td class="wrap">${esc(e.bloque)}</td>
-        <td>${e.preguntas}</td><td>${e.intentos}</td>
-        <td>${e.publicada ? '<span class="badge pub">Publicada</span>' : '<span class="badge draft">Borrador</span>'}${e.activa ? '' : ' <span class="badge off">inactiva</span>'}</td>
-        <td class="row-actions">
-          <button class="btn sm link" data-act="edit" data-id="${e.id}">Editar</button>
-          <button class="btn sm ghost" data-act="pub" data-id="${e.id}" data-pub="${e.publicada}">${e.publicada ? 'Despublicar' : 'Publicar'}</button>
-          <button class="btn sm danger" data-act="del" data-id="${e.id}" data-int="${e.intentos}">Borrar</button>
-        </td>
-      </tr>`).join('')}</tbody></table></div>`
+  cont.innerHTML = evs.map(e => `
+    <div class="eval-card">
+      <div class="ec-main">
+        <div class="ec-title">${esc(e.titulo)}</div>
+        <div class="ec-tax">${esc(e.programa)} · ${e.anio} · ${esc(e.modulo)} · ${esc(e.bloque)}</div>
+        <div class="ec-badges">
+          ${e.publicada ? '<span class="badge pub">Publicada</span>' : '<span class="badge draft">Borrador</span>'}
+          ${e.activa ? '' : '<span class="badge off">inactiva</span>'}
+          <span class="badge off">${e.preguntas} preg.</span>
+          <span class="badge off">${e.intentos} intento(s)</span>
+        </div>
+      </div>
+      <div class="ec-actions">
+        <button class="btn sm ghost" data-act="ver" data-id="${e.id}">👁 Ver</button>
+        <button class="btn sm" data-act="edit" data-id="${e.id}">✎ Editar</button>
+        <button class="btn sm link" data-act="pub" data-id="${e.id}" data-pub="${e.publicada}">${e.publicada ? 'Despublicar' : 'Publicar'}</button>
+        <button class="btn sm danger" data-act="del" data-id="${e.id}" data-int="${e.intentos}">🗑 Eliminar</button>
+      </div>
+    </div>`).join('')
 
   cont.querySelectorAll('button[data-act]').forEach(b => b.addEventListener('click', () => accionLista(b.dataset)))
 }
 
 async function accionLista(d) {
   const id = Number(d.id)
+  if (d.act === 'ver') return showDetalle(id)
   if (d.act === 'edit') return showEditor(id)
   if (d.act === 'pub') {
     const r = await rpc('admin_set_publicada', { p_id: id, p_publicada: d.pub !== 'true' })
@@ -120,9 +129,50 @@ async function accionLista(d) {
   }
 }
 
+// ── Vista DETALLE (solo lectura) ─────────────────────────────────────────────
+let detalleId = null
+async function showDetalle(id) {
+  detalleId = id
+  $('#view-list').classList.add('hidden'); $('#view-editor').classList.add('hidden')
+  $('#view-detalle').classList.remove('hidden')
+  const cont = $('#detalle-cont')
+  cont.innerHTML = '<p class="sub">Cargando…</p>'
+  const res = await rpc('admin_get_evaluacion', { p_id: id })
+  if (!res?.ok) { cont.innerHTML = `<div class="err-msg">${esc(msgError(res?.error))}</div>`; return }
+  const e = res.evaluacion
+  cont.innerHTML = `
+    <h2 style="margin-bottom:2px;">${esc(e.titulo)}</h2>
+    <p class="sub" style="margin-bottom:8px;">${esc(e.programa)} · ${e.anio} · ${esc(e.modulo)} · ${esc(e.bloque)}</p>
+    <div class="ec-badges" style="margin-bottom:12px;">
+      ${e.publicada ? '<span class="badge pub">Publicada</span>' : '<span class="badge draft">Borrador</span>'}
+      ${e.activa ? '' : '<span class="badge off">inactiva</span>'}
+      <span class="badge off">Umbral ${e.umbral}</span>
+      <span class="badge off">${e.max_intentos} reintento(s)</span>
+      <span class="badge off">${res.intentos} enviado(s)</span>
+    </div>
+    ${e.descripcion ? `<p class="sub">${esc(e.descripcion)}</p>` : ''}
+    <h3 style="margin:16px 0 0;">Preguntas (${res.preguntas.length})</h3>
+    <div id="detalle-preg"></div>`
+  const pc = $('#detalle-preg')
+  res.preguntas.forEach((p, i) => {
+    const card = el('div', 'preg-card')
+    const top = el('div', 'top')
+    top.appendChild(el('span', 'num', `#${i + 1}`))
+    top.appendChild(el('span', 'meta', `${esc(p.tema || '—')} · ${esc(p.tipo)}`))
+    card.appendChild(top)
+    card.appendChild(el('div', 'enun', esc(p.enunciado)))
+    const ul = el('ul')
+    ;(p.opciones || []).forEach(o => ul.appendChild(el('li', o.correcta ? 'ok' : '', esc(o.texto) + (o.correcta ? ' ✔' : ''))))
+    card.appendChild(ul)
+    if (p.justificacion) card.appendChild(el('div', 'hint', 'Justificación: ' + esc(p.justificacion)))
+    pc.appendChild(card)
+  })
+}
+
 // ── Vista EDITOR ────────────────────────────────────────────────────────────
 async function showEditor(id) {
   $('#view-list').classList.add('hidden')
+  $('#view-detalle').classList.add('hidden')
   $('#view-editor').classList.remove('hidden')
   $('#editor-error').classList.add('hidden'); $('#editor-ok').classList.add('hidden')
   $('#import-panel').classList.add('hidden'); $('#preg-form-panel').classList.add('hidden')

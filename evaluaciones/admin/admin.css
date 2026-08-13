@@ -36,6 +36,18 @@ table.adm tbody tr:hover { background: var(--marino-050); }
 .btn.link { background: transparent; color: var(--naranja-600); padding: 7px 8px; }
 .btn.link:hover { background: var(--marino-050); }
 
+/* Tarjetas de evaluación en la lista */
+.eval-card { display: flex; gap: 14px; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; border: 1px solid var(--linea); border-radius: 12px; padding: 14px 16px;
+  margin-top: 10px; background: #fff; transition: border-color .12s, box-shadow .12s; }
+.eval-card:hover { border-color: #b9c6d3; box-shadow: var(--sombra); }
+.ec-main { min-width: 240px; flex: 1; }
+.ec-title { font-weight: 700; font-size: 16px; color: var(--marino); }
+.ec-tax { color: var(--gris); font-size: 13px; margin-top: 2px; }
+.ec-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.ec-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+@media (max-width: 640px) { .ec-actions { width: 100%; } .ec-actions .btn { flex: 1; } }
+
 /* Preguntas en el editor */
 .preg-card { border: 1px solid var(--linea); border-radius: 12px; padding: 14px 16px; margin-top: 10px; background: #fff; }
 .preg-card .top { display: flex; align-items: baseline; gap: 10px; }
