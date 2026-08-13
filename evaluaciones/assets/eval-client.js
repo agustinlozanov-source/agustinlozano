@@ -16,9 +16,15 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
 })
 
-export async function evalIniciar({ nombre, email, empresa }) {
+export async function evalCatalogo() {
+  const { data, error } = await supabase.rpc('eval_catalogo')
+  if (error) throw error
+  return data || []
+}
+
+export async function evalIniciar({ nombre, email, empresa, evaluacionId }) {
   const { data, error } = await supabase.rpc('eval_iniciar', {
-    p_nombre: nombre, p_email: email, p_empresa: empresa
+    p_nombre: nombre, p_email: email, p_empresa: empresa, p_evaluacion_id: evaluacionId
   })
   if (error) throw error
   return data

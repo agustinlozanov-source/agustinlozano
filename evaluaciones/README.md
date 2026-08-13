@@ -1,76 +1,111 @@
 # Evaluaciones · Diplomado Anáhuac (sección oculta)
 
-Sección **independiente** del portal SCALEx. No está enlazada desde la navegación
-de la app y lleva `noindex`. Vive en:
+Motor de **evaluaciones autocalificables** del diplomado, independiente del portal
+SCALEx. No está enlazado desde la navegación de la app y lleva `noindex`. Vive en:
 
 ```
 https://app.scalexlatam.com/evaluaciones
 ```
 
+## Modelo (multi-evaluación)
+
+Cada evaluación se identifica por **Programa / Año / Módulo / Bloque** (combinación
+única) y tiene su propia config (umbral, reintentos) y su set de preguntas.
+
+```
+evaluaciones (programa, anio, modulo, bloque, titulo, umbral, max_intentos, publicada, activa)
+  └── eval_preguntas (evaluacion_id, orden, tema, tipo, enunciado, justificacion)
+        └── eval_opciones (etiqueta, texto, es_correcta)
+eval_intentos (participante_id, evaluacion_id, ...)   ← reintentos por (persona × evaluación)
+```
+
+El participante: **identidad (nombre, correo, empresa) → selecciona Programa/Año/Módulo/Bloque
+(cascada) → responde**. Los selects se pueblan solo con evaluaciones `publicada = true`.
+
+> `tema` (innovacion/automatizacion) es un tag interno por pregunta, para agrupar y
+> para analítica. No confundir con el `bloque` de la taxonomía (nivel de selección).
+
 ## Estructura
 
 ```
 evaluaciones/
-├── index.html              # flujo completo: identidad → cuestionario → resultado
+├── index.html              # flujo: identidad → selección → cuestionario → resultado
 ├── assets/
 │   ├── eval.css            # identidad visual Anáhuac (naranja #FF5800 / marino #0E2841)
 │   ├── eval-client.js      # cliente Supabase aislado (sin sesión del portal)
-│   └── eval.js             # lógica: randomiza opciones, envía, muestra retro
+│   └── eval.js             # cascada de selección, randomiza opciones, envía, muestra retro
 └── db/
-    ├── schema.sql          # tablas + RLS + funciones RPC + vistas de analítica
-    └── seed.sql            # las 19 preguntas del Módulo 6 + opciones
+    ├── schema.sql          # base v1 (tablas + RLS + RPC + vistas)
+    ├── seed.sql            # las 19 preguntas del Módulo 6 + opciones
+    └── migracion-fase1.sql # → motor multi-evaluación (evaluaciones, evaluacion_id, RPCs nuevas)
 ```
 
-## Puesta en marcha (una sola vez)
+## Puesta en marcha
 
-1. **Base de datos** — en Supabase → *SQL Editor*, correr en orden:
-   1. `db/schema.sql`
-   2. `db/seed.sql`
+**Base de datos** — en Supabase → *SQL Editor*, correr EN ORDEN (base + migración):
 
-   Verificación (debe dar 4 opciones y 1 correcta por pregunta):
-   ```sql
-   select pregunta_id,
-          count(*) filter (where es_correcta) as correctas,
-          count(*) as opciones
-   from eval_opciones group by pregunta_id order by pregunta_id;
-   ```
+1. `db/schema.sql`
+2. `db/seed.sql`
+3. `db/migracion-fase1.sql`
 
-2. **Deploy** — `git push`. El [`_redirects`](../_redirects) ya enruta
-   `/evaluaciones` y `/evaluaciones/*` (por encima del catch-all del portal), y el
-   [`netlify.toml`](../netlify.toml) agrega `X-Robots-Tag: noindex`.
+Verificación:
+```sql
+select id, programa, anio, modulo, bloque, publicada from evaluaciones;
+select evaluacion_id, count(*) from eval_preguntas group by evaluacion_id;
+```
+
+**Deploy** — `git push`. El [`_redirects`](../_redirects) enruta `/evaluaciones` y
+`/evaluaciones/*` (por encima del catch-all del portal); el [`netlify.toml`](../netlify.toml)
+agrega `X-Robots-Tag: noindex`.
 
 ## Diseño de seguridad
 
 La anon key es pública, así que las respuestas correctas **no** viajan al navegador
 antes de responder:
 
-- RLS activado en todas las tablas `eval_*`, **sin políticas** para `anon`
-  → nadie lee/escribe las tablas directamente.
-- Todo pasa por 2 funciones `SECURITY DEFINER`:
-  - `eval_iniciar(nombre, email, empresa)` → crea participante/intento y devuelve
-    el cuestionario **sin** `es_correcta` ni `justificacion`.
-  - `eval_calificar(intento_id, respuestas)` → **califica en el servidor** y recién
-    ahí devuelve qué era correcto + la justificación.
+- RLS activado en todas las tablas `eval_*` y `evaluaciones`, **sin políticas** para
+  `anon` → nadie lee/escribe las tablas directamente.
+- Todo pasa por funciones `SECURITY DEFINER`:
+  - `eval_catalogo()` → taxonomía de evaluaciones publicadas (sin preguntas).
+  - `eval_iniciar(nombre, email, empresa, evaluacion_id)` → crea participante/intento y
+    devuelve el cuestionario **sin** `es_correcta` ni `justificacion`.
+  - `eval_calificar(intento_id, respuestas)` → **califica en el servidor** y recién ahí
+    devuelve qué era correcto + la justificación.
 
 ## Configuración
 
 | Qué | Dónde | Valor por defecto |
 |---|---|---|
-| Nota aprobatoria (umbral) | `db/schema.sql` → `eval_calificar` → `v_umbral` | `70` |
-| Reintentos permitidos | `db/schema.sql` → `eval_iniciar` → `v_max_intentos` | `1` |
+| Nota aprobatoria (umbral) | columna `evaluaciones.umbral` (por evaluación) | `70` |
+| Reintentos permitidos | columna `evaluaciones.max_intentos` (por evaluación) | `1` |
+| Publicar / despublicar | columna `evaluaciones.publicada` | — |
 | Randomizar opciones | `assets/eval.js` → `CONFIG.shuffleOpciones` | `true` |
 | Randomizar preguntas | `assets/eval.js` → `CONFIG.shufflePreguntas` | `false` |
+
+## Crear una evaluación (por ahora, vía SQL)
+
+El **Superadmin visual llega en la Fase 2**. Hasta entonces, se crea por SQL:
+
+```sql
+-- 1. la evaluación
+insert into evaluaciones (programa, anio, modulo, bloque, titulo, umbral, max_intentos, publicada)
+values ('Diplomado en Alta Dirección y Gestión Estratégica', 2026, 'Módulo 7',
+        'Finanzas', 'Evaluación Módulo 7', 70, 1, true)
+returning id;   -- usar este id abajo
+
+-- 2. preguntas (evaluacion_id = el de arriba); 3. opciones (4 por pregunta, 1 es_correcta)
+```
 
 ## Analítica (solo en Supabase / service_role)
 
 ```sql
-select * from eval_analitica_preguntas;      -- % de acierto por pregunta
-select * from eval_analitica_participantes;   -- última nota por participante
+select * from eval_analitica_preguntas;       -- % de acierto por pregunta y evaluación
+select * from eval_analitica_participantes;    -- última nota por participante y evaluación
 ```
 
-## Agregar más evaluaciones / Diagnósticos
+## Roadmap
 
-El modelo ya soporta más evaluaciones si se agrega una columna de `evaluacion_id`
-a preguntas e intentos (hoy hay una sola: Módulo 6). Para la futura sección de
-**Diagnósticos**, replicar el patrón en `/diagnosticos/` con su propio bloque en
-`_redirects`.
+- **Fase 1 (hecha):** motor multi-evaluación + selección en cascada + reintentos por evaluación.
+- **Fase 2:** Superadmin protegido (login portal + admin) con importador + formulario.
+- **Fase 3:** `/resultados` con selector de evaluación y export por evaluación.
+- **Diagnósticos:** replicar el patrón en `/diagnosticos/` con su propio bloque en `_redirects`.

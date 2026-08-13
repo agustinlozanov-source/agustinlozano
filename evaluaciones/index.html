@@ -4,24 +4,24 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex, nofollow" />
-  <title>Evaluación Módulo 6 · Diplomado Anáhuac Cancún</title>
+  <title>Evaluaciones · Diplomado Anáhuac Cancún</title>
   <link rel="stylesheet" href="/evaluaciones/assets/eval.css" />
 </head>
 <body>
   <main class="wrap">
 
     <header class="head">
-      <p class="kicker">Diplomado en Alta Dirección y Gestión Estratégica</p>
-      <h1>Evaluación · Módulo 6</h1>
-      <p>Innovación y Automatización — Universidad Anáhuac Cancún</p>
+      <p class="kicker">Universidad Anáhuac Cancún</p>
+      <h1>Evaluaciones del Diplomado</h1>
+      <p>Autocalificables · selecciona tu evaluación para comenzar</p>
     </header>
 
     <!-- ── Paso 1: Identidad ─────────────────────────────────────────── -->
     <section id="step-identidad" class="card">
-      <h2>Antes de comenzar</h2>
+      <h2>Tus datos</h2>
       <p class="sub">
-        19 preguntas de opción múltiple · autocalificable · escala 0–100.
-        Al terminar verás tu resultado y la explicación de cada respuesta.
+        Evaluaciones autocalificables del diplomado. Al terminar verás tu
+        resultado y la explicación de cada respuesta.
       </p>
       <form id="form-identidad" novalidate>
         <div class="field">
@@ -37,14 +37,43 @@
           <input id="empresa" name="empresa" type="text" autocomplete="organization" />
         </div>
         <div class="actions">
-          <button id="btn-comenzar" type="submit" class="btn">Comenzar evaluación</button>
+          <button id="btn-continuar" type="submit" class="btn">Continuar →</button>
         </div>
         <div id="identidad-error" class="err-msg hidden"></div>
       </form>
     </section>
 
-    <!-- ── Paso 2: Cuestionario ──────────────────────────────────────── -->
+    <!-- ── Paso 2: Selección de la evaluación ────────────────────────── -->
+    <section id="step-seleccion" class="card hidden">
+      <h2>Selecciona tu evaluación</h2>
+      <p class="sub">Elige el programa, año, módulo y bloque que te corresponden.</p>
+      <div class="field">
+        <label for="sel-programa">Programa</label>
+        <select id="sel-programa" disabled></select>
+      </div>
+      <div class="field">
+        <label for="sel-anio">Año</label>
+        <select id="sel-anio" disabled></select>
+      </div>
+      <div class="field">
+        <label for="sel-modulo">Módulo</label>
+        <select id="sel-modulo" disabled></select>
+      </div>
+      <div class="field">
+        <label for="sel-bloque">Bloque</label>
+        <select id="sel-bloque" disabled></select>
+      </div>
+      <div id="seleccion-info" class="justif hidden"></div>
+      <div class="actions">
+        <button id="btn-atras" type="button" class="btn ghost">← Atrás</button>
+        <button id="btn-comenzar" type="button" class="btn" disabled>Comenzar evaluación</button>
+      </div>
+      <div id="seleccion-error" class="err-msg hidden"></div>
+    </section>
+
+    <!-- ── Paso 3: Cuestionario ──────────────────────────────────────── -->
     <section id="step-cuestionario" class="hidden">
+      <h2 id="eval-titulo" style="margin:2px 0 14px;">Evaluación</h2>
       <div class="progress">
         <div class="row">
           <span class="count"><span id="p-count">0 / 19</span></span>
@@ -59,7 +88,7 @@
       <div class="actions">
         <button id="btn-enviar" class="btn" disabled>Enviar evaluación</button>
       </div>
-      <p class="footnote">La calificación se calcula en el servidor. Responde las 19 preguntas para habilitar el envío.</p>
+      <p class="footnote">La calificación se calcula en el servidor. Responde todas las preguntas para habilitar el envío.</p>
     </section>
 
     <!-- ── Paso 3: Resultado ─────────────────────────────────────────── -->

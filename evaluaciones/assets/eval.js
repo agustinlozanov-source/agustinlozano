@@ -1,7 +1,7 @@
 // ============================================================================
 // SCALEx · Evaluaciones — Lógica de la evaluación (Módulo 6)
 // ============================================================================
-import { evalIniciar, evalCalificar } from './eval-client.js'
+import { evalCatalogo, evalIniciar, evalCalificar } from './eval-client.js'
 
 // ── Configuración (ajustable) ────────────────────────────────────────────────
 const CONFIG = {
@@ -10,15 +10,19 @@ const CONFIG = {
   retroPorPregunta: false    // false = mostrar justificaciones al final; true = tras cada envío (no usado en MVP)
 }
 
-const BLOQUES = {
-  innovacion:    { label: 'Bloque A · Innovación',    orden: 1 },
-  automatizacion:{ label: 'Bloque B · Automatización', orden: 2 }
+// Etiquetas para el tag interno `tema` (agrupa preguntas dentro de una evaluación)
+const TEMAS = {
+  innovacion:    'Innovación',
+  automatizacion:'Automatización'
 }
 
 // ── Estado ────────────────────────────────────────────────────────────────────
 const state = {
+  identidad: null,        // {nombre, email, empresa}
+  catalogo: [],           // [{id, programa, anio, modulo, bloque, titulo}]
+  evaluacionId: null,
   intentoId: null,
-  preguntas: [],          // [{id, bloque, tipo, orden, enunciado, opciones:[{id,texto}]}]
+  preguntas: [],          // [{id, tema, tipo, orden, enunciado, opciones:[{id,texto}]}]
   respuestas: new Map()   // pregunta_id -> opcion_id
 }
 
@@ -45,7 +49,6 @@ function shuffle(arr) {
 function bindIdentidad() {
   const form = $('#form-identidad')
   const err  = $('#identidad-error')
-  const btn  = $('#btn-comenzar')
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault()
@@ -55,24 +58,117 @@ function bindIdentidad() {
     const empresa = $('#empresa').value.trim()
     if (!nombre || !email) return
 
+    state.identidad = { nombre, email, empresa }
+    $('#step-identidad').classList.add('hidden')
+    $('#step-seleccion').classList.remove('hidden')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    await cargarCatalogo()
+  })
+}
+
+// ── Paso 2: Selección de la evaluación (cascada) ──────────────────────────────
+const selP = () => $('#sel-programa'), selA = () => $('#sel-anio')
+const selM = () => $('#sel-modulo'),   selB = () => $('#sel-bloque')
+
+function llenarSelect(sel, valores, placeholder) {
+  sel.innerHTML = `<option value="">${placeholder}</option>` +
+    valores.map(v => `<option value="${esc(String(v))}">${esc(String(v))}</option>`).join('')
+  sel.disabled = valores.length === 0
+}
+const distinct = (arr) => [...new Set(arr)]
+
+async function cargarCatalogo() {
+  const err = $('#seleccion-error')
+  err.classList.add('hidden')
+  try {
+    if (!state.catalogo.length) state.catalogo = await evalCatalogo()
+    if (!state.catalogo.length) {
+      err.textContent = 'No hay evaluaciones disponibles por ahora.'
+      err.classList.remove('hidden')
+      return
+    }
+    llenarSelect(selP(), distinct(state.catalogo.map(e => e.programa)).sort(), 'Elige un programa…')
+    ;[selA(), selM(), selB()].forEach(s => { s.innerHTML = ''; s.disabled = true })
+    wireCascada()
+  } catch (ex) {
+    console.error(ex)
+    err.textContent = 'No se pudo cargar el catálogo. Revisa tu conexión e inténtalo de nuevo.'
+    err.classList.remove('hidden')
+  }
+}
+
+function wireCascada() {
+  const info = $('#seleccion-info'), btn = $('#btn-comenzar')
+  const reset = (...sels) => sels.forEach(s => { s.innerHTML = ''; s.disabled = true })
+  const filtrar = (pred) => state.catalogo.filter(pred)
+
+  const revisar = () => {
+    const p = selP().value, a = selA().value, m = selM().value, b = selB().value
+    const match = state.catalogo.find(e =>
+      e.programa === p && String(e.anio) === a && e.modulo === m && e.bloque === b)
+    state.evaluacionId = match ? match.id : null
+    btn.disabled = !match
+    if (match) {
+      info.innerHTML = `<b>${esc(match.titulo)}</b>`
+      info.classList.remove('hidden')
+    } else {
+      info.classList.add('hidden')
+    }
+  }
+
+  selP().addEventListener('change', () => {
+    const p = selP().value
+    reset(selM(), selB()); info.classList.add('hidden'); btn.disabled = true; state.evaluacionId = null
+    llenarSelect(selA(), distinct(filtrar(e => e.programa === p).map(e => e.anio))
+      .sort((x, y) => y - x), 'Elige el año…')
+    revisar()
+  })
+  selA().addEventListener('change', () => {
+    const p = selP().value, a = selA().value
+    reset(selB()); info.classList.add('hidden'); btn.disabled = true; state.evaluacionId = null
+    llenarSelect(selM(), distinct(filtrar(e => e.programa === p && String(e.anio) === a).map(e => e.modulo)).sort(),
+      'Elige el módulo…')
+    revisar()
+  })
+  selM().addEventListener('change', () => {
+    const p = selP().value, a = selA().value, m = selM().value
+    info.classList.add('hidden'); btn.disabled = true; state.evaluacionId = null
+    llenarSelect(selB(), distinct(filtrar(e => e.programa === p && String(e.anio) === a && e.modulo === m).map(e => e.bloque)).sort(),
+      'Elige el bloque…')
+    revisar()
+  })
+  selB().addEventListener('change', revisar)
+}
+
+function bindSeleccion() {
+  $('#btn-atras').addEventListener('click', () => {
+    $('#step-seleccion').classList.add('hidden')
+    $('#step-identidad').classList.remove('hidden')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  })
+
+  $('#btn-comenzar').addEventListener('click', async () => {
+    if (!state.evaluacionId) return
+    const err = $('#seleccion-error'), btn = $('#btn-comenzar')
+    err.classList.add('hidden')
     btn.disabled = true
+    const prev = btn.textContent
     btn.textContent = 'Cargando…'
     try {
-      const res = await evalIniciar({ nombre, email, empresa })
-      if (!res.ok) return manejarInicioNoOk(res, err)
+      const res = await evalIniciar({ ...state.identidad, evaluacionId: state.evaluacionId })
+      if (!res.ok) { manejarInicioNoOk(res, err); btn.disabled = false; btn.textContent = prev; return }
 
       state.intentoId = res.intento_id
-      let preguntas = res.cuestionario || []
-      // Randomizar opciones (y opcionalmente preguntas)
-      preguntas = preguntas.map(p => ({
-        ...p,
-        opciones: CONFIG.shuffleOpciones ? shuffle(p.opciones) : p.opciones
+      let preguntas = (res.cuestionario || []).map(p => ({
+        ...p, opciones: CONFIG.shuffleOpciones ? shuffle(p.opciones) : p.opciones
       }))
       if (CONFIG.shufflePreguntas) preguntas = shuffle(preguntas)
       else preguntas.sort((a, b) => a.orden - b.orden)
       state.preguntas = preguntas
 
-      $('#step-identidad').classList.add('hidden')
+      $('#eval-titulo').textContent = res.evaluacion?.titulo || 'Evaluación'
+      $('#p-count').textContent = `0 / ${preguntas.length}`
+      $('#step-seleccion').classList.add('hidden')
       renderCuestionario()
       $('#step-cuestionario').classList.remove('hidden')
       window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -80,9 +176,8 @@ function bindIdentidad() {
       console.error(ex)
       err.textContent = 'No se pudo iniciar la evaluación. Revisa tu conexión e inténtalo de nuevo.'
       err.classList.remove('hidden')
-    } finally {
       btn.disabled = false
-      btn.textContent = 'Comenzar evaluación'
+      btn.textContent = prev
     }
   })
 }
@@ -93,6 +188,8 @@ function manejarInicioNoOk(res, err) {
     const nota = u.puntaje != null ? `${u.puntaje}/100` : '—'
     err.innerHTML = `Ya completaste esta evaluación (${res.max_intentos} intento permitido). ` +
                     `Tu resultado registrado: <b>${esc(nota)}</b>.`
+  } else if (res.error === 'evaluacion_no_disponible') {
+    err.textContent = 'Esa evaluación ya no está disponible. Elige otra.'
   } else if (res.error === 'email_requerido') {
     err.textContent = 'El correo es obligatorio.'
   } else if (res.error === 'nombre_requerido') {
@@ -107,12 +204,12 @@ function manejarInicioNoOk(res, err) {
 function renderCuestionario() {
   const cont = $('#preguntas')
   cont.innerHTML = ''
-  let bloqueActual = null
+  let temaActual = null
 
   state.preguntas.forEach((p, idx) => {
-    if (!CONFIG.shufflePreguntas && p.bloque !== bloqueActual) {
-      bloqueActual = p.bloque
-      cont.appendChild(el('div', 'bloque-title', esc(BLOQUES[p.bloque]?.label || p.bloque)))
+    if (!CONFIG.shufflePreguntas && p.tema && p.tema !== temaActual) {
+      temaActual = p.tema
+      cont.appendChild(el('div', 'bloque-title', esc(TEMAS[p.tema] || p.tema)))
     }
 
     const q = el('div', 'q')
@@ -246,4 +343,5 @@ function renderResultado(res) {
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 bindIdentidad()
+bindSeleccion()
 bindEnviar()

@@ -72,7 +72,7 @@ h2 { font-size: 19px; margin: 0 0 14px; }
 /* ── Formulario de identidad ────────────────────────────────────────────── */
 .field { margin-bottom: 16px; }
 .field label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px; }
-.field input {
+.field input, .field select {
   width: 100%;
   padding: 12px 14px;
   font-family: var(--font);
@@ -82,7 +82,9 @@ h2 { font-size: 19px; margin: 0 0 14px; }
   background: #fbfcfd;
   transition: border-color .15s, box-shadow .15s;
 }
-.field input:focus {
+.field select { cursor: pointer; }
+.field select:disabled { opacity: .55; cursor: not-allowed; background: #f0f3f6; }
+.field input:focus, .field select:focus {
   outline: none;
   border-color: var(--naranja);
   box-shadow: 0 0 0 3px rgba(255, 88, 0, .15);
