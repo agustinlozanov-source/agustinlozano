@@ -30,6 +30,10 @@ El participante: **identidad (nombre, correo, empresa) → selecciona Programa/A
 ```
 evaluaciones/
 ├── index.html              # flujo: identidad → selección → cuestionario → resultado
+├── admin/                  # Superadmin (protegido: login portal + admin)
+│   ├── index.html
+│   ├── admin.css
+│   └── admin.js            # ABM de evaluaciones, ABM de preguntas, importador JSON/MD
 ├── assets/
 │   ├── eval.css            # identidad visual Anáhuac (naranja #FF5800 / marino #0E2841)
 │   ├── eval-client.js      # cliente Supabase aislado (sin sesión del portal)
@@ -37,8 +41,21 @@ evaluaciones/
 └── db/
     ├── schema.sql          # base v1 (tablas + RLS + RPC + vistas)
     ├── seed.sql            # las 19 preguntas del Módulo 6 + opciones
-    └── migracion-fase1.sql # → motor multi-evaluación (evaluaciones, evaluacion_id, RPCs nuevas)
+    ├── migracion-fase1.sql # → motor multi-evaluación (evaluaciones, evaluacion_id, RPCs nuevas)
+    └── superadmin.sql      # → RPCs admin_* protegidas por eval_is_admin()
 ```
+
+## Superadmin
+
+`https://app.scalexlatam.com/evaluaciones/admin` — **protegido**: requiere sesión del
+portal y `perfiles.rol_global='admin'` (hoy: `hola@agustinlozano.com`). Sin sesión
+redirige al login del portal; sin rol admin muestra "acceso restringido". Las RPC
+`admin_*` verifican el rol en el servidor (no basta con ver la página).
+
+Permite: crear/editar/borrar evaluaciones, publicar/despublicar, y cargar preguntas
+por **formulario** (una a una) o **importador** (pegar JSON o el Markdown del banco).
+Las preguntas quedan **bloqueadas si la evaluación ya tiene intentos** (no alterar
+resultados emitidos).
 
 ## Puesta en marcha
 
@@ -47,6 +64,7 @@ evaluaciones/
 1. `db/schema.sql`
 2. `db/seed.sql`
 3. `db/migracion-fase1.sql`
+4. `db/superadmin.sql`
 
 Verificación:
 ```sql
@@ -82,20 +100,6 @@ antes de responder:
 | Randomizar opciones | `assets/eval.js` → `CONFIG.shuffleOpciones` | `true` |
 | Randomizar preguntas | `assets/eval.js` → `CONFIG.shufflePreguntas` | `false` |
 
-## Crear una evaluación (por ahora, vía SQL)
-
-El **Superadmin visual llega en la Fase 2**. Hasta entonces, se crea por SQL:
-
-```sql
--- 1. la evaluación
-insert into evaluaciones (programa, anio, modulo, bloque, titulo, umbral, max_intentos, publicada)
-values ('Diplomado en Alta Dirección y Gestión Estratégica', 2026, 'Módulo 7',
-        'Finanzas', 'Evaluación Módulo 7', 70, 1, true)
-returning id;   -- usar este id abajo
-
--- 2. preguntas (evaluacion_id = el de arriba); 3. opciones (4 por pregunta, 1 es_correcta)
-```
-
 ## Analítica (solo en Supabase / service_role)
 
 ```sql
@@ -106,6 +110,6 @@ select * from eval_analitica_participantes;    -- última nota por participante 
 ## Roadmap
 
 - **Fase 1 (hecha):** motor multi-evaluación + selección en cascada + reintentos por evaluación.
-- **Fase 2:** Superadmin protegido (login portal + admin) con importador + formulario.
+- **Fase 2 (hecha):** Superadmin protegido (login portal + admin) con importador + formulario.
 - **Fase 3:** `/resultados` con selector de evaluación y export por evaluación.
 - **Diagnósticos:** replicar el patrón en `/diagnosticos/` con su propio bloque en `_redirects`.

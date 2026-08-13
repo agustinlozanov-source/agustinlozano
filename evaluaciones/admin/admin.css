@@ -1,0 +1,65 @@
+/* ============================================================================
+   SCALEx · Superadmin de Evaluaciones (complementa eval.css)
+   ============================================================================ */
+.head.admin-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+.head .tools { display: flex; gap: 10px; flex-wrap: wrap; }
+.head .tools a { color: #fff; text-decoration: none; font-size: 13px; font-weight: 600;
+  border: 1px solid rgba(255,255,255,.35); border-radius: 8px; padding: 8px 12px; }
+.head .tools a:hover { background: rgba(255,255,255,.12); }
+
+.field textarea {
+  width: 100%; min-height: 200px; padding: 12px 14px; font: 13px/1.5 ui-monospace, Menlo, Consolas, monospace;
+  border: 1px solid var(--linea); border-radius: 10px; background: #fbfcfd; resize: vertical;
+}
+.field textarea:focus { outline: none; border-color: var(--naranja); box-shadow: 0 0 0 3px rgba(255,88,0,.15); }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.grid4 { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 14px; }
+@media (max-width: 640px) { .grid2, .grid4 { grid-template-columns: 1fr; } }
+
+/* Tabla de evaluaciones */
+.table-scroll { overflow-x: auto; }
+table.adm { width: 100%; border-collapse: collapse; font-size: 14px; }
+table.adm th, table.adm td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--linea); white-space: nowrap; }
+table.adm th { font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--gris); }
+table.adm td.wrap { white-space: normal; min-width: 200px; }
+table.adm tbody tr:hover { background: var(--marino-050); }
+
+.badge { display: inline-block; font-size: 11.5px; font-weight: 700; padding: 2px 9px; border-radius: 99px; }
+.badge.pub { color: var(--ok); background: var(--ok-bg); }
+.badge.draft { color: var(--warn, #b7791f); background: #fcf3e3; }
+.badge.off { color: var(--gris); background: #eef2f6; }
+
+.row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.btn.sm { padding: 7px 12px; font-size: 13px; }
+.btn.danger { background: var(--err); }
+.btn.danger:hover { background: #a5301f; }
+.btn.link { background: transparent; color: var(--naranja-600); padding: 7px 8px; }
+.btn.link:hover { background: var(--marino-050); }
+
+/* Preguntas en el editor */
+.preg-card { border: 1px solid var(--linea); border-radius: 12px; padding: 14px 16px; margin-top: 10px; background: #fff; }
+.preg-card .top { display: flex; align-items: baseline; gap: 10px; }
+.preg-card .top .num { font-weight: 800; color: var(--naranja); }
+.preg-card .top .meta { margin-left: auto; font-size: 12px; color: var(--gris); }
+.preg-card .enun { font-weight: 600; margin: 6px 0 8px; }
+.preg-card ul { margin: 0; padding-left: 18px; }
+.preg-card li { font-size: 14px; margin: 2px 0; }
+.preg-card li.ok { color: var(--ok); font-weight: 700; }
+
+/* Filas de opción en el formulario de pregunta */
+.op-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.op-row input[type=radio] { accent-color: var(--naranja); flex: 0 0 auto; }
+.op-row input[type=text] { flex: 1; padding: 10px 12px; border: 1px solid var(--linea); border-radius: 8px; background: #fbfcfd; font-family: var(--font); font-size: 14px; }
+.op-row .rm { cursor: pointer; color: var(--err); border: none; background: transparent; font-size: 18px; line-height: 1; padding: 4px 8px; }
+.hint { font-size: 12.5px; color: var(--gris); }
+
+.notice { border-left: 3px solid var(--warn, #b7791f); background: #fcf3e3; color: #7a5312;
+  border-radius: 0 8px 8px 0; padding: 10px 14px; font-size: 13.5px; margin: 12px 0; }
+.ok-msg { background: var(--ok-bg); color: var(--ok); border: 1px solid #bfe6cd; border-radius: 10px; padding: 10px 14px; font-size: 14px; margin-top: 12px; }
+.toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+.toolbar .spacer { flex: 1; }
+.checkline { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; }
+.checkline input { width: auto; accent-color: var(--naranja); }
+details.fmt { margin-top: 8px; }
+details.fmt summary { cursor: pointer; color: var(--naranja-600); font-size: 13px; font-weight: 600; }
+details.fmt pre { background: #0e2841; color: #e6edf3; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: 12px; }

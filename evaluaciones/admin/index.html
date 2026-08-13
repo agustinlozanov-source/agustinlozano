@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Superadmin · Evaluaciones</title>
+  <link rel="stylesheet" href="/evaluaciones/assets/eval.css" />
+  <link rel="stylesheet" href="/evaluaciones/admin/admin.css" />
+  <!-- Protege la página: si no hay sesión del portal, redirige al login -->
+  <script type="module" src="/assets/js/auth-guard.js"></script>
+</head>
+<body>
+  <main class="wrap">
+    <header class="head admin-head">
+      <div>
+        <p class="kicker">Universidad Anáhuac Cancún</p>
+        <h1>Superadmin · Evaluaciones</h1>
+      </div>
+      <div class="tools">
+        <a href="/evaluaciones" target="_blank">Ver evaluaciones ↗</a>
+        <a href="/resultados" target="_blank">Ver resultados ↗</a>
+      </div>
+    </header>
+
+    <!-- Sin permisos de admin -->
+    <section id="noauth" class="card hidden">
+      <h2>Acceso restringido</h2>
+      <p class="sub">Tu cuenta no tiene permisos de administrador para gestionar evaluaciones.</p>
+    </section>
+
+    <div id="loading" class="card"><p class="sub" style="margin:0;">Cargando…</p></div>
+
+    <!-- ── Vista LISTA ─────────────────────────────────────────────────── -->
+    <section id="view-list" class="hidden">
+      <div class="card">
+        <div class="toolbar">
+          <button id="btn-nueva" class="btn">+ Nueva evaluación</button>
+          <button id="btn-refresh" class="btn ghost">↻ Actualizar</button>
+          <div class="spacer"></div>
+        </div>
+        <div id="lista-cont"></div>
+      </div>
+    </section>
+
+    <!-- ── Vista EDITOR ────────────────────────────────────────────────── -->
+    <section id="view-editor" class="hidden">
+      <div class="card">
+        <div class="toolbar">
+          <button id="btn-volver" class="btn ghost">← Volver a la lista</button>
+          <div class="spacer"></div>
+          <span id="editor-estado"></span>
+        </div>
+        <h2 id="editor-titulo">Nueva evaluación</h2>
+
+        <!-- Metadata -->
+        <div class="grid2">
+          <div class="field">
+            <label for="f-programa">Programa</label>
+            <input id="f-programa" list="dl-programas" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="f-anio">Año</label>
+            <input id="f-anio" list="dl-anios" type="number" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="f-modulo">Módulo</label>
+            <input id="f-modulo" list="dl-modulos" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="f-bloque">Bloque</label>
+            <input id="f-bloque" list="dl-bloques" autocomplete="off" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="f-titulo">Título</label>
+          <input id="f-titulo" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="f-descripcion">Descripción <span class="opt">(opcional)</span></label>
+          <input id="f-descripcion" autocomplete="off" />
+        </div>
+        <div class="grid4">
+          <div class="field">
+            <label for="f-umbral">Umbral (aprobatoria)</label>
+            <input id="f-umbral" type="number" min="0" max="100" step="1" value="70" />
+          </div>
+          <div class="field">
+            <label for="f-intentos">Reintentos</label>
+            <input id="f-intentos" type="number" min="1" step="1" value="1" />
+          </div>
+          <div class="field">
+            <label>&nbsp;</label>
+            <label class="checkline"><input id="f-publicada" type="checkbox" /> Publicada</label>
+          </div>
+          <div class="field">
+            <label>&nbsp;</label>
+            <label class="checkline"><input id="f-activa" type="checkbox" checked /> Activa</label>
+          </div>
+        </div>
+        <div class="actions">
+          <button id="btn-guardar-eval" class="btn">Guardar evaluación</button>
+        </div>
+        <div id="editor-error" class="err-msg hidden"></div>
+        <div id="editor-ok" class="ok-msg hidden"></div>
+      </div>
+
+      <!-- Preguntas (aparece tras guardar la evaluación) -->
+      <div id="bloque-preguntas" class="card hidden">
+        <h2>Preguntas</h2>
+        <div id="preg-notice"></div>
+
+        <div class="toolbar" id="preg-toolbar">
+          <button id="btn-add-preg" class="btn sm">+ Agregar pregunta</button>
+          <button id="btn-importar" class="btn sm ghost">⬆ Importar en bloque</button>
+          <div class="spacer"></div>
+          <span id="preg-count" class="hint"></span>
+        </div>
+
+        <!-- Importador -->
+        <div id="import-panel" class="hidden">
+          <div class="field">
+            <label for="imp-text">Pegá las preguntas (JSON o Markdown)</label>
+            <textarea id="imp-text" placeholder="Pegá aquí…"></textarea>
+            <p class="hint">Se detecta automáticamente. <b>Reemplaza</b> todas las preguntas de esta evaluación.</p>
+            <details class="fmt">
+              <summary>Ver formato aceptado</summary>
+              <pre id="fmt-ejemplo"></pre>
+            </details>
+          </div>
+          <div class="actions">
+            <button id="btn-preview" class="btn ghost sm">Previsualizar</button>
+            <button id="btn-do-import" class="btn sm" disabled>Reemplazar preguntas</button>
+            <button id="btn-cancel-import" class="btn link sm">Cancelar</button>
+          </div>
+          <div id="import-msg" class="hidden"></div>
+        </div>
+
+        <!-- Formulario de una pregunta -->
+        <div id="preg-form-panel" class="hidden">
+          <div class="preg-card">
+            <div class="grid4">
+              <div class="field">
+                <label for="pf-enunciado">Enunciado</label>
+                <input id="pf-enunciado" autocomplete="off" />
+              </div>
+              <div class="field">
+                <label for="pf-tema">Tema <span class="opt">(opc.)</span></label>
+                <input id="pf-tema" list="dl-temas" autocomplete="off" />
+              </div>
+              <div class="field">
+                <label for="pf-tipo">Tipo</label>
+                <select id="pf-tipo"><option value="concepto">concepto</option><option value="escenario">escenario</option></select>
+              </div>
+              <div class="field">
+                <label>&nbsp;</label>
+                <span class="hint">Marca la opción correcta con el radio.</span>
+              </div>
+            </div>
+            <div id="pf-opciones"></div>
+            <button id="pf-add-op" class="btn link sm" type="button">+ Agregar opción</button>
+            <div class="field" style="margin-top:10px;">
+              <label for="pf-justif">Justificación (retroalimentación)</label>
+              <input id="pf-justif" autocomplete="off" />
+            </div>
+            <div class="actions">
+              <button id="pf-guardar" class="btn sm">Guardar pregunta</button>
+              <button id="pf-cancelar" class="btn link sm">Cancelar</button>
+            </div>
+            <div id="pf-error" class="err-msg hidden"></div>
+          </div>
+        </div>
+
+        <div id="preg-lista"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- datalists para elegí-o-agregá -->
+  <datalist id="dl-programas"></datalist>
+  <datalist id="dl-anios"></datalist>
+  <datalist id="dl-modulos"></datalist>
+  <datalist id="dl-bloques"></datalist>
+  <datalist id="dl-temas"></datalist>
+
+  <script type="module" src="/evaluaciones/admin/admin.js"></script>
+</body>
+</html>
