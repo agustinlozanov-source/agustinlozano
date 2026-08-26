@@ -5,14 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex, nofollow" />
   <title>Resultados · Evaluaciones Diplomado Anáhuac</title>
+  <link rel="icon" type="image/png" href="/logos/SX Icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/scalex-ui.css" />
   <link rel="stylesheet" href="/resultados/assets/resultados.css" />
 </head>
-<body>
+<body class="sx">
+  <div class="sx-topbar">
+    <img class="sx-logo" src="/logos/Logo SCALEx blanco.png" alt="SCALEx" />
+    <span class="sx-chip">Panel de resultados</span>
+  </div>
   <main class="wrap">
-    <header class="head">
+    <header class="head sx-reveal">
       <div>
         <p class="kicker">Universidad Anáhuac Cancún</p>
-        <h1>Resultados de evaluaciones</h1>
+        <h1><span class="sx-grad-text">Resultados</span> de evaluaciones</h1>
       </div>
       <div class="tools">
         <button id="btn-refresh" class="btn ghost" type="button">↻ Actualizar</button>
@@ -32,6 +41,7 @@
     </div>
   </main>
 
+  <script src="/assets/js/scalex-ui.js" defer></script>
   <script type="module" src="/resultados/assets/resultados.js"></script>
 </body>
 </html>

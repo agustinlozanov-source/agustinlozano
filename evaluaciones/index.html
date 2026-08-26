@@ -5,19 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex, nofollow" />
   <title>Evaluaciones · Diplomado Anáhuac Cancún</title>
+  <link rel="icon" type="image/png" href="/logos/SX Icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/scalex-ui.css" />
   <link rel="stylesheet" href="/evaluaciones/assets/eval.css" />
 </head>
-<body>
+<body class="sx">
+  <div class="sx-topbar">
+    <img class="sx-logo" src="/logos/Logo SCALEx blanco.png" alt="SCALEx" />
+    <span class="sx-chip">Universidad Anáhuac Cancún</span>
+  </div>
+
   <main class="wrap">
 
-    <header class="head">
-      <p class="kicker">Universidad Anáhuac Cancún</p>
-      <h1>Evaluaciones del Diplomado</h1>
+    <header class="head sx-reveal">
+      <p class="kicker">Diplomado · Alta Dirección y Gestión Estratégica</p>
+      <h1><span class="sx-grad-text">Evaluaciones</span> del Diplomado</h1>
       <p>Autocalificables · selecciona tu evaluación para comenzar</p>
     </header>
 
     <!-- ── Paso 1: Identidad ─────────────────────────────────────────── -->
-    <section id="step-identidad" class="card">
+    <section id="step-identidad" class="card sx-reveal" data-spotlight>
       <h2>Tus datos</h2>
       <p class="sub">
         Evaluaciones autocalificables del diplomado. Al terminar verás tu
@@ -44,7 +54,7 @@
     </section>
 
     <!-- ── Paso 2: Selección de la evaluación ────────────────────────── -->
-    <section id="step-seleccion" class="card hidden">
+    <section id="step-seleccion" class="card hidden" data-spotlight>
       <h2>Selecciona tu evaluación</h2>
       <p class="sub">Elige el programa, año, módulo y bloque que te corresponden.</p>
       <div class="field">
@@ -104,6 +114,7 @@
 
   </main>
 
+  <script src="/assets/js/scalex-ui.js" defer></script>
   <script type="module" src="/evaluaciones/assets/eval.js"></script>
 </body>
 </html>

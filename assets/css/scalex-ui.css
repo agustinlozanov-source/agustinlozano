@@ -1,0 +1,167 @@
+/* ============================================================================
+   SCALEx · Design System — dark premium (evaluaciones · resultados · ejercicio)
+   ============================================================================
+   Tokens + fondo animado + logo + primitivos + animaciones compartidas.
+   Se combina con el CSS específico de cada página (que reusa estos tokens).
+   ============================================================================ */
+
+:root {
+  /* Marca SCALEx (tomado del portal) */
+  --sx-bg:        #0a0a0c;
+  --sx-bg-2:      #0d0d10;
+  --sx-card:      rgba(255,255,255,0.035);
+  --sx-card-2:    rgba(255,255,255,0.055);
+  --sx-elev:      #141416;
+  --sx-teal:      #1aab99;
+  --sx-indigo:    #3533cd;
+  --sx-indigo-2:  #4a48e6;
+  --sx-grad:      linear-gradient(135deg, #1aab99 0%, #3533cd 100%);
+  --sx-grad-soft: linear-gradient(135deg, rgba(26,171,153,.18), rgba(53,51,205,.18));
+  --sx-amber:     #ff9500;
+  --sx-green:     #00c853;
+  --sx-red:       #ff453a;
+
+  --sx-text:      #f4f5f7;
+  --sx-muted:     #9aa0ab;
+  --sx-faint:     #6b7280;
+  --sx-line:      rgba(255,255,255,0.08);
+  --sx-line-2:    rgba(255,255,255,0.14);
+
+  --sx-r-sm: 10px; --sx-r: 16px; --sx-r-lg: 22px; --sx-r-xl: 30px;
+  --sx-shadow: 0 20px 60px -24px rgba(0,0,0,.7);
+  --sx-glow-teal:   0 0 40px -8px rgba(26,171,153,.45);
+  --sx-glow-indigo: 0 0 44px -8px rgba(53,51,205,.5);
+  --sx-font: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --sx-ease: cubic-bezier(.22,.61,.36,1);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+
+body.sx {
+  font-family: var(--sx-font);
+  background: var(--sx-bg);
+  color: var(--sx-text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ── Fondo animado (inyectado por scalex-ui.js) ──────────────────────────────── */
+.sx-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.sx-bg .blob {
+  position: absolute; border-radius: 50%; filter: blur(70px); opacity: .55;
+  will-change: transform;
+}
+.sx-bg .b1 { width: 46vw; height: 46vw; top: -14vw; left: 50%; transform: translateX(-50%);
+  background: radial-gradient(circle, rgba(26,171,153,.55), transparent 62%); animation: sx-float1 22s var(--sx-ease) infinite; }
+.sx-bg .b2 { width: 40vw; height: 40vw; bottom: -12vw; right: -8vw;
+  background: radial-gradient(circle, rgba(53,51,205,.5), transparent 62%); animation: sx-float2 26s var(--sx-ease) infinite; }
+.sx-bg .b3 { width: 30vw; height: 30vw; top: 40%; left: -10vw;
+  background: radial-gradient(circle, rgba(74,72,230,.28), transparent 65%); animation: sx-float3 30s var(--sx-ease) infinite; }
+.sx-bg .grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+  background-size: 46px 46px;
+  mask-image: radial-gradient(ellipse 75% 60% at 50% 30%, #000 0%, transparent 78%);
+  -webkit-mask-image: radial-gradient(ellipse 75% 60% at 50% 30%, #000 0%, transparent 78%);
+}
+@keyframes sx-float1 { 0%,100%{ transform:translateX(-50%) translateY(0) scale(1);} 50%{ transform:translateX(-46%) translateY(4vw) scale(1.08);} }
+@keyframes sx-float2 { 0%,100%{ transform:translate(0,0) scale(1);} 50%{ transform:translate(-5vw,-3vw) scale(1.1);} }
+@keyframes sx-float3 { 0%,100%{ transform:translate(0,0) scale(1);} 50%{ transform:translate(6vw,-4vw) scale(1.12);} }
+
+/* Todo el contenido por encima del fondo */
+body.sx > *:not(.sx-bg) { position: relative; z-index: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sx-bg .blob { animation: none !important; }
+  .sx-reveal { transition: none !important; opacity: 1 !important; transform: none !important; }
+}
+
+/* ── Topbar con logo ─────────────────────────────────────────────────────────── */
+.sx-topbar {
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  max-width: 1100px; margin: 0 auto; padding: 20px 22px; flex-wrap: wrap;
+}
+.sx-topbar .sx-logo { height: 30px; display: block; }
+.sx-topbar .sx-chip {
+  font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--sx-muted); padding: 6px 12px; border: 1px solid var(--sx-line);
+  border-radius: 99px; background: var(--sx-card);
+}
+
+/* ── Tipografía / helpers ────────────────────────────────────────────────────── */
+.sx-grad-text {
+  background: linear-gradient(100deg, #eafaf7 0%, #8fe6d9 30%, #9a97ff 70%, #c7c6ff 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.sx-x { background: var(--sx-grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.sx-eyebrow {
+  font-size: 12.5px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--sx-teal); margin: 0 0 10px;
+}
+
+/* ── Card glass ──────────────────────────────────────────────────────────────── */
+.sx-card {
+  position: relative; background: var(--sx-card); border: 1px solid var(--sx-line);
+  border-radius: var(--sx-r-lg); padding: 26px 28px; box-shadow: var(--sx-shadow);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  transition: border-color .3s var(--sx-ease), transform .3s var(--sx-ease);
+}
+.sx-card::before { /* borde superior con brillo */
+  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px;
+  background: linear-gradient(160deg, rgba(255,255,255,.18), transparent 40%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none;
+}
+.sx-card[data-spotlight]::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; opacity: 0; transition: opacity .3s;
+  background: radial-gradient(400px circle at var(--mx,50%) var(--my,50%), rgba(26,171,153,.10), transparent 60%);
+  pointer-events: none;
+}
+.sx-card[data-spotlight]:hover::after { opacity: 1; }
+
+/* ── Botones ─────────────────────────────────────────────────────────────────── */
+.sx-btn {
+  position: relative; overflow: hidden; appearance: none; cursor: pointer;
+  font-family: var(--sx-font); font-weight: 700; font-size: 15px;
+  padding: 14px 22px; border-radius: 12px; border: 1px solid transparent;
+  background: var(--sx-grad); color: #fff;
+  box-shadow: 0 10px 30px -12px rgba(53,51,205,.7);
+  transition: transform .18s var(--sx-ease), box-shadow .25s var(--sx-ease), opacity .2s;
+}
+.sx-btn:hover { transform: translateY(-2px); box-shadow: 0 16px 40px -12px rgba(53,51,205,.85), var(--sx-glow-teal); }
+.sx-btn:active { transform: translateY(0); }
+.sx-btn:disabled { opacity: .4; cursor: not-allowed; transform: none; box-shadow: none; }
+.sx-btn::after { /* shimmer */
+  content: ""; position: absolute; top: 0; left: -60%; width: 45%; height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,.35), transparent);
+  transform: skewX(-18deg); transition: none;
+}
+.sx-btn:hover::after { animation: sx-shimmer .9s var(--sx-ease); }
+@keyframes sx-shimmer { from { left: -60%; } to { left: 130%; } }
+
+.sx-btn.ghost { background: var(--sx-card); border-color: var(--sx-line-2); color: var(--sx-text); box-shadow: none; }
+.sx-btn.ghost:hover { background: var(--sx-card-2); border-color: var(--sx-teal); box-shadow: none; transform: translateY(-1px); }
+.sx-btn.ghost::after { display: none; }
+
+/* ── Inputs base (opt-in por clase .sx en el body) ───────────────────────────── */
+.sx input[type=text], .sx input[type=email], .sx input[type=number], .sx textarea, .sx select {
+  width: 100%; padding: 14px 16px; font-family: var(--sx-font); font-size: 15px;
+  color: var(--sx-text); background: var(--sx-bg-2); border: 1px solid var(--sx-line);
+  border-radius: 12px; outline: none; transition: border-color .2s, box-shadow .2s, background .2s;
+}
+.sx input::placeholder, .sx textarea::placeholder { color: var(--sx-faint); }
+.sx input:focus, .sx textarea:focus, .sx select:focus {
+  border-color: var(--sx-teal); background: var(--sx-bg);
+  box-shadow: 0 0 0 3px rgba(26,171,153,.18);
+}
+.sx select { cursor: pointer; }
+
+/* ── Reveal on scroll ────────────────────────────────────────────────────────── */
+.sx-reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s var(--sx-ease), transform .6s var(--sx-ease); }
+.sx-reveal.in { opacity: 1; transform: none; }

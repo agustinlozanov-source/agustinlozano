@@ -5,17 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex, nofollow" />
   <title>Superadmin · Evaluaciones</title>
+  <link rel="icon" type="image/png" href="/logos/SX Icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/scalex-ui.css" />
   <link rel="stylesheet" href="/evaluaciones/assets/eval.css" />
   <link rel="stylesheet" href="/evaluaciones/admin/admin.css" />
   <!-- Protege la página: si no hay sesión del portal, redirige al login -->
   <script type="module" src="/assets/js/auth-guard.js"></script>
+  <script src="/assets/js/scalex-ui.js" defer></script>
 </head>
-<body>
+<body class="sx">
+  <div class="sx-topbar">
+    <img class="sx-logo" src="/logos/Logo SCALEx blanco.png" alt="SCALEx" />
+    <span class="sx-chip">Superadmin</span>
+  </div>
   <main class="wrap">
     <header class="head admin-head">
       <div>
         <p class="kicker">Universidad Anáhuac Cancún</p>
-        <h1>Superadmin · Evaluaciones</h1>
+        <h1><span class="sx-grad-text">Superadmin</span> · Evaluaciones</h1>
       </div>
       <div class="tools">
         <a href="/evaluaciones" target="_blank">Ver evaluaciones ↗</a>
