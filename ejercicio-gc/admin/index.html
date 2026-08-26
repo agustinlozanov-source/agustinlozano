@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Facilitador · Gobierno Corporativo</title>
+  <link rel="stylesheet" href="/ejercicio-gc/assets/gc.css" />
+</head>
+<body>
+  <div class="header">
+    <div class="sub">Panel del facilitador</div>
+    <h1>¿Qué es Gobierno Corporativo?</h1>
+  </div>
+
+  <main class="body">
+    <div id="err" class="err hidden"></div>
+
+    <!-- Sin token -->
+    <section id="noauth" class="hidden">
+      <div class="card"><p class="text">Enlace del facilitador inválido. Abre esta página con tu token secreto: <code>/ejercicio-gc/admin?k=TU_TOKEN</code></p></div>
+    </section>
+
+    <section id="panel" class="admin-panel hidden">
+      <div class="center mt">
+        <div class="pill-count" id="resp-count">0</div>
+        <div class="admin-status">respuestas recibidas · <span id="estado-badge"></span></div>
+      </div>
+
+      <button id="btn-sintetizar" class="btn">Sintetizar respuestas en 3 opciones</button>
+      <button id="btn-reset" class="btn ghost mt">Reiniciar ejercicio</button>
+      <div id="msg" class="mt center"></div>
+
+      <div class="section-label">Respuestas del grupo (<span id="resp-count2">0</span>)</div>
+      <div id="lista"></div>
+
+      <div id="resultados" class="hidden">
+        <div class="section-label">Síntesis y votación</div>
+        <div id="opciones-res"></div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="/ejercicio-gc/admin/gc-admin.js"></script>
+</body>
+</html>

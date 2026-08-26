@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>¿Qué es Gobierno Corporativo?</title>
+  <link rel="stylesheet" href="/ejercicio-gc/assets/gc.css" />
+</head>
+<body>
+  <div class="header">
+    <div class="sub" id="h-sub">Diplomado en Alta Dirección · Módulo 6</div>
+    <h1 id="h-title">¿Qué es Gobierno Corporativo?</h1>
+  </div>
+
+  <main class="body">
+    <div id="err" class="err hidden"></div>
+
+    <!-- ESTADO 1: formulario -->
+    <section id="step-form" class="hidden">
+      <p class="intro" id="pregunta"></p>
+      <label class="lbl" for="nombre">Tu nombre</label>
+      <input id="nombre" class="txt" type="text" placeholder="Ej: María González" autocomplete="name" />
+      <label class="lbl" for="texto">Tu definición</label>
+      <textarea id="texto" class="txt" placeholder="Gobierno Corporativo es..."></textarea>
+      <button id="btn-enviar" class="btn" disabled>Enviar mi definición</button>
+      <div class="counter" id="counter-form"></div>
+    </section>
+
+    <!-- ESTADO 2: enviado, esperando -->
+    <section id="step-wait" class="hidden">
+      <div class="success">
+        <div class="big">✓</div>
+        <div class="t1">Definición enviada</div>
+        <div class="t2">Esperando a que todos terminen…</div>
+      </div>
+      <div class="counter" id="counter-wait"></div>
+      <div id="lista-wait"></div>
+    </section>
+
+    <!-- ESTADO 3: votación -->
+    <section id="step-vote" class="hidden">
+      <p class="vote-intro" id="vote-intro"></p>
+      <p class="vote-q">Vota por la que mejor represente al grupo:</p>
+      <div id="opciones"></div>
+      <div class="counter hidden" id="counter-vote"></div>
+      <div id="respuestas-orig"></div>
+    </section>
+  </main>
+
+  <script type="module" src="/ejercicio-gc/assets/gc.js"></script>
+</body>
+</html>

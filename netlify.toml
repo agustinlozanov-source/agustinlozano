@@ -5,6 +5,12 @@
 # Si ya tienes un netlify.toml, MERGEA estas reglas con las tuyas.
 # ============================================================================
 
+# Funciones serverless (síntesis con IA del ejercicio de Gobierno Corporativo).
+# La ANTHROPIC_API_KEY vive como variable de entorno en Netlify, nunca en el front.
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
 # ────────────────────────────────────────────────────────────────────────────
 # REDIRECTS
 # ────────────────────────────────────────────────────────────────────────────
@@ -55,6 +61,14 @@
 # Dashboard OCULTO de resultados — no indexar (contiene datos personales)
 [[headers]]
   for = "/resultados/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Ejercicio interactivo (en vivo en clase) — no indexar
+[[headers]]
+  for = "/ejercicio-gc/*"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
     X-Content-Type-Options = "nosniff"
