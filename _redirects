@@ -24,11 +24,12 @@ https://app.scalexlatam.com/ejercicio-gc      /ejercicio-gc/index.html    200!
 https://app.scalexlatam.com/ejercicio-gc/      /ejercicio-gc/index.html    200!
 https://app.scalexlatam.com/ejercicio-gc/*    /ejercicio-gc/:splat        200!
 
-# ── 1e. Landing SCALEx — visible en scalexlatam.com/landing y app/landing ──
-# (En el apex scalexlatam.com, /landing/ se sirve solo; esta regla es para el
-#  host app.* que si no la tragaría el catch-all /portal/. Para mover la landing
-#  a la RAÍZ del apex cuando el contenido sea real, agregar:
-#    https://scalexlatam.com/   /landing/index.html   200!  )
+# ── 1e. Landing SCALEx = RAÍZ del apex scalexlatam.com ─────────────────────
+# La portada pública de scalexlatam.com sirve la landing (rewrite, la URL queda
+# en la raíz). El sitio personal (index.html) sigue intacto para agustinlozano.com.
+https://scalexlatam.com/                 /landing/index.html    200!
+https://www.scalexlatam.com/             /landing/index.html    200!
+# También accesible por subruta en ambos hosts:
 https://app.scalexlatam.com/landing      /landing/index.html    200!
 https://app.scalexlatam.com/landing/      /landing/index.html    200!
 https://app.scalexlatam.com/landing/*    /landing/:splat        200!
