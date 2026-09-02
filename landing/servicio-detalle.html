@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Servicio · SCALEx</title>
+<meta name="description" id="meta-desc" content="Ficha de servicio SCALEx: descripción, para quién, duración, formato y qué incluye." />
+<link rel="icon" type="image/png" href="/logos/SX Icon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
+<link rel="stylesheet" href="/landing/assets/site.css" />
+</head>
+<body>
+
+<!-- Header -->
+<header class="topbar" id="topbar">
+  <div class="topbar__in">
+    <a href="/" aria-label="SCALEx — inicio"><img class="topbar__logo" src="/logos/Logo SCALEx negro.png" alt="SCALEx" /></a>
+    <nav class="nav" aria-label="Principal">
+      <a href="/#tipos">Método</a>
+      <a href="/servicios" aria-current="page">Servicios</a>
+      <a href="/#insights">Insights</a>
+      <a href="/#fundador">Sobre</a>
+      <a href="/#contacto">Contacto</a>
+    </nav>
+    <div class="topbar__tools">
+      <a class="tool" href="https://app.scalexlatam.com" target="_blank" rel="noopener">Portal ↗</a>
+      <button type="button" class="nav-toggle" aria-label="Menú" aria-expanded="false"><span class="material-symbols-outlined">menu</span></button>
+    </div>
+  </div>
+</header>
+
+<nav class="subnav" aria-label="Secciones">
+  <div class="subnav__in">
+    <span class="subnav__title"><a href="/servicios" id="sd-linea">Servicios</a></span>
+    <div class="subnav__links">
+      <a href="#desc">El servicio</a>
+      <a href="#incluye">Qué incluye</a>
+      <a href="#cotizar">Cotizar</a>
+    </div>
+  </div>
+</nav>
+
+<main id="sd-content" hidden>
+  <!-- Encabezado de la ficha -->
+  <section class="band band--light ficha-head" id="desc">
+    <div class="container reveal">
+      <a class="back" href="/servicios"><span class="material-symbols-outlined">arrow_back</span> Todos los servicios</a>
+      <p class="kicker" id="sd-kicker"></p>
+      <h1 id="sd-title"></h1>
+      <p class="lead" id="sd-lead"></p>
+    </div>
+  </section>
+
+  <!-- Descripción + meta -->
+  <section class="band band--light ficha-grid">
+    <div class="container reveal">
+      <div class="ficha-desc" id="sd-desc"></div>
+      <aside class="ficha-meta">
+        <div class="item"><dt>Para quién</dt><dd id="sd-para"></dd></div>
+        <div class="item"><dt>Duración</dt><dd id="sd-duracion"></dd></div>
+        <div class="item"><dt>Formato</dt><dd id="sd-formato"></dd></div>
+        <div class="item"><dt>Precio</dt><dd>Por cotización personalizada.</dd></div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- Qué incluye -->
+  <section class="band band--dark incluye" id="incluye">
+    <div class="section-head reveal">
+      <p class="kicker">Qué incluye</p>
+      <h2>El alcance del servicio.</h2>
+    </div>
+    <ul id="sd-incluye" class="reveal"></ul>
+  </section>
+
+  <!-- Cotizar -->
+  <section class="band cta-band" id="cotizar">
+    <div class="container reveal">
+      <div>
+        <p class="kicker">Siguiente paso</p>
+        <h2>Solicita una cotización personalizada.</h2>
+        <p>Respondemos con una propuesta a la medida de tu empresa. Sin precio público: cada caso se cotiza según su punto de partida.</p>
+      </div>
+      <div class="actions">
+        <a class="btn btn--ghost" href="/#contacto">Solicitar cotización <span class="material-symbols-outlined">arrow_forward</span></a>
+        <a class="btn btn--ghost" id="sd-chat" href="mailto:hola@scalexlatam.com">Chatear sobre este servicio</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Relacionados -->
+  <section class="band band--light">
+    <div class="section-head reveal">
+      <p class="kicker">Cross-sell</p>
+      <h2>Servicios relacionados.</h2>
+    </div>
+    <div class="rel-grid reveal" id="sd-related"></div>
+  </section>
+</main>
+
+<!-- No encontrado -->
+<section id="sd-notfound" class="band band--light page-head" hidden>
+  <div class="container">
+    <p class="kicker">Servicio no encontrado</p>
+    <h1>Ese servicio no existe (todavía).</h1>
+    <p class="lead">Revisa el catálogo completo para encontrar lo que buscas.</p>
+    <p style="margin-top:28px;"><a class="btn btn--line" href="/servicios">Ver todos los servicios <span class="material-symbols-outlined">arrow_forward</span></a></p>
+  </div>
+</section>
+
+<noscript>
+  <div style="padding:40px;text-align:center;">Esta página requiere JavaScript. <a href="/servicios">Ver todos los servicios</a>.</div>
+</noscript>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div>
+      <img class="footer__logo" src="/logos/Logo SCALEx blanco.png" alt="SCALEx" />
+      <p class="footer__tag">Método de escalabilidad empresarial para América Latina. Todo medible, todo rastreable.</p>
+    </div>
+    <div>
+      <h4>Método</h4>
+      <ul>
+        <li><a href="/#tipos">Los tres tipos</a></li>
+        <li><a href="/servicios#diagnostico">Diagnóstico</a></li>
+        <li><a href="/servicios#consultoria">Consultoría</a></li>
+        <li><a href="/servicios#coaching">Coaching</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Ecosistema</h4>
+      <ul>
+        <li><a href="/servicios">Servicios</a></li>
+        <li><a href="/#insights">Insights</a></li>
+        <li><a href="/#consultores">Consultores</a></li>
+        <li><a href="https://app.scalexlatam.com" target="_blank" rel="noopener">Portal ↗</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Contacto</h4>
+      <ul>
+        <li><a href="mailto:hola@scalexlatam.com">Correo</a></li>
+        <li><a href="/#contacto">Solicitar diagnóstico</a></li>
+      </ul>
+    </div>
+    <div class="footer__legal">
+      <span>© 2026 SCALEx · scalexlatam.com</span>
+      <span>Aviso de privacidad · Términos</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ── Catálogo de fichas (fuente única de las 10 fichas) ─────────────────── */
+var SERVICES = {
+  "diagnostico": {
+    linea: "Diagnóstico", titulo: "Diagnóstico universal",
+    resumen: "Una radiografía estructurada que ubica a tu empresa en su punto real y define por dónde intervenir.",
+    descripcion: [
+      "El diagnóstico es uno solo y aplica a toda empresa: se diagnostica de manera general y se ataca de manera puntual según las prioridades de cada tipo. Está mecanizado y estructurado porque los factores que hacen posible la escala son universales.",
+      "El resultado categoriza a la empresa en Tipo 1, 2 o 3 e identifica puntos sensibles, fortalezas y áreas que no deben tocarse pero sí cuestionarse. Lo único que cambia es la personalización del plan de trabajo: tamaño, madurez del liderazgo e industria.",
+      "El entregable es un informe con matriz de pensamiento y un marco de soluciones según la categoría."
+    ],
+    paraQuien: "Cualquier empresa que quiera saber dónde está parada antes de invertir en crecer.",
+    duracion: "Evaluación puntual, con entrega de informe.",
+    formato: "Evaluación estructurada tipo radiografía.",
+    incluye: ["Categorización en Tipo 1, 2 o 3","Mapa de puntos sensibles y fortalezas","Matriz de pensamiento","Marco de soluciones por categoría","Recomendación de intervención"],
+    relacionados: ["consultoria-estrategica","consultoria-escalabilidad","consejo-tecnico"]
+  },
+  "consultoria-startups": {
+    linea: "Consultoría · Tipo 1", titulo: "Consultoría para startups y emprendedores",
+    resumen: "Estructura fundacional, orden y orientación de la vocación del negocio para crecer sin improvisar.",
+    descripcion: [
+      "Para empresas con menos de un año de operación que necesitan crecer con estructura o reorientar la vocación del negocio.",
+      "El trabajo instala una estructura fundacional y procesos mínimos viables, y ordena la dirección estratégica. El acompañamiento vive en la plataforma: cada paso, indicador y comunicación en un solo sistema, con reportes a quien corresponda.",
+      "No se ofrece escalar hasta demostrar crecimiento: primero, los cimientos."
+    ],
+    paraQuien: "Startups y emprendedores en su primer año de operación.",
+    duracion: "Según caso, típicamente 3–6 meses.",
+    formato: "Consultoría en plataforma, con consultor especializado.",
+    incluye: ["Estructura fundacional","Procesos mínimos viables","Orientación estratégica","Operación en plataforma SCALEx","Reportes de avance"],
+    relacionados: ["diagnostico","consultoria-estrategica","coaching-directivo"]
+  },
+  "consultoria-estrategica": {
+    linea: "Consultoría · Tipo 2", titulo: "Consultoría estratégica",
+    resumen: "Estrategia pura para la empresa atorada: salir del caos con los mínimos y una dirección clara.",
+    descripcion: [
+      "Para empresas con años de operación, estancadas o ahogadas en procesos, sin diferenciación ni estrategia clara, donde el dueño mueve todo con vísceras y sin gobierno corporativo.",
+      "El foco es la estrategia: mapa de procesos de valor, diferenciación y los parámetros mínimos para atajar el caos. No se enfoca en la operación; se asegura que existan los mínimos. Incluye un diagnóstico de madurez del líder y la posibilidad de instalar un consejo técnico con reporteo trimestral.",
+      "El plan es anual. No se ofrece escalar hasta que la empresa demuestre crecimiento."
+    ],
+    paraQuien: "PyMEs establecidas y estancadas que necesitan salir del estancamiento.",
+    duracion: "Plan anual.",
+    formato: "Consultoría en plataforma, con consultor especializado.",
+    incluye: ["Mapa de procesos de valor","Diferenciación","Parámetros mínimos para salir del caos","Plan anual","Diagnóstico de madurez del líder","Opción de consejo técnico"],
+    relacionados: ["diagnostico","consultoria-escalabilidad","consejo-tecnico"]
+  },
+  "consultoria-escalabilidad": {
+    linea: "Consultoría · Tipo 3", titulo: "Programa de escalabilidad SCALEx",
+    resumen: "El método completo en plataforma: plan a tres años para multiplicar ×2 o ×3 según tu industria.",
+    descripcion: [
+      "Para empresas con crecimiento sistémico demostrado, iguales o por encima de su industria, listas para multiplicar su tamaño.",
+      "El programa completo del método vive en app.scalexlatam.com: plan de trabajo a tres años con un consultor especializado y control estricto de la curva ingreso vs. gasto, porque el crecimiento absorbe efectivo. La proyección se hace en función de la industria: si crece 10% anual, se proyecta 30% a tres años.",
+      "Condición innegociable: no se escala una empresa que no ha demostrado crecimiento."
+    ],
+    paraQuien: "Empresas con crecimiento demostrado, listas para escalar.",
+    duracion: "Plan de trabajo a 3 años.",
+    formato: "Programa en plataforma app.scalexlatam.com.",
+    incluye: ["Plan de trabajo a 3 años","Consultor especializado","Control de la curva ingreso vs. gasto","Trazabilidad total en plataforma","Proyección ×2 o ×3 por industria","Reportes mensuales y trimestrales"],
+    relacionados: ["consultoria-estrategica","consejo-tecnico","tecnologia"]
+  },
+  "consejo-tecnico": {
+    linea: "Consultoría · Gobierno", titulo: "Consejo técnico",
+    resumen: "Gobierno corporativo para empresas que operan sin él, con reporteo trimestral.",
+    descripcion: [
+      "En Latinoamérica casi ninguna empresa está institucionalizada: se mueven con vísceras. El consejo técnico le da visibilidad al director general, la persona que puede matar o revivir la empresa con mayor facilidad.",
+      "El servicio crea e instala un consejo técnico con un marco de reporteo trimestral. Puede contratarse de manera independiente o como parte de la consultoría Tipo 2 o 3."
+    ],
+    paraQuien: "Empresas sin gobierno corporativo que necesitan un marco institucional.",
+    duracion: "Continuo, con reporteo trimestral.",
+    formato: "Instalación y acompañamiento del consejo.",
+    incluye: ["Diseño e instalación del consejo","Marco de reporteo trimestral","Diagnóstico de madurez del líder","Ritmo de gobierno corporativo"],
+    relacionados: ["consultoria-estrategica","consultoria-escalabilidad","diagnostico"]
+  },
+  "coaching-directivo": {
+    linea: "Coaching coactivo", titulo: "Coaching directivo",
+    resumen: "Máxima curva de rendimiento del líder en 14 semanas, medida en un tablero de ocho parámetros.",
+    descripcion: [
+      "Coaching coactivo para directores y gerentes: preguntas poderosas que despiertan el conocimiento propio, no mentoring ni consejo. La creencia es que la solución está dentro de la persona.",
+      "El avance se mide numéricamente en un tablero de ocho parámetros —planeación, organización, no negociables, conocimiento de sistemas, de producto y técnico, actitud y eficiencia— con visibilidad individual y de equipo. No es filosófico ni notas en papel."
+    ],
+    paraQuien: "Directores y gerentes.",
+    duracion: "Hasta 14 semanas.",
+    formato: "Sesiones 1:1 con tablero de medición.",
+    incluye: ["Sesiones 1:1 coactivas","Tablero de 8 parámetros","Medición numérica del avance","Visibilidad individual y de equipo"],
+    relacionados: ["coaching-formacion","consultoria-estrategica","diagnostico"]
+  },
+  "coaching-formacion": {
+    linea: "Coaching coactivo", titulo: "Capacitación en método de coaching",
+    resumen: "Institucionaliza la herramienta de coaching para que cada líder atienda a su equipo con precisión.",
+    descripcion: [
+      "Un programa de formación para líderes que quieren aplicar el método de coaching coactivo con su propio equipo.",
+      "El resultado: el líder atiende a su equipo con precisión, generando jugadores clase A bajo un método cuantificable. La herramienta queda instalada dentro de la empresa."
+    ],
+    paraQuien: "Líderes que quieren aplicar el método con su equipo.",
+    duracion: "Programa de formación.",
+    formato: "Formación para institucionalizar la herramienta.",
+    incluye: ["Formación en el método coactivo","Manejo del tablero de 8 parámetros","Institucionalización de la herramienta","Criterios de jugador clase A"],
+    relacionados: ["coaching-directivo","capacitacion","licencias"]
+  },
+  "capacitacion": {
+    linea: "Capacitación y formación", titulo: "Cursos, talleres y educación continua",
+    resumen: "Formación con certificación trazable, ejecutada en alianza con Boston Skilling Center.",
+    descripcion: [
+      "SCALEx vende y promueve; Boston Skilling Center ejecuta con trazabilidad de certificaciones, QR con blockchain e insignias.",
+      "Los formatos: eventos propios, in-company y educación continua universitaria (SCALEx y Agustín como docentes contratados, por ejemplo en la Universidad Anáhuac). En línea o presencial, en Monterrey, GDL, CDMX y más.",
+      "Temas: alta dirección y liderazgo, estrategia comercial y ventas, coaching coactivo para líderes, transformación y agilidad, gobierno corporativo para PyMEs, herramientas tecnológicas e IA aplicada, y el método de escalabilidad."
+    ],
+    paraQuien: "Empresas, universidades y equipos que buscan formación con certificación.",
+    duracion: "Según formato y programa.",
+    formato: "Eventos propios, in-company, en línea o presencial, y educación continua universitaria.",
+    incluye: ["Programa a medida por tema","Certificación trazable (BSC)","QR con blockchain e insignias","Modalidad en línea o presencial","Opción in-company"],
+    relacionados: ["coaching-formacion","licencias","tecnologia"]
+  },
+  "tecnologia": {
+    linea: "Tecnología y automatización", titulo: "Sistemas, automatización y CRM con IA",
+    resumen: "Software a medida y automatización, ejecutados por Flow Hub.",
+    descripcion: [
+      "SCALEx vende y coordina; Flow Hub desarrolla e implementa.",
+      "Desarrollo de sistemas: aplicaciones web, sistemas operativos de empresa y plataformas a medida. Automatización de empresas completas, departamentos, áreas y tareas, con conexión de procesos y sistemas, agéntica o no agéntica. CRM con IA para seguimiento comercial inteligente.",
+      "Implementación: integración de herramientas, migración de datos y onboarding tecnológico."
+    ],
+    paraQuien: "Empresas que necesitan sistematizar, automatizar o construir plataformas propias.",
+    duracion: "Por proyecto.",
+    formato: "Desarrollo e implementación (Flow Hub).",
+    incluye: ["Sistemas y plataformas a medida","Automatización de procesos y áreas","CRM con IA","Integración de herramientas","Migración de datos y onboarding"],
+    relacionados: ["consultoria-escalabilidad","capacitacion","diagnostico"]
+  },
+  "licencias": {
+    linea: "Licencias SCALEx", titulo: "Programa de licencias para consultores",
+    resumen: "Aprende y opera el método SCALEx como consultor certificado, con acceso a la plataforma.",
+    descripcion: [
+      "El modelo de escala de SCALEx: la consultoría crece en horas-consultor, no en nómina.",
+      "Para consultores independientes que quieren aprender y operar un método probado. Incluye instrucción completa en la metodología, acceso a sistemas y plataforma, licencia para vender el método y sus servicios, y beneficios de red. Hay un escalafón con distintos niveles de consultor.",
+      "El modelo es compra de licencia más pertenencia al equipo SCALEx."
+    ],
+    paraQuien: "Consultores independientes que quieren sistematizar y escalar su práctica.",
+    duracion: "Licencia más pertenencia al equipo.",
+    formato: "Formación, acceso a plataforma y licencia comercial.",
+    incluye: ["Instrucción completa en la metodología","Acceso a sistemas y plataforma","Licencia para vender método y servicios","Escalafón de consultor","Beneficios de red"],
+    relacionados: ["coaching-formacion","capacitacion","consultoria-escalabilidad"]
+  }
+};
+
+(function () {
+  function slugFromUrl() {
+    var q = new URLSearchParams(location.search).get('s');
+    if (q) return q;
+    var parts = location.pathname.replace(/\/+$/, '').split('/');
+    var last = parts[parts.length - 1];
+    if (!last || /servicio-detalle|servicios/.test(last)) return '';
+    return last;
+  }
+  function el(id) { return document.getElementById(id); }
+  function text(id, v) { var n = el(id); if (n) n.textContent = v; }
+
+  var slug = slugFromUrl();
+  var s = SERVICES[slug];
+
+  if (!s) {
+    el('sd-content').hidden = true;
+    el('sd-notfound').hidden = false;
+    return;
+  }
+
+  document.title = s.titulo + " · SCALEx";
+  var md = el('meta-desc'); if (md) md.setAttribute('content', s.resumen);
+
+  text('sd-linea', s.linea);
+  text('sd-kicker', s.linea);
+  text('sd-title', s.titulo);
+  text('sd-lead', s.resumen);
+  text('sd-para', s.paraQuien);
+  text('sd-duracion', s.duracion);
+  text('sd-formato', s.formato);
+
+  var desc = el('sd-desc');
+  desc.innerHTML = '<h3>El servicio</h3>';
+  s.descripcion.forEach(function (p) { var el2 = document.createElement('p'); el2.textContent = p; desc.appendChild(el2); });
+
+  var inc = el('sd-incluye');
+  inc.innerHTML = '';
+  s.incluye.forEach(function (item) {
+    var li = document.createElement('li');
+    li.innerHTML = '<span class="material-symbols-outlined">check</span>';
+    li.appendChild(document.createTextNode(' ' + item));
+    inc.appendChild(li);
+  });
+
+  var chat = el('sd-chat');
+  if (chat) chat.setAttribute('href', 'mailto:hola@scalexlatam.com?subject=' + encodeURIComponent('Cotización: ' + s.titulo));
+
+  var rel = el('sd-related');
+  rel.innerHTML = '';
+  s.relacionados.forEach(function (rslug) {
+    var r = SERVICES[rslug]; if (!r) return;
+    var a = document.createElement('a');
+    a.className = 'rel-card';
+    a.href = '/servicios/' + rslug;
+    a.innerHTML = '<span class="rl">' + r.linea + '</span><h3>' + r.titulo + '</h3>' +
+      '<span class="go">Ver ficha <span class="material-symbols-outlined">arrow_forward</span></span>';
+    rel.appendChild(a);
+  });
+
+  el('sd-content').hidden = false;
+})();
+</script>
+<script src="/landing/assets/site.js" defer></script>
+</body>
+</html>

@@ -34,6 +34,14 @@ https://app.scalexlatam.com/landing      /landing/index.html    200!
 https://app.scalexlatam.com/landing/      /landing/index.html    200!
 https://app.scalexlatam.com/landing/*    /landing/:splat        200!
 
+# ── 1f. Sitio SCALEx · páginas del catálogo (apex, URLs limpias) ──────────
+# /servicios → overview; /servicios/<slug> → ficha param-driven (la URL queda
+# limpia por rewrite 200; el JS lee el slug del path).
+https://scalexlatam.com/servicios          /landing/servicios.html          200!
+https://www.scalexlatam.com/servicios      /landing/servicios.html          200!
+https://scalexlatam.com/servicios/*        /landing/servicio-detalle.html   200!
+https://www.scalexlatam.com/servicios/*    /landing/servicio-detalle.html   200!
+
 # ── 2. app.scalexlatam.com — assets COMPARTIDOS sirven desde raíz ─────────
 # Estas reglas van ANTES de la genérica de /portal/ porque los assets
 # viven en /assets/ y /logos/ en la raíz del repo, no dentro de /portal/.
