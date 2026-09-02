@@ -24,6 +24,15 @@ https://app.scalexlatam.com/ejercicio-gc      /ejercicio-gc/index.html    200!
 https://app.scalexlatam.com/ejercicio-gc/      /ejercicio-gc/index.html    200!
 https://app.scalexlatam.com/ejercicio-gc/*    /ejercicio-gc/:splat        200!
 
+# ── 1e. Landing SCALEx — visible en scalexlatam.com/landing y app/landing ──
+# (En el apex scalexlatam.com, /landing/ se sirve solo; esta regla es para el
+#  host app.* que si no la tragaría el catch-all /portal/. Para mover la landing
+#  a la RAÍZ del apex cuando el contenido sea real, agregar:
+#    https://scalexlatam.com/   /landing/index.html   200!  )
+https://app.scalexlatam.com/landing      /landing/index.html    200!
+https://app.scalexlatam.com/landing/      /landing/index.html    200!
+https://app.scalexlatam.com/landing/*    /landing/:splat        200!
+
 # ── 2. app.scalexlatam.com — assets COMPARTIDOS sirven desde raíz ─────────
 # Estas reglas van ANTES de la genérica de /portal/ porque los assets
 # viven en /assets/ y /logos/ en la raíz del repo, no dentro de /portal/.

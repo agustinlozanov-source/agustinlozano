@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SCALEx · Consultoría estratégica</title>
+<link rel="icon" type="image/png" href="/logos/SX Icon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
+<style>
+/* ============================================================================
+   SCALEx · Landing — sistema editorial (bicromía #212121/#FAFAFA · Raleway)
+   Acento: teal SCALEx (variante AA para enlaces sobre claro).
+   ============================================================================ */
+:root {
+  /* Base (esqueleto del sistema) */
+  --ink: #212121; --ink-75: rgba(33,33,33,.75); --ink-60: rgba(33,33,33,.60);
+  --paper: #FAFAFA; --paper-75: rgba(250,250,250,.75);
+  --hairline: rgba(250,250,250,.25); --hairline-dark: rgba(33,33,33,.15);
+  --black: #000000;
+  /* Acento — teal SCALEx */
+  --accent: #0e6b5c;        /* enlaces / detalles sobre claro (AA) */
+  --accent-bright: #1aab99; /* marca · hover y enlaces sobre oscuro · subrayado activo */
+  --accent-deep: #08322a;   /* banda de cierre / fondos profundos */
+  /* Tipografía */
+  --font: 'Raleway', -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --fs-display: clamp(2rem, 1.25rem + 3.2vw, 3rem);   /* 32 → 48 */
+  --fs-lead: clamp(1.375rem, 1.1rem + 1.2vw, 2rem);   /* 22 → 32 */
+  --fs-card: 1.375rem; --fs-body: 1rem; --fs-micro: .75rem;
+  /* Retícula */
+  --container: 1200px; --pad-x: 64px; --pad-x-mobile: 24px;
+  --space-3: 24px; --space-4: 32px; --space-5: 48px; --space-6: 64px; --space-7: 96px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font); font-size: var(--fs-body); font-weight: 500; line-height: 1.55; color: var(--ink); background: var(--paper); -webkit-font-smoothing: antialiased; }
+img { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+
+.container { max-width: var(--container); margin-inline: auto; padding: var(--space-4) var(--pad-x); }
+.material-symbols-outlined { font-size: 20px; line-height: 1; vertical-align: middle; }
+
+/* Titulares */
+h1, h2 { font-weight: 400; line-height: 1.15; letter-spacing: normal; }
+.display { font-size: var(--fs-display); font-weight: 400; }
+.lead { font-size: var(--fs-lead); font-weight: 400; line-height: 1.25; }
+
+/* ── Bandas ─────────────────────────────────────────────────────────────── */
+.band { width: 100%; }
+.band--light { background: var(--paper); color: var(--ink); }
+.band--dark { background: var(--ink); color: var(--paper); }
+
+/* ── Header (dos barras) ────────────────────────────────────────────────── */
+.topbar { background: var(--paper); border-bottom: 1px solid var(--hairline-dark); }
+.topbar__in { height: 64px; max-width: var(--container); margin-inline: auto; padding-inline: var(--pad-x);
+  display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.topbar__logo { height: 26px; }
+.nav { display: flex; gap: 34px; }
+.nav a { font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: .02em; padding: 4px 0; border-bottom: 2px solid transparent; }
+.nav a:hover { border-bottom-color: var(--ink); }
+.topbar__tools { display: flex; align-items: center; gap: 18px; color: var(--ink-75); }
+.topbar__tools button { background: none; border: 0; cursor: pointer; color: inherit; font: inherit; font-weight: 700; font-size: 13px; }
+.nav-toggle { display: none; }
+
+.subnav { position: sticky; top: 0; z-index: 50; background: var(--ink); color: var(--paper); border-bottom: 1px solid var(--hairline); }
+.subnav__in { height: 52px; max-width: var(--container); margin-inline: auto; padding-inline: var(--pad-x);
+  display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.subnav__title { font-size: 22px; font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.subnav__links { display: flex; gap: 26px; }
+.subnav__links a { font-size: 12px; font-weight: 700; text-transform: uppercase; line-height: 14px; letter-spacing: .04em; color: var(--paper-75); padding-bottom: 2px; border-bottom: 2px solid transparent; }
+.subnav__links a:hover { color: var(--paper); }
+.subnav__links a[aria-current="true"] { color: var(--paper); border-bottom-color: var(--accent-bright); }
+
+/* ── Hero ───────────────────────────────────────────────────────────────── */
+.hero { position: relative; height: 640px; display: flex; align-items: flex-end; }
+.hero__media { position: absolute; inset: 0; }
+.hero__media::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.15) 0%, rgba(0,0,0,.72) 100%); }
+.hero__in { position: relative; max-width: var(--container); margin-inline: auto; padding: 0 var(--pad-x) 56px; width: 100%; }
+.hero h1 { font-size: clamp(3rem, 2rem + 5vw, 5.5rem); color: var(--paper); font-weight: 400; line-height: 1; }
+.hero .eyebrow { color: var(--paper-75); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .18em; margin-bottom: 14px; }
+
+/* ── Propósito ──────────────────────────────────────────────────────────── */
+.purpose .lead { max-width: 20ch; }
+.purpose p.big { font-size: var(--fs-lead); font-weight: 400; line-height: 1.3; max-width: 34ch; }
+.purpose .container { padding-block: var(--space-7); }
+
+/* ── Encabezado de sección ──────────────────────────────────────────────── */
+.section-head { padding: var(--space-7) var(--pad-x) var(--space-5); max-width: var(--container); margin-inline: auto; }
+.section-head .kicker { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .14em; color: var(--accent); margin-bottom: 16px; }
+.section-head h2 { font-size: var(--fs-display); }
+.section-head p { color: var(--ink-75); max-width: 60ch; margin-top: 16px; line-height: 1.55; }
+
+/* ── Mosaico (rejilla sin gutter) ───────────────────────────────────────── */
+.mosaic { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
+.mosaic__cell { position: relative; aspect-ratio: 4/3; display: grid; place-items: end start;
+  border: 1px solid var(--ink); color: var(--paper); overflow: hidden; }
+.mosaic__cell .ph { position: absolute; inset: 0; transition: transform .18s ease; }
+.mosaic__cell::before { content: ""; position: absolute; inset: 0; background: var(--ink-60); z-index: 1; }
+.mosaic__cell:hover .ph { transform: scale(1.04); }
+.mosaic__cell .lbl { position: relative; z-index: 2; padding: 22px 24px; display: flex; align-items: center; gap: 10px; width: 100%; justify-content: space-between; }
+.mosaic__cell .lbl span:first-child { font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+
+/* ── Bloque 50/50 ───────────────────────────────────────────────────────── */
+.split { display: grid; grid-template-columns: 1fr 1fr; min-height: 460px; }
+.split__panel { background: var(--ink); color: var(--paper); padding: 64px; display: flex; flex-direction: column; justify-content: center; gap: 24px; }
+.split__panel .idx { font-size: 12px; font-weight: 700; letter-spacing: .16em; color: var(--accent-bright); }
+.split__panel h2 { font-size: var(--fs-display); }
+.split__panel p { color: var(--paper-75); max-width: 46ch; line-height: 1.55; }
+.split__media { position: relative; }
+.split__media .ph { position: absolute; inset: 0; }
+.split--reverse .split__panel { order: 2; }
+.split--reverse .split__media { order: 1; }
+
+/* ── Botón ──────────────────────────────────────────────────────────────── */
+.btn { display: inline-flex; align-items: center; gap: 14px; align-self: flex-start;
+  background: var(--paper); color: var(--ink); padding: 22px 30px; border: 0; border-radius: 0;
+  font-size: 16px; font-weight: 500; letter-spacing: 1.28px; text-transform: uppercase;
+  cursor: pointer; transition: background .18s ease, color .18s ease; }
+.btn:hover { background: var(--accent); color: var(--paper); }
+.btn--ghost { background: transparent; color: var(--paper); border: 1px solid var(--hairline); }
+.btn--ghost:hover { background: var(--accent-bright); border-color: var(--accent-bright); color: var(--ink); }
+.btn--dark { background: var(--ink); color: var(--paper); }
+.btn--dark:hover { background: var(--accent); }
+
+/* Enlace inline */
+.link { color: var(--accent); border-bottom: 1px solid rgba(14,107,92,.35); }
+.link:hover { border-bottom-color: var(--accent); }
+
+/* ── Metodología (fases con acordeón) ───────────────────────────────────── */
+.phases { border-top: 1px solid var(--hairline-dark); max-width: var(--container); margin: 0 auto var(--space-7); }
+.phases details { border-bottom: 1px solid var(--hairline-dark); }
+.phases summary { list-style: none; cursor: pointer; padding: 26px var(--pad-x); display: flex; align-items: center; gap: 20px; }
+.phases summary::-webkit-details-marker { display: none; }
+.phases summary .n { font-size: 12px; font-weight: 700; color: var(--accent); letter-spacing: .1em; width: 40px; }
+.phases summary .t { font-size: var(--fs-card); font-weight: 500; flex: 1; }
+.phases summary .chev { transition: transform .18s ease; color: var(--ink-60); }
+.phases details[open] summary .chev { transform: rotate(180deg); }
+.phases .body { padding: 0 var(--pad-x) 28px calc(var(--pad-x) + 60px); color: var(--ink-75); max-width: 70ch; line-height: 1.6; }
+
+/* ── Dato destacado ─────────────────────────────────────────────────────── */
+.pull { padding-block: var(--space-7); }
+.pull blockquote { max-width: 70ch; margin: 0 auto; font-style: italic; font-size: var(--fs-lead); font-weight: 400; line-height: 1.35; border-left: 3px solid var(--accent); padding-left: 28px; }
+.pull cite { display: block; margin-top: 18px; font-style: normal; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-60); }
+
+/* ── Clientes / alianzas ────────────────────────────────────────────────── */
+.logos { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; }
+.logos .cell { aspect-ratio: 3/2; border: 1px solid var(--hairline-dark); display: grid; place-items: center; }
+.logos .ph { width: 62%; height: 42%; filter: grayscale(1); opacity: .55; }
+
+/* ── Insights (4 cards horizontales) ────────────────────────────────────── */
+.insights { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
+.insights article { border: 1px solid var(--hairline-dark); overflow: hidden; }
+.insights .ph { aspect-ratio: 16/10; }
+.insights .txt { padding: 24px; }
+.insights .tag { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); }
+.insights h3 { font-size: 20px; font-weight: 500; line-height: 1.3; margin-top: 10px; }
+.insights a.more { display: inline-flex; align-items: center; gap: 8px; margin-top: 16px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+
+/* ── Contacto (banda de cierre, acento profundo) ────────────────────────── */
+.cta-band { background: var(--accent-deep); color: var(--paper); }
+.cta-band .container { padding-block: var(--space-7); display: flex; align-items: center; justify-content: space-between; gap: 40px; flex-wrap: wrap; }
+.cta-band h2 { font-size: var(--fs-display); max-width: 20ch; }
+.cta-band p { color: var(--paper-75); margin-top: 14px; max-width: 42ch; }
+
+/* ── Footer ─────────────────────────────────────────────────────────────── */
+.footer { background: var(--ink); color: var(--paper-75); }
+.footer .container { padding-block: var(--space-6); display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 32px; }
+.footer__logo { height: 24px; margin-bottom: 18px; }
+.footer h4 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--paper); margin-bottom: 14px; }
+.footer ul { list-style: none; display: grid; gap: 10px; }
+.footer a { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+.footer a:hover { color: var(--paper); }
+.footer__legal { grid-column: 1 / -1; border-top: 1px solid var(--hairline); padding-top: 20px; margin-top: 8px; font-size: 12px; font-weight: 500; text-transform: none; letter-spacing: normal; }
+
+/* ── Placeholder de imagen ──────────────────────────────────────────────── */
+.ph { width: 100%; height: 100%; background:
+    repeating-linear-gradient(45deg, #cfcfcf 0 14px, #c6c6c6 14px 28px); }
+.ph[data-label]::after { content: attr(data-label); position: absolute; inset: 0; display: grid; place-items: center;
+  color: rgba(33,33,33,.45); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; text-align: center; padding: 12px; }
+.split__media .ph, .mosaic__cell .ph { position: absolute; }
+
+/* ── Reveal on scroll ───────────────────────────────────────────────────── */
+.reveal { opacity: 0; transform: translateY(16px); transition: opacity .5s ease, transform .5s ease; }
+.reveal.in { opacity: 1; transform: none; }
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 1279px) { :root { --pad-x: 40px; } }
+@media (max-width: 900px) {
+  .nav, .subnav__title, .topbar__tools .search-label { display: none; }
+  .nav-toggle { display: inline-flex; }
+  .mosaic { grid-template-columns: repeat(2, 1fr); }
+  .split { grid-template-columns: 1fr; }
+  .split--reverse .split__panel { order: 0; }
+  .split--reverse .split__media { order: 0; }
+  .split__media { aspect-ratio: 16/10; }
+  .split__media .ph { position: absolute; }
+  .logos { grid-template-columns: repeat(3, 1fr); }
+  .insights { grid-template-columns: repeat(2, 1fr); }
+  .footer .container { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+  :root { --pad-x: 24px; }
+  .hero { height: 460px; }
+  .mosaic { grid-template-columns: 1fr; }
+  .logos { grid-template-columns: repeat(2, 1fr); }
+  .insights { grid-template-columns: 1fr; }
+  .footer .container { grid-template-columns: 1fr; }
+  .phases .body { padding-left: var(--pad-x); }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .reveal { opacity: 1; transform: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ BANDA 1 · Header (dos barras) ═════════════════════════════════════ -->
+<header class="topbar">
+  <div class="topbar__in">
+    <!-- LOGO: versión negra sobre fondo claro -->
+    <img class="topbar__logo" src="/logos/Logo SCALEx negro.png" alt="SCALEx" />
+    <nav class="nav" aria-label="Principal">
+      <a href="#servicios">Servicios</a>
+      <a href="#metodologia">Metodología</a>
+      <a href="#insights">Insights</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+    <div class="topbar__tools">
+      <button type="button">ES</button>
+      <button type="button" aria-label="Buscar"><span class="material-symbols-outlined">search</span></button>
+      <button type="button" class="nav-toggle" aria-label="Menú"><span class="material-symbols-outlined">menu</span></button>
+    </div>
+  </div>
+</header>
+
+<div class="subnav">
+  <div class="subnav__in">
+    <div class="subnav__title" id="subnav-title">Escalamiento empresarial</div>
+    <nav class="subnav__links" aria-label="Secciones">
+      <a href="#servicios">Servicios</a>
+      <a href="#metodologia">Metodología</a>
+      <a href="#clientes">Clientes</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+  </div>
+</div>
+
+<!-- ══ BANDA 2 · Hero ════════════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero__media">
+    <!-- IMG hero (~1600×640, a sangre): sala de consejo / reunión directiva en tono sobrio -->
+    <div class="ph"></div>
+  </div>
+  <div class="hero__in">
+    <p class="eyebrow">Consultoría estratégica</p>
+    <h1>Escalar.</h1>
+  </div>
+</section>
+
+<!-- ══ BANDA 3 · Propósito ═══════════════════════════════════════════════ -->
+<section class="band band--light purpose">
+  <div class="container">
+    <p class="big reveal">Ayudamos a empresas en crecimiento a construir la estructura, el gobierno y los datos que se necesitan para escalar con orden y levantar capital con confianza.</p>
+  </div>
+</section>
+
+<!-- ══ BANDA 4 · Líneas de servicio (mosaico 3 col) ══════════════════════ -->
+<section id="servicios" class="band band--light">
+  <div class="section-head reveal">
+    <p class="kicker">Prácticas</p>
+    <h2>Tres frentes para escalar sin romperse.</h2>
+    <p>Trabajamos donde el crecimiento suele trabarse: cómo está armada la empresa, cómo se decide y cómo se lee la operación.</p>
+  </div>
+  <div class="mosaic">
+    <a class="mosaic__cell" href="#estructura">
+      <!-- IMG estructura corporativa (organigrama / holding) --><div class="ph"></div>
+      <span class="lbl"><span>Estructura &amp; holding</span><span class="material-symbols-outlined">navigate_next</span></span>
+    </a>
+    <a class="mosaic__cell" href="#gobierno">
+      <!-- IMG gobierno corporativo (sala de consejo) --><div class="ph"></div>
+      <span class="lbl"><span>Gobierno corporativo</span><span class="material-symbols-outlined">navigate_next</span></span>
+    </a>
+    <a class="mosaic__cell" href="#inversion">
+      <!-- IMG preparación para inversión (due diligence / dashboards) --><div class="ph"></div>
+      <span class="lbl"><span>Preparación para inversión</span><span class="material-symbols-outlined">navigate_next</span></span>
+    </a>
+  </div>
+</section>
+
+<!-- ══ BANDA 5 · 50/50 · Estructura ══════════════════════════════════════ -->
+<section id="estructura" class="split">
+  <div class="split__panel reveal">
+    <span class="idx">01 — Práctica</span>
+    <h2>Estructura corporativa y holding</h2>
+    <p>Diseñamos la arquitectura societaria que separa patrimonio, ordena la propiedad y prepara a la empresa para crecer, invertir o incorporar socios sin fricción.</p>
+    <a class="btn btn--ghost" href="#contacto">Conoce más <span class="material-symbols-outlined">navigate_next</span></a>
+  </div>
+  <div class="split__media"><!-- IMG estructura (foto sobria) --><div class="ph"></div></div>
+</section>
+
+<!-- ══ BANDA 6 · 50/50 invertido · Gobierno ══════════════════════════════ -->
+<section id="gobierno" class="split split--reverse">
+  <div class="split__panel reveal">
+    <span class="idx">02 — Práctica</span>
+    <h2>Gobierno corporativo y reporteo</h2>
+    <p>Instalamos consejos, comités y rutinas de reporteo que dan claridad a la dirección y confianza a inversionistas: cada quién sabe qué decide y con qué información.</p>
+    <a class="btn btn--ghost" href="#contacto">Conoce más <span class="material-symbols-outlined">navigate_next</span></a>
+  </div>
+  <div class="split__media"><!-- IMG gobierno (reunión de consejo) --><div class="ph"></div></div>
+</section>
+
+<!-- ══ BANDA 7 · 50/50 · Inversión ═══════════════════════════════════════ -->
+<section id="inversion" class="split">
+  <div class="split__panel reveal">
+    <span class="idx">03 — Práctica</span>
+    <h2>Preparación para inversión</h2>
+    <p>Ordenamos números, procesos y narrativa para que la empresa llegue a una ronda con la casa en orden y una historia que resiste el due diligence.</p>
+    <a class="btn btn--ghost" href="#contacto">Conoce más <span class="material-symbols-outlined">navigate_next</span></a>
+  </div>
+  <div class="split__media"><!-- IMG inversión (dashboards / cierre de trato) --><div class="ph"></div></div>
+</section>
+
+<!-- ══ BANDA 8 · Metodología ═════════════════════════════════════════════ -->
+<section id="metodologia" class="band band--light">
+  <div class="section-head reveal">
+    <p class="kicker">Metodología</p>
+    <h2>Un método, cinco fases.</h2>
+    <p>No entregamos un PDF y nos vamos. Acompañamos la implementación fase por fase, con entregables que quedan funcionando en la empresa.</p>
+  </div>
+  <div class="phases reveal">
+    <details open>
+      <summary><span class="n">01</span><span class="t">Diagnóstico</span><span class="material-symbols-outlined chev">keyboard_arrow_down</span></summary>
+      <div class="body">Mapeamos cómo está armada hoy la empresa, dónde se traba el crecimiento y qué la separa de estar lista para invertir o levantar capital.</div>
+    </details>
+    <details>
+      <summary><span class="n">02</span><span class="t">Estructura</span><span class="material-symbols-outlined chev">keyboard_arrow_down</span></summary>
+      <div class="body">Rediseñamos la arquitectura societaria y operativa: holding, entidades, roles y responsabilidades que sostienen la escala.</div>
+    </details>
+    <details>
+      <summary><span class="n">03</span><span class="t">Gobierno</span><span class="material-symbols-outlined chev">keyboard_arrow_down</span></summary>
+      <div class="body">Instalamos consejo, comités y rutinas de decisión, con un reporteo que la dirección realmente usa.</div>
+    </details>
+    <details>
+      <summary><span class="n">04</span><span class="t">Datos</span><span class="material-symbols-outlined chev">keyboard_arrow_down</span></summary>
+      <div class="body">Conectamos sistemas y cruzamos la información en un solo tablero, para decidir con datos y no con intuición.</div>
+    </details>
+    <details>
+      <summary><span class="n">05</span><span class="t">Capital</span><span class="material-symbols-outlined chev">keyboard_arrow_down</span></summary>
+      <div class="body">Preparamos la empresa y su narrativa para la ronda, y acompañamos el proceso hasta el cierre.</div>
+    </details>
+  </div>
+</section>
+
+<!-- ══ BANDA 9 · Dato destacado ══════════════════════════════════════════ -->
+<section class="band band--light pull">
+  <div class="container reveal">
+    <blockquote>
+      "Las empresas con gobierno y estructura formal no solo levantan capital más rápido: sobreviven a la transición del fundador."
+      <cite>Placeholder — reemplazar por una métrica o resultado real de cliente</cite>
+    </blockquote>
+  </div>
+</section>
+
+<!-- ══ BANDA 10 · Clientes / alianzas ════════════════════════════════════ -->
+<section id="clientes" class="band band--light">
+  <div class="section-head reveal">
+    <p class="kicker">Confían en el método</p>
+    <h2>Empresas que ya escalan con orden.</h2>
+  </div>
+  <div class="logos reveal">
+    <!-- LOGOS de cliente/alianza en escala de grises (reemplazar los 10 placeholders) -->
+    <div class="cell"><div class="ph" data-label="Logo"></div></div>
+    <div class="cell"><div class="ph" data-label="Logo"></div></div>
+    <div class="cell"><div class="ph" data-label="Logo"></div></div>
+    <div class="cell"><div class="ph" data-label="Logo"></div></div>
+    <div class="cell"><div class="ph" data-label="Logo"></div></div>
+    <div class="cell"><div class="ph" data-label="Logo"></div></div>
+    <div class="cell"><div class="ph" data-label="Logo"></div></div>
+    <div class="cell"><div class="ph" data-label="Logo"></div></div>
+    <div class="cell"><div class="ph" data-label="Logo"></div></div>
+    <div class="cell"><div class="ph" data-label="Logo"></div></div>
+  </div>
+</section>
+
+<!-- ══ BANDA 11 · Perfil / equipo (50/50 oscuro) ═════════════════════════ -->
+<section class="split split--reverse">
+  <div class="split__panel reveal">
+    <span class="idx">Quién está detrás</span>
+    <h2>Agustín Lozano</h2>
+    <p>Estrategia, estructura corporativa y datos para empresas que quieren dar el siguiente salto. Fundador de SCALEx.</p>
+    <a class="btn btn--ghost" href="#contacto">Agendar llamada <span class="material-symbols-outlined">navigate_next</span></a>
+  </div>
+  <div class="split__media"><!-- IMG retrato de Agustín (usar /imagenes/AgustinNormal.jpg) --><div class="ph"></div></div>
+</section>
+
+<!-- ══ BANDA 12 · Insights ═══════════════════════════════════════════════ -->
+<section id="insights" class="band band--light">
+  <div class="section-head reveal">
+    <p class="kicker">Insights</p>
+    <h2>Ideas para escalar.</h2>
+  </div>
+  <div class="insights reveal">
+    <article>
+      <!-- IMG insight 1 --><div class="ph"></div>
+      <div class="txt"><span class="tag">Gobierno</span><h3>Cuándo instalar un consejo (y cuándo no).</h3><a class="more" href="#">Leer <span class="material-symbols-outlined">navigate_next</span></a></div>
+    </article>
+    <article>
+      <!-- IMG insight 2 --><div class="ph"></div>
+      <div class="txt"><span class="tag">Estructura</span><h3>Holding: separar patrimonio antes de crecer.</h3><a class="more" href="#">Leer <span class="material-symbols-outlined">navigate_next</span></a></div>
+    </article>
+    <article>
+      <!-- IMG insight 3 --><div class="ph"></div>
+      <div class="txt"><span class="tag">Inversión</span><h3>Qué mira un fondo en el due diligence.</h3><a class="more" href="#">Leer <span class="material-symbols-outlined">navigate_next</span></a></div>
+    </article>
+    <article>
+      <!-- IMG insight 4 --><div class="ph"></div>
+      <div class="txt"><span class="tag">Datos</span><h3>Del Excel disperso a un solo tablero.</h3><a class="more" href="#">Leer <span class="material-symbols-outlined">navigate_next</span></a></div>
+    </article>
+  </div>
+</section>
+
+<!-- ══ BANDA 13 · Contacto (banda de cierre) ═════════════════════════════ -->
+<section id="contacto" class="cta-band">
+  <div class="container reveal">
+    <div>
+      <h2>¿Listo para escalar con estructura?</h2>
+      <p>Una conversación de 30 minutos para ver dónde está trabada tu empresa y qué haría falta.</p>
+    </div>
+    <a class="btn" href="mailto:hola@agustinlozano.com">Agendar llamada <span class="material-symbols-outlined">navigate_next</span></a>
+  </div>
+</section>
+
+<!-- ══ BANDA 14 · Footer ═════════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="container">
+    <div>
+      <!-- LOGO blanco sobre fondo oscuro -->
+      <img class="footer__logo" src="/logos/Logo SCALEx blanco.png" alt="SCALEx" />
+      <p style="max-width:34ch; text-transform:none; letter-spacing:normal; font-weight:500;">Consultoría estratégica para empresas que quieren escalar con orden.</p>
+    </div>
+    <div>
+      <h4>Prácticas</h4>
+      <ul>
+        <li><a href="#estructura">Estructura &amp; holding</a></li>
+        <li><a href="#gobierno">Gobierno corporativo</a></li>
+        <li><a href="#inversion">Preparación para inversión</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>SCALEx</h4>
+      <ul>
+        <li><a href="#metodologia">Metodología</a></li>
+        <li><a href="#insights">Insights</a></li>
+        <li><a href="#contacto">Contacto</a></li>
+      </ul>
+    </div>
+    <div class="footer__legal">© 2026 SCALEx · Todos los derechos reservados · <a href="#" style="text-transform:none; letter-spacing:normal;">Aviso de privacidad</a></div>
+  </div>
+</footer>
+
+<script>
+// Reveal on scroll (una sola vez)
+(function () {
+  var els = document.querySelectorAll('.reveal');
+  if (!('IntersectionObserver' in window)) { els.forEach(function (e) { e.classList.add('in'); }); return; }
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+  els.forEach(function (e) { io.observe(e); });
+
+  // Subnav: título de sección + estado activo según scroll
+  var map = { servicios: 'Servicios', estructura: 'Servicios', gobierno: 'Servicios', inversion: 'Servicios',
+    metodologia: 'Metodología', clientes: 'Clientes', insights: 'Insights', contacto: 'Contacto' };
+  var title = document.getElementById('subnav-title');
+  var links = document.querySelectorAll('.subnav__links a');
+  var sections = Array.prototype.slice.call(document.querySelectorAll('section[id]'));
+  var sio = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      var id = e.target.id;
+      if (title && map[id]) title.textContent = map[id];
+      links.forEach(function (a) {
+        a.setAttribute('aria-current', a.getAttribute('href') === '#' + id ? 'true' : 'false');
+      });
+    });
+  }, { rootMargin: '-52px 0px -60% 0px', threshold: 0 });
+  sections.forEach(function (s) { sio.observe(s); });
+})();
+</script>
+</body>
+</html>
