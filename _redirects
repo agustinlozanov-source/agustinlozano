@@ -54,6 +54,12 @@ https://www.scalexlatam.com/sobre          /landing/sobre.html              200!
 https://scalexlatam.com/sobre/*            /landing/sobre.html              200!
 https://www.scalexlatam.com/sobre/*        /landing/sobre.html              200!
 
+# /insights → hub (filtros por ?tipo=); /insights/<slug> → artículo param-driven.
+https://scalexlatam.com/insights           /landing/insights.html           200!
+https://www.scalexlatam.com/insights       /landing/insights.html           200!
+https://scalexlatam.com/insights/*         /landing/articulo.html           200!
+https://www.scalexlatam.com/insights/*     /landing/articulo.html           200!
+
 # ── 2. app.scalexlatam.com — assets COMPARTIDOS sirven desde raíz ─────────
 # Estas reglas van ANTES de la genérica de /portal/ porque los assets
 # viven en /assets/ y /logos/ en la raíz del repo, no dentro de /portal/.

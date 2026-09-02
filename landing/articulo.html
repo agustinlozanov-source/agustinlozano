@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Insight · SCALEx</title>
+<meta name="description" id="meta-desc" content="Artículo, caso de estudio, podcast o reporte de SCALEx sobre escalabilidad empresarial en LATAM." />
+<link rel="icon" type="image/png" href="/logos/SX Icon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
+<link rel="stylesheet" href="/landing/assets/site.css" />
+<style>
+/* ── Artículo / caso ────────────────────────────────────────────────────── */
+.art-head .container { padding-block: var(--space-7) var(--space-5); max-width: 820px; }
+.art-head .back { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); margin-bottom: 24px; }
+.art-head .kicker { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .14em; color: var(--accent); margin-bottom: 14px; }
+.art-head h1 { font-size: var(--fs-display); }
+.art-head .meta { margin-top: 18px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-60); }
+.art-head .lead { margin-top: 22px; font-size: var(--fs-lead); font-weight: 400; line-height: 1.3; color: var(--ink-75); }
+.ribbon { max-width: 820px; margin: 0 auto; padding: 12px var(--pad-x); }
+.ribbon span { display: inline-block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); border: 1px solid var(--hairline-dark); padding: 8px 14px; }
+.art-hero { max-width: var(--container); margin: 0 auto; padding: 0 var(--pad-x); }
+.art-hero img { width: 100%; aspect-ratio: 16/7; object-fit: cover; }
+.art-body { max-width: 820px; margin: 0 auto; padding: var(--space-6) var(--pad-x) var(--space-7); }
+.art-body h2 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); margin: 40px 0 14px; }
+.art-body h2:first-child { margin-top: 0; }
+.art-body p { font-size: 1.0625rem; color: var(--ink-75); line-height: 1.75; margin-bottom: 20px; }
+.metricas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border-top: 1px solid var(--hairline-dark); margin: 32px 0; }
+.metricas .m { border-right: 1px solid var(--hairline-dark); border-bottom: 1px solid var(--hairline-dark); padding: 28px var(--space-3); }
+.metricas .m:last-child { border-right: 0; }
+.metricas .m .num { font-size: clamp(2rem, 1.4rem + 2vw, 2.75rem); font-weight: 400; color: var(--ink); line-height: 1; }
+.metricas .m .lbl { font-size: 13px; color: var(--ink-75); margin-top: 10px; line-height: 1.4; }
+.player { border: 1px solid var(--hairline-dark); padding: 28px var(--space-3); display: flex; align-items: center; gap: 18px; margin: 8px 0 24px; }
+.player .material-symbols-outlined { font-size: 42px; color: var(--accent); }
+.player .p-txt strong { display: block; font-weight: 500; }
+.player .p-txt span { font-size: 13px; color: var(--ink-60); }
+.plataformas { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 28px; }
+.plataformas a { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; border: 1px solid var(--hairline-dark); padding: 10px 16px; color: var(--ink-75); }
+.plataformas a:hover { border-color: var(--ink); color: var(--ink); }
+@media (max-width: 700px) { .metricas { grid-template-columns: 1fr; } .metricas .m, .metricas .m:last-child { border-right: 0; } }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="topbar" id="topbar">
+  <div class="topbar__in">
+    <a href="/" aria-label="SCALEx — inicio"><img class="topbar__logo" src="/logos/Logo SCALEx negro.png" alt="SCALEx" /></a>
+    <nav class="nav" aria-label="Principal">
+      <a href="/metodo">Método</a>
+      <a href="/servicios">Servicios</a>
+      <a href="/insights" aria-current="page">Insights</a>
+      <a href="/sobre">Sobre</a>
+      <a href="/#contacto">Contacto</a>
+    </nav>
+    <div class="topbar__tools">
+      <a class="tool" href="https://app.scalexlatam.com" target="_blank" rel="noopener">Portal ↗</a>
+      <button type="button" class="nav-toggle" aria-label="Menú" aria-expanded="false"><span class="material-symbols-outlined">menu</span></button>
+    </div>
+  </div>
+</header>
+
+<nav class="subnav" aria-label="Secciones">
+  <div class="subnav__in">
+    <span class="subnav__title"><a href="/insights">Insights</a></span>
+    <div class="subnav__links">
+      <a href="/insights">Todos</a>
+      <a href="/#contacto">Contacto</a>
+    </div>
+  </div>
+</nav>
+
+<main id="art-content" hidden>
+  <section class="band band--light art-head">
+    <div class="container reveal">
+      <a class="back" href="/insights"><span class="material-symbols-outlined">arrow_back</span> Todos los insights</a>
+      <p class="kicker" id="art-kicker"></p>
+      <h1 id="art-title"></h1>
+      <p class="meta" id="art-meta"></p>
+      <p class="lead" id="art-lead"></p>
+    </div>
+  </section>
+
+  <div class="ribbon reveal"><span id="art-ribbon">Contenido de ejemplo · pendiente de publicación</span></div>
+
+  <div class="art-hero reveal"><img id="art-img" src="" alt="" /></div>
+
+  <article class="art-body reveal" id="art-body"></article>
+
+  <!-- CTA -->
+  <section class="band cta-band">
+    <div class="container">
+      <div>
+        <p class="kicker">Del contenido a la acción</p>
+        <h2>¿Tu empresa se parece a este caso?</h2>
+        <p>Todo arranca con un diagnóstico que la ubica en su punto real y define la intervención que corresponde.</p>
+      </div>
+      <div class="actions">
+        <a class="btn btn--ghost" href="/#contacto">Solicitar diagnóstico <span class="material-symbols-outlined">arrow_forward</span></a>
+        <a class="btn btn--ghost" href="/insights">Más insights</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- No encontrado -->
+<section id="art-notfound" class="band band--light page-head" hidden>
+  <div class="container">
+    <p class="kicker">Publicación no encontrada</p>
+    <h1>Esa publicación no existe (todavía).</h1>
+    <p class="lead">Revisa el hub de contenido para ver lo que hay disponible.</p>
+    <p style="margin-top:28px;"><a class="btn btn--line" href="/insights">Ver todos los insights <span class="material-symbols-outlined">arrow_forward</span></a></p>
+  </div>
+</section>
+
+<noscript><div style="padding:40px;text-align:center;">Esta página requiere JavaScript. <a href="/insights">Ver todos los insights</a>.</div></noscript>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div>
+      <img class="footer__logo" src="/logos/Logo SCALEx blanco.png" alt="SCALEx" />
+      <p class="footer__tag">Método de escalabilidad empresarial para América Latina. Todo medible, todo rastreable.</p>
+    </div>
+    <div>
+      <h4>Insights</h4>
+      <ul>
+        <li><a href="/insights?tipo=casos">Casos de estudio</a></li>
+        <li><a href="/insights?tipo=articulos">Artículos</a></li>
+        <li><a href="/insights?tipo=podcast">Podcast</a></li>
+        <li><a href="/insights?tipo=reportes">Reportes</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Ecosistema</h4>
+      <ul>
+        <li><a href="/metodo">Método</a></li>
+        <li><a href="/servicios">Servicios</a></li>
+        <li><a href="/sobre">Sobre</a></li>
+        <li><a href="https://app.scalexlatam.com" target="_blank" rel="noopener">Portal ↗</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Contacto</h4>
+      <ul>
+        <li><a href="mailto:hola@scalexlatam.com">Correo</a></li>
+        <li><a href="/#contacto">Solicitar diagnóstico</a></li>
+      </ul>
+    </div>
+    <div class="footer__legal">
+      <span>© 2026 SCALEx · scalexlatam.com</span>
+      <span>Aviso de privacidad · Términos</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ── Contenido de ejemplo (reemplazar por publicaciones reales) ─────────── */
+var ARTICLES = {
+  "caso-crecimiento-sistemico": {
+    tipo: "Caso de estudio", titulo: "De atorada a crecimiento sistémico: estrategia pura antes de escalar.",
+    autor: "SCALEx", fecha: "Próximamente", img: "/landing/img/ins-2.jpg",
+    resumen: "Una empresa Tipo 2 ordenó su estrategia y sus procesos de valor para volver a crecer antes de intentar escalar.",
+    bloques: [
+      { h: "Reto", p: "Una empresa con años de operación, estancada y ahogada en procesos, sin diferenciación clara. El dueño movía todo con vísceras y sin gobierno corporativo." },
+      { h: "Intervención", p: "Estrategia pura: mapa de procesos de valor, diferenciación y los parámetros mínimos para atajar el caos. Diagnóstico de madurez del líder e instalación de un consejo técnico con reporteo trimestral. Plan anual operado en la plataforma." },
+      { h: "Resultado", p: "La empresa recuperó una dirección clara y un ritmo de gobierno. Con crecimiento demostrado, quedó lista para evaluar el siguiente nivel del recorrido." }
+    ],
+    metricas: [ { num: "Tipo 2 → 3", lbl: "Recorrido habilitado tras demostrar crecimiento" }, { num: "1 plan", lbl: "Anual, operado en plataforma" }, { num: "Trimestral", lbl: "Ritmo de reporteo del consejo técnico" } ]
+  },
+  "gobierno-pyme-latam": {
+    tipo: "Análisis", titulo: "La empresa que se mueve con vísceras: instalar gobierno en la PyME.",
+    autor: "Agustín Lozano", fecha: "Próximamente", img: "/landing/img/ins-1.jpg",
+    resumen: "En Latinoamérica casi ninguna empresa está institucionalizada. El director general es la palanca; un consejo técnico le da visibilidad.",
+    bloques: [
+      { h: null, p: "En LATAM, casi ninguna empresa tiene gobierno corporativo ni está institucionalizada. Son empresas que se mueven con vísceras, donde una sola persona puede matar o revivir el negocio con facilidad." },
+      { h: null, p: "El primer paso es darle visibilidad a esa persona: diagnosticar la madurez del líder. El segundo, instalar un marco institucional —un consejo técnico con reporteo trimestral— que convierta las decisiones viscerales en un ritmo de gobierno." },
+      { h: null, p: "No es burocracia: es el mínimo que permite que la empresa deje de depender de una sola cabeza." }
+    ]
+  },
+  "curva-ingreso-gasto": {
+    tipo: "Podcast", titulo: "Escalar sin ahogar la caja: la curva ingreso vs. gasto.",
+    autor: "SCALEx", fecha: "Próximamente", img: "/landing/img/ins-3.jpg",
+    resumen: "Una conversación sobre por qué el crecimiento absorbe efectivo y cómo controlar la curva mientras se escala.",
+    podcast: true,
+    plataformas: [ { label: "Spotify", url: "#" }, { label: "Apple Podcasts", url: "#" }, { label: "YouTube", url: "#" } ],
+    bloques: [
+      { h: "En este episodio", p: "El crecimiento consume caja: cuando escalas, la curva de gasto corre por delante de la de ingreso. Hablamos de cómo se controla esa curva en el programa de escalabilidad." },
+      { h: "Transcripción", p: "La transcripción completa estará disponible con la publicación del episodio, optimizada para búsqueda." }
+    ]
+  },
+  "madurez-liderazgo": {
+    tipo: "Reporte", titulo: "Madurez del liderazgo en las PyMEs mexicanas.",
+    autor: "SCALEx · Investigación", fecha: "Próximamente", img: "/landing/img/ins-4.jpg",
+    resumen: "Un estudio propio sobre la brecha entre el nivel de los problemas de la empresa y el nivel del líder que los enfrenta.",
+    bloques: [
+      { h: "Resumen", p: "El pilar Reflejo parte de una idea: la empresa tiene un nivel de problemas, y el líder tiene que estar varios escalones por encima en conocimiento, experiencia y herramientas." },
+      { h: "Qué medimos", p: "El reporte documentará esa brecha en una muestra de PyMEs, y cómo se relaciona con su capacidad de crecer de forma sistémica." },
+      { h: null, p: "Publicación trimestral. Los datos y la metodología se detallarán con la edición completa." }
+    ]
+  },
+  "piramide-invertida": {
+    tipo: "Análisis", titulo: "Pirámide invertida: las empresas rápidas sirven primero a su gente.",
+    autor: "Agustín Lozano", fecha: "Próximamente", img: "/landing/img/serv-gobierno.jpg",
+    resumen: "El pilar ADN, explicado: en el futuro habrá dos tipos de empresas, las rápidas y las muertas, y la cultura decide.",
+    bloques: [
+      { h: null, p: "Las empresas rápidas tienen su pirámide organizacional enfocada en los públicos a los que sirven, no de la manera tradicional. Donde la pirámide no está invertida, ahí está el factor: rapidez o muerte." },
+      { h: null, p: "Invertir la pirámide no es un gesto simbólico: cambia hacia dónde fluyen las decisiones y la energía de la organización. Es la diferencia entre transformarse en función del tiempo o quedarse atrás." }
+    ]
+  },
+  "consejo-tecnico-familiar": {
+    tipo: "Caso de estudio", titulo: "Consejo técnico en 90 días: gobierno para una empresa familiar.",
+    autor: "SCALEx", fecha: "Próximamente", img: "/landing/img/serv-estructura.jpg",
+    resumen: "Instalar un marco institucional y reporteo trimestral donde antes se decidía con vísceras.",
+    bloques: [
+      { h: "Reto", p: "Una empresa familiar sin gobierno corporativo, con decisiones concentradas y sin un ritmo institucional de rendición de cuentas." },
+      { h: "Intervención", p: "Diseño e instalación de un consejo técnico con un marco de reporteo trimestral, junto con el diagnóstico de madurez del líder." },
+      { h: "Resultado", p: "Un ritmo de gobierno instalado en el primer trimestre, con visibilidad para el director general y un marco para decidir con datos, no con vísceras." }
+    ],
+    metricas: [ { num: "90 días", lbl: "Para instalar el consejo y su ritmo" }, { num: "Trimestral", lbl: "Cadencia de reporteo" }, { num: "1 marco", lbl: "Institucional donde no había ninguno" } ]
+  }
+};
+
+(function () {
+  function slugFromUrl() {
+    var q = new URLSearchParams(location.search).get('a');
+    if (q) return q;
+    var parts = location.pathname.replace(/\/+$/, '').split('/');
+    var last = parts[parts.length - 1];
+    if (!last || /articulo|insights/.test(last)) return '';
+    return last;
+  }
+  function el(id) { return document.getElementById(id); }
+
+  var slug = slugFromUrl();
+  var a = ARTICLES[slug];
+
+  if (!a) { el('art-content').hidden = true; el('art-notfound').hidden = false; return; }
+
+  document.title = a.titulo + " · SCALEx";
+  var md = el('meta-desc'); if (md) md.setAttribute('content', a.resumen);
+
+  el('art-kicker').textContent = a.tipo;
+  el('art-title').textContent = a.titulo;
+  el('art-meta').textContent = a.autor + " · " + a.fecha;
+  el('art-lead').textContent = a.resumen;
+  var img = el('art-img'); img.src = a.img; img.alt = a.titulo;
+
+  var body = el('art-body');
+  body.innerHTML = '';
+
+  if (a.podcast) {
+    var pl = document.createElement('div');
+    pl.className = 'player';
+    pl.innerHTML = '<span class="material-symbols-outlined">play_circle</span><div class="p-txt"><strong>Reproductor del episodio</strong><span>Disponible con la publicación</span></div>';
+    body.appendChild(pl);
+    if (a.plataformas) {
+      var pf = document.createElement('div');
+      pf.className = 'plataformas';
+      a.plataformas.forEach(function (p) { var x = document.createElement('a'); x.href = p.url; x.textContent = p.label; pf.appendChild(x); });
+      body.appendChild(pf);
+    }
+  }
+
+  (a.bloques || []).forEach(function (b) {
+    if (b.h) { var h = document.createElement('h2'); h.textContent = b.h; body.appendChild(h); }
+    var p = document.createElement('p'); p.textContent = b.p; body.appendChild(p);
+  });
+
+  if (a.metricas) {
+    var g = document.createElement('div');
+    g.className = 'metricas';
+    a.metricas.forEach(function (m) {
+      var c = document.createElement('div'); c.className = 'm';
+      c.innerHTML = '<div class="num"></div><div class="lbl"></div>';
+      c.querySelector('.num').textContent = m.num; c.querySelector('.lbl').textContent = m.lbl;
+      g.appendChild(c);
+    });
+    body.appendChild(g);
+  }
+
+  el('art-content').hidden = false;
+})();
+</script>
+<script src="/landing/assets/site.js" defer></script>
+</body>
+</html>
