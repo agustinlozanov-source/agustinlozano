@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>El método · SCALEx</title>
+<meta name="description" content="El método SCALEx: cinco pilares —Reflejo, ADN, Vector, Ritmo y Flujo— que convierten el caos operativo de tu PyME en una empresa que escala sin depender de ti." />
+<meta property="og:title" content="El método SCALEx · Cinco pilares" />
+<meta property="og:description" content="Reflejo, ADN, Vector, Ritmo y Flujo. Cinco pilares. Doce meses. Una plataforma." />
+<meta property="og:url" content="https://scalexlatam.com/metodo" />
+<link rel="icon" type="image/png" href="/logos/SX Icon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
+<link rel="stylesheet" href="/landing/assets/site.css" />
+<style>
+/* ── Página del método: componentes específicos ─────────────────────────── */
+.pilares { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; border-top: 1px solid var(--hairline-dark); }
+.pilar-cell { border-right: 1px solid var(--hairline-dark); border-bottom: 1px solid var(--hairline-dark);
+  padding: 30px 22px; display: flex; flex-direction: column; gap: 12px; min-height: 250px; transition: background .18s ease; }
+.pilar-cell:last-child { border-right: 0; }
+.pilar-cell:hover { background: #f1f1f1; }
+.pilar-cell .n { font-size: 12px; font-weight: 700; letter-spacing: .16em; color: var(--accent); }
+.pilar-cell .material-symbols-outlined { font-size: 28px; color: var(--ink); }
+.pilar-cell h3 { font-size: 20px; font-weight: 400; }
+.pilar-cell p { font-size: 13px; color: var(--ink-75); line-height: 1.5; flex: 1; }
+.pilar-cell .go { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); display: inline-flex; align-items: center; gap: 6px; }
+
+/* Bloque de detalle por pilar */
+.pilar-block .container { padding-block: var(--space-7); display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: start; }
+.pilar-block .name { font-size: var(--fs-display); font-weight: 400; margin-top: 12px; display: flex; align-items: center; gap: 16px; }
+.pilar-block .name .material-symbols-outlined { font-size: 34px; color: var(--accent); }
+.pilar-block .num { font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); }
+.pilar-block .filo { font-size: var(--fs-lead); font-weight: 400; line-height: 1.3; margin-top: 26px; }
+.pilar-block .filo em { font-style: italic; color: var(--accent); }
+.pilar-block .ctx { color: var(--ink-75); line-height: 1.7; }
+.instrumentos { border-top: 1px solid var(--hairline-dark); margin-top: 4px; }
+.instrumentos .lbl { display: block; padding-top: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); }
+.instrumentos ul { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.instrumentos li { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; border: 1px solid var(--hairline-dark); padding: 8px 14px; color: var(--ink-75); }
+.instrumentos li.soon { opacity: .6; }
+/* Variante oscura */
+.band--dark .pilar-block .num, .band--dark .pilar-block .name .material-symbols-outlined,
+.band--dark .pilar-block .filo em, .band--dark .instrumentos .lbl { color: var(--accent-bright); }
+.band--dark .pilar-block .ctx { color: var(--paper-75); }
+.band--dark .instrumentos { border-top-color: var(--hairline); }
+.band--dark .instrumentos li { border-color: var(--hairline); color: var(--paper-75); }
+
+/* Recorrido secuencial */
+.secuencia { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-top: 6px; }
+.secuencia .step { font-size: var(--fs-card); font-weight: 400; color: var(--paper); }
+.secuencia .arrow { color: var(--accent-bright); }
+.secuencia .cond { flex-basis: 100%; margin-top: 8px; color: var(--paper-75); font-size: 14px; }
+
+/* Principios (dos columnas) */
+.principios .container { padding-block: var(--space-7); display: grid; grid-template-columns: 1fr 1fr; gap: 56px; }
+.principio h3 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); margin-bottom: 16px; }
+.principio p { font-size: 1.0625rem; color: var(--ink-75); line-height: 1.7; }
+
+/* Sistema operativo */
+.sistema-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border-top: 1px solid var(--hairline); }
+.sistema-cell { border-right: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); padding: 34px var(--space-3); display: flex; flex-direction: column; gap: 12px; }
+.sistema-cell:last-child { border-right: 0; }
+.sistema-cell .material-symbols-outlined { font-size: 28px; color: var(--accent-bright); }
+.sistema-cell h3 { font-size: 18px; font-weight: 500; color: var(--paper); }
+.sistema-cell p { font-size: 14px; color: var(--paper-75); line-height: 1.55; }
+
+@media (max-width: 1100px) { .pilares { grid-template-columns: repeat(2, 1fr); } .pilar-cell:nth-child(2n) { border-right: 0; } }
+@media (max-width: 900px) {
+  .pilar-block .container, .principios .container { grid-template-columns: 1fr; gap: 28px; }
+  .sistema-grid { grid-template-columns: 1fr; } .sistema-cell { border-right: 0; }
+}
+@media (max-width: 600px) { .pilares { grid-template-columns: 1fr; } .pilar-cell, .pilar-cell:nth-child(2n) { border-right: 0; } }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="topbar" id="topbar">
+  <div class="topbar__in">
+    <a href="/" aria-label="SCALEx — inicio"><img class="topbar__logo" src="/logos/Logo SCALEx negro.png" alt="SCALEx" /></a>
+    <nav class="nav" aria-label="Principal">
+      <a href="/metodo" aria-current="page">Método</a>
+      <a href="/servicios">Servicios</a>
+      <a href="/#insights">Insights</a>
+      <a href="/#fundador">Sobre</a>
+      <a href="/#contacto">Contacto</a>
+    </nav>
+    <div class="topbar__tools">
+      <a class="tool" href="https://app.scalexlatam.com" target="_blank" rel="noopener">Portal ↗</a>
+      <button type="button" class="nav-toggle" aria-label="Menú" aria-expanded="false"><span class="material-symbols-outlined">menu</span></button>
+    </div>
+  </div>
+</header>
+
+<nav class="subnav" aria-label="Secciones">
+  <div class="subnav__in">
+    <span class="subnav__title"><a href="/metodo">El método</a></span>
+    <div class="subnav__links">
+      <a href="#pilares">Los 5 pilares</a>
+      <a href="#diagnostico">Diagnóstico</a>
+      <a href="#tipos">Los 3 tipos</a>
+      <a href="#sistema">El sistema</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Page head -->
+<section class="band band--light page-head">
+  <div class="container reveal">
+    <p class="kicker">La metodología</p>
+    <h1>El método SCALEx.</h1>
+    <p class="lead">Convierte el caos operativo de tu PyME en una empresa que escala sin depender de ti. Cinco pilares. Doce meses. Una plataforma donde todo el equipo opera junto.</p>
+  </div>
+</section>
+
+<!-- Los 5 pilares · overview -->
+<section class="band band--light" id="pilares">
+  <div class="section-head reveal">
+    <p class="kicker">El sistema completo</p>
+    <h2>Los cinco pilares.</h2>
+    <p>Cada pilar resuelve un dolor estructural distinto. Juntos forman el sistema operativo de tu empresa.</p>
+  </div>
+  <div class="pilares reveal">
+    <a class="pilar-cell" href="#reflejo">
+      <span class="n">01</span>
+      <span class="material-symbols-outlined">visibility</span>
+      <h3>Reflejo</h3>
+      <p>Antes de escalar tu negocio, primero escala tu liderazgo.</p>
+      <span class="go">Ver <span class="material-symbols-outlined">arrow_forward</span></span>
+    </a>
+    <a class="pilar-cell" href="#adn">
+      <span class="n">02</span>
+      <span class="material-symbols-outlined">biotech</span>
+      <h3>ADN</h3>
+      <p>Empresas rápidas o empresas muertas: la cultura decide.</p>
+      <span class="go">Ver <span class="material-symbols-outlined">arrow_forward</span></span>
+    </a>
+    <a class="pilar-cell" href="#vector">
+      <span class="n">03</span>
+      <span class="material-symbols-outlined">explore</span>
+      <h3>Vector</h3>
+      <p>Lo importante es mantenerse de pie los doce rounds.</p>
+      <span class="go">Ver <span class="material-symbols-outlined">arrow_forward</span></span>
+    </a>
+    <a class="pilar-cell" href="#ritmo">
+      <span class="n">04</span>
+      <span class="material-symbols-outlined">monitor_heart</span>
+      <h3>Ritmo</h3>
+      <p>La ejecución es el latido constante de la empresa.</p>
+      <span class="go">Ver <span class="material-symbols-outlined">arrow_forward</span></span>
+    </a>
+    <a class="pilar-cell" href="#flujo">
+      <span class="n">05</span>
+      <span class="material-symbols-outlined">payments</span>
+      <h3>Flujo</h3>
+      <p>Si vendes 100 y gastas 100, no importa cuánto vendas.</p>
+      <span class="go">Ver <span class="material-symbols-outlined">arrow_forward</span></span>
+    </a>
+  </div>
+</section>
+
+<!-- Pilar 01 · Reflejo (oscuro) -->
+<section class="band band--dark pilar-block" id="reflejo">
+  <div class="container reveal">
+    <div>
+      <p class="num">Pilar 01</p>
+      <h2 class="name"><span class="material-symbols-outlined">visibility</span> Reflejo</h2>
+      <p class="filo">El «dueño es el cuello de botella» ya está trillado. Lo importante es la <em>brecha</em> entre el nivel de tus problemas y tu nivel como líder.</p>
+    </div>
+    <div>
+      <p class="ctx">Tu empresa tiene un nivel de problemas; tú tienes que estar dos, tres o cuatro escalones por encima —en conocimiento, experiencia y herramientas. Si no cierras esa brecha, los problemas suben y tú quedas siempre apenas por encima, gestionando lo urgente.</p>
+      <div class="instrumentos">
+        <span class="lbl">Instrumentos</span>
+        <ul><li>PIE</li><li>MAPE</li><li>PRISMA</li><li>Plan de acción</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Pilar 02 · ADN (claro) -->
+<section class="band band--light pilar-block" id="adn">
+  <div class="container reveal">
+    <div>
+      <p class="num">Pilar 02</p>
+      <h2 class="name"><span class="material-symbols-outlined">biotech</span> ADN</h2>
+      <p class="filo">En el futuro va a haber <em>dos tipos de empresas</em>: las rápidas y las muertas. La diferencia está en la cultura.</p>
+    </div>
+    <div>
+      <p class="ctx">Las rápidas tienen su pirámide organizacional enfocada en los públicos a los que sirven, no de la manera tradicional. Donde la pirámide no está invertida, ahí está el factor: rapidez o muerte.</p>
+      <div class="instrumentos">
+        <span class="lbl">Instrumentos</span>
+        <ul><li>Pirámide invertida</li><li class="soon">Diagnóstico de cultura · próximamente</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Pilar 03 · Vector (oscuro) -->
+<section class="band band--dark pilar-block" id="vector">
+  <div class="container reveal">
+    <div>
+      <p class="num">Pilar 03</p>
+      <h2 class="name"><span class="material-symbols-outlined">explore</span> Vector</h2>
+      <p class="filo">Los grandes caudales de dinero <em>vienen de la estrategia</em>. De ningún otro lado.</p>
+    </div>
+    <div>
+      <p class="ctx">Una estrategia bien diseñada y bien conectada se siente directamente en el bolsillo. ¿Tu gerente principal daría la misma respuesta que tú? ¿Está aterrizada a un año, a un trimestre, a un mes?</p>
+      <div class="instrumentos">
+        <span class="lbl">Instrumentos</span>
+        <ul><li>Norte</li><li>OPSP</li><li>Trimestre</li><li>Rocks</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Pilar 04 · Ritmo (claro) -->
+<section class="band band--light pilar-block" id="ritmo">
+  <div class="container reveal">
+    <div>
+      <p class="num">Pilar 04</p>
+      <h2 class="name"><span class="material-symbols-outlined">monitor_heart</span> Ritmo</h2>
+      <p class="filo">La reunión diaria no es el problema. El problema es <em>qué tipo</em> de reunión.</p>
+    </div>
+    <div>
+      <p class="ctx">Si la estrategia depende de mantenerse vivo, tomarse el pulso a diario es lo lógico: asegurar que la salud está intacta con acciones muy breves, en muy poco tiempo.</p>
+      <div class="instrumentos">
+        <span class="lbl">Instrumentos</span>
+        <ul><li>El Pulso</li><li>Reunión diaria</li><li>3 bloques</li><li>Strikes</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Pilar 05 · Flujo (oscuro) -->
+<section class="band band--dark pilar-block" id="flujo">
+  <div class="container reveal">
+    <div>
+      <p class="num">Pilar 05</p>
+      <h2 class="name"><span class="material-symbols-outlined">payments</span> Flujo</h2>
+      <p class="filo">El crédito en LATAM está diseñado para consumo, no para negocio. La diferencia está en <em>la capacidad de adquirir capital</em>.</p>
+    </div>
+    <div>
+      <p class="ctx">Una parte del equipo se vuelca sobre el estado de resultados: uno cuida ventas, otro el costo de ventas, otro los gastos comerciales. Todos los indicadores, reflejados en el equipo.</p>
+      <div class="instrumentos">
+        <span class="lbl">Instrumentos</span>
+        <ul><li>Costeo</li><li>Estado de resultados</li><li>Punto de equilibrio</li><li>Flujo de caja</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- El proceso es uno (acento) -->
+<section class="band cta-band">
+  <div class="container reveal">
+    <div>
+      <p class="kicker">La tesis</p>
+      <h2>El proceso es uno.</h2>
+      <p>Diagnóstico, consultoría y tecnología no son tres compras separadas. No hay proceso sólido sin diagnóstico; no hay consultoría que llegue a buen puerto sin un sistema propio; no hay empresa que compita hoy sin tecnología propia. Por eso viven en un solo programa.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Diagnóstico -->
+<section class="band band--light purpose" id="diagnostico">
+  <div class="container reveal">
+    <p class="lead">El diagnóstico vive en los cinco pilares.</p>
+    <p class="big">En dos semanas, una radiografía estructurada evalúa tu empresa en los cinco pilares, la categoriza —Tipo 1, 2 o 3— e identifica dónde intervenir. El primer paso siempre es saber dónde estás.</p>
+  </div>
+</section>
+
+<!-- Los 3 tipos -->
+<section class="band band--dark" id="tipos">
+  <div class="section-head reveal">
+    <p class="kicker">El resultado del diagnóstico</p>
+    <h2>Toda empresa es de uno de tres tipos.</h2>
+    <div class="secuencia">
+      <span class="step">Tipo 1</span><span class="arrow material-symbols-outlined">arrow_forward</span>
+      <span class="step">Tipo 2</span><span class="arrow material-symbols-outlined">arrow_forward</span>
+      <span class="step">Tipo 3</span>
+      <span class="cond">El recorrido es secuencial: no se salta. No se escala una empresa que no ha demostrado crecimiento —es antinatural.</span>
+    </div>
+  </div>
+  <div class="tipos reveal">
+    <article class="tipo">
+      <span class="tipo__n">Tipo 01 · Startups</span>
+      <h3 class="tipo__name">Estructura</h3>
+      <p class="tipo__desc">Menos de un año operando. Necesitan crecer con estructura, orden y una vocación de negocio clara. Se instalan cimientos y procesos mínimos viables.</p>
+    </article>
+    <article class="tipo">
+      <span class="tipo__n">Tipo 02 · Empresa atorada</span>
+      <h3 class="tipo__name">Estrategia</h3>
+      <p class="tipo__desc">Años de operación, estancada, moviéndose con vísceras. Estrategia pura: mapa de procesos de valor, diferenciación y los mínimos para salir del caos. Plan anual. No se ofrece escalar hasta demostrar crecimiento.</p>
+    </article>
+    <article class="tipo">
+      <span class="tipo__n">Tipo 03 · Lista para escalar</span>
+      <h3 class="tipo__name">Escala</h3>
+      <p class="tipo__desc">Crecimiento sistémico demostrado. El programa completo en plataforma: plan a tres años, control de la curva ingreso vs. gasto y proyección ×2 o ×3 según la industria.</p>
+    </article>
+  </div>
+</section>
+
+<!-- Principios LATAM · transformación -->
+<section class="band band--light principios">
+  <div class="container reveal">
+    <div class="principio">
+      <h3>El principio LATAM</h3>
+      <p>En Latinoamérica casi ninguna empresa está institucionalizada; se mueven con vísceras. El método le da visibilidad al director general —la persona que puede matar o revivir la empresa con mayor facilidad— e instala un marco institucional: consejo técnico y reporteo trimestral.</p>
+    </div>
+    <div class="principio">
+      <h3>Transformación, no proyecto</h3>
+      <p>Las empresas que sobreviven tienen la transformación institucionalizada. Los mercados, las tecnologías y los comportamientos cambian. Lo antinatural es no transformarse en función del tiempo; por eso el método instala procesos de valor que permiten transformación ágil.</p>
+    </div>
+  </div>
+</section>
+
+<!-- El sistema operativo -->
+<section class="band band--dark" id="sistema">
+  <div class="section-head reveal">
+    <p class="kicker">Todo vive en un sistema</p>
+    <h2>No es Excel. No es PowerPoint.</h2>
+    <p>Cada paso, protagonista, indicador y comunicación se da en un solo sistema, que genera reportes de valor mensual o trimestralmente a quien corresponda.</p>
+  </div>
+  <div class="sistema-grid reveal">
+    <div class="sistema-cell">
+      <span class="material-symbols-outlined">groups</span>
+      <h3>Tu equipo entero adentro</h3>
+      <p>Usuarios sin costo extra. Toda tu gente alineada al mismo sistema.</p>
+    </div>
+    <div class="sistema-cell">
+      <span class="material-symbols-outlined">smart_toy</span>
+      <h3>Inteligencia artificial integrada</h3>
+      <p>Automatización de procesos, conversación con clientes y análisis de estrategia.</p>
+    </div>
+    <div class="sistema-cell">
+      <span class="material-symbols-outlined">dns</span>
+      <h3>CRM y ERP propios</h3>
+      <p>No te conectamos a software externo: construimos contigo tu propio sistema operativo.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="band cta-band">
+  <div class="container reveal">
+    <div>
+      <p class="kicker">Empieza por aquí</p>
+      <h2>Todo arranca con el diagnóstico.</h2>
+      <p>En dos semanas sabes en qué pilar está tu brecha y qué intervención corresponde a tu empresa.</p>
+    </div>
+    <div class="actions">
+      <a class="btn btn--ghost" href="/#contacto">Solicitar diagnóstico <span class="material-symbols-outlined">arrow_forward</span></a>
+      <a class="btn btn--ghost" href="/servicios">Ver servicios</a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div>
+      <img class="footer__logo" src="/logos/Logo SCALEx blanco.png" alt="SCALEx" />
+      <p class="footer__tag">Método de escalabilidad empresarial para América Latina. Todo medible, todo rastreable.</p>
+    </div>
+    <div>
+      <h4>Método</h4>
+      <ul>
+        <li><a href="/metodo#pilares">Los 5 pilares</a></li>
+        <li><a href="/metodo#diagnostico">Diagnóstico</a></li>
+        <li><a href="/metodo#tipos">Los 3 tipos</a></li>
+        <li><a href="/metodo#sistema">El sistema</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Ecosistema</h4>
+      <ul>
+        <li><a href="/servicios">Servicios</a></li>
+        <li><a href="/#insights">Insights</a></li>
+        <li><a href="/#consultores">Consultores</a></li>
+        <li><a href="https://app.scalexlatam.com" target="_blank" rel="noopener">Portal ↗</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Contacto</h4>
+      <ul>
+        <li><a href="mailto:hola@scalexlatam.com">Correo</a></li>
+        <li><a href="/#contacto">Solicitar diagnóstico</a></li>
+      </ul>
+    </div>
+    <div class="footer__legal">
+      <span>© 2026 SCALEx · scalexlatam.com</span>
+      <span>Aviso de privacidad · Términos</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/landing/assets/site.js" defer></script>
+</body>
+</html>
