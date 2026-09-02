@@ -181,6 +181,10 @@ h1, h2 { font-weight: 400; line-height: 1.15; letter-spacing: normal; }
   color: rgba(33,33,33,.45); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; text-align: center; padding: 12px; }
 .split__media .ph, .mosaic__cell .ph { position: absolute; }
 
+/* ── Fotos (llenan sus contenedores; overlays quedan por encima) ────────── */
+.photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.ins-photo { display: block; width: 100%; aspect-ratio: 16/10; object-fit: cover; }
+
 /* ── Reveal on scroll ───────────────────────────────────────────────────── */
 .reveal { opacity: 0; transform: translateY(16px); transition: opacity .5s ease, transform .5s ease; }
 .reveal.in { opacity: 1; transform: none; }
@@ -252,8 +256,8 @@ h1, h2 { font-weight: 400; line-height: 1.15; letter-spacing: normal; }
 <!-- ══ BANDA 2 · Hero ════════════════════════════════════════════════════ -->
 <section class="hero">
   <div class="hero__media">
-    <!-- IMG hero (~1600×640, a sangre): sala de consejo / reunión directiva en tono sobrio -->
-    <div class="ph"></div>
+    <!-- IMG hero (temporal, B/N). Reemplazar por foto propia ~2400×1000 -->
+    <img class="photo" src="/landing/img/hero.jpg" alt="" />
   </div>
   <div class="hero__in">
     <p class="eyebrow">Consultoría estratégica</p>
@@ -277,15 +281,15 @@ h1, h2 { font-weight: 400; line-height: 1.15; letter-spacing: normal; }
   </div>
   <div class="mosaic">
     <a class="mosaic__cell" href="#estructura">
-      <!-- IMG estructura corporativa (organigrama / holding) --><div class="ph"></div>
+      <img class="photo" src="/landing/img/serv-estructura.jpg" alt="" />
       <span class="lbl"><span>Estructura &amp; holding</span><span class="material-symbols-outlined">navigate_next</span></span>
     </a>
     <a class="mosaic__cell" href="#gobierno">
-      <!-- IMG gobierno corporativo (sala de consejo) --><div class="ph"></div>
+      <img class="photo" src="/landing/img/serv-gobierno.jpg" alt="" />
       <span class="lbl"><span>Gobierno corporativo</span><span class="material-symbols-outlined">navigate_next</span></span>
     </a>
     <a class="mosaic__cell" href="#inversion">
-      <!-- IMG preparación para inversión (due diligence / dashboards) --><div class="ph"></div>
+      <img class="photo" src="/landing/img/serv-inversion.jpg" alt="" />
       <span class="lbl"><span>Preparación para inversión</span><span class="material-symbols-outlined">navigate_next</span></span>
     </a>
   </div>
@@ -299,7 +303,7 @@ h1, h2 { font-weight: 400; line-height: 1.15; letter-spacing: normal; }
     <p>Diseñamos la arquitectura societaria que separa patrimonio, ordena la propiedad y prepara a la empresa para crecer, invertir o incorporar socios sin fricción.</p>
     <a class="btn btn--ghost" href="#contacto">Conoce más <span class="material-symbols-outlined">navigate_next</span></a>
   </div>
-  <div class="split__media"><!-- IMG estructura (foto sobria) --><div class="ph"></div></div>
+  <div class="split__media"><img class="photo" src="/landing/img/split-estructura.jpg" alt="" /></div>
 </section>
 
 <!-- ══ BANDA 6 · 50/50 invertido · Gobierno ══════════════════════════════ -->
@@ -310,7 +314,7 @@ h1, h2 { font-weight: 400; line-height: 1.15; letter-spacing: normal; }
     <p>Instalamos consejos, comités y rutinas de reporteo que dan claridad a la dirección y confianza a inversionistas: cada quién sabe qué decide y con qué información.</p>
     <a class="btn btn--ghost" href="#contacto">Conoce más <span class="material-symbols-outlined">navigate_next</span></a>
   </div>
-  <div class="split__media"><!-- IMG gobierno (reunión de consejo) --><div class="ph"></div></div>
+  <div class="split__media"><img class="photo" src="/landing/img/split-gobierno.jpg" alt="" /></div>
 </section>
 
 <!-- ══ BANDA 7 · 50/50 · Inversión ═══════════════════════════════════════ -->
@@ -321,7 +325,7 @@ h1, h2 { font-weight: 400; line-height: 1.15; letter-spacing: normal; }
     <p>Ordenamos números, procesos y narrativa para que la empresa llegue a una ronda con la casa en orden y una historia que resiste el due diligence.</p>
     <a class="btn btn--ghost" href="#contacto">Conoce más <span class="material-symbols-outlined">navigate_next</span></a>
   </div>
-  <div class="split__media"><!-- IMG inversión (dashboards / cierre de trato) --><div class="ph"></div></div>
+  <div class="split__media"><img class="photo" src="/landing/img/split-inversion.jpg" alt="" /></div>
 </section>
 
 <!-- ══ BANDA 8 · Metodología ═════════════════════════════════════════════ -->
@@ -394,7 +398,7 @@ h1, h2 { font-weight: 400; line-height: 1.15; letter-spacing: normal; }
     <p>Estrategia, estructura corporativa y datos para empresas que quieren dar el siguiente salto. Fundador de SCALEx.</p>
     <a class="btn btn--ghost" href="#contacto">Agendar llamada <span class="material-symbols-outlined">navigate_next</span></a>
   </div>
-  <div class="split__media"><!-- IMG retrato de Agustín (usar /imagenes/AgustinNormal.jpg) --><div class="ph"></div></div>
+  <div class="split__media"><img class="photo" src="/imagenes/AgustinNormal.jpg" alt="Agustín Lozano" /></div>
 </section>
 
 <!-- ══ BANDA 12 · Insights ═══════════════════════════════════════════════ -->
@@ -405,19 +409,19 @@ h1, h2 { font-weight: 400; line-height: 1.15; letter-spacing: normal; }
   </div>
   <div class="insights reveal">
     <article>
-      <!-- IMG insight 1 --><div class="ph"></div>
+      <img class="ins-photo" src="/landing/img/ins-1.jpg" alt="" />
       <div class="txt"><span class="tag">Gobierno</span><h3>Cuándo instalar un consejo (y cuándo no).</h3><a class="more" href="#">Leer <span class="material-symbols-outlined">navigate_next</span></a></div>
     </article>
     <article>
-      <!-- IMG insight 2 --><div class="ph"></div>
+      <img class="ins-photo" src="/landing/img/ins-2.jpg" alt="" />
       <div class="txt"><span class="tag">Estructura</span><h3>Holding: separar patrimonio antes de crecer.</h3><a class="more" href="#">Leer <span class="material-symbols-outlined">navigate_next</span></a></div>
     </article>
     <article>
-      <!-- IMG insight 3 --><div class="ph"></div>
+      <img class="ins-photo" src="/landing/img/ins-3.jpg" alt="" />
       <div class="txt"><span class="tag">Inversión</span><h3>Qué mira un fondo en el due diligence.</h3><a class="more" href="#">Leer <span class="material-symbols-outlined">navigate_next</span></a></div>
     </article>
     <article>
-      <!-- IMG insight 4 --><div class="ph"></div>
+      <img class="ins-photo" src="/landing/img/ins-4.jpg" alt="" />
       <div class="txt"><span class="tag">Datos</span><h3>Del Excel disperso a un solo tablero.</h3><a class="more" href="#">Leer <span class="material-symbols-outlined">navigate_next</span></a></div>
     </article>
   </div>
