@@ -39,6 +39,10 @@ https://app.scalexlatam.com/landing/*    /landing/:splat        200!
 # limpia por rewrite 200; el JS lee el slug del path).
 https://scalexlatam.com/servicios          /landing/servicios.html          200!
 https://www.scalexlatam.com/servicios      /landing/servicios.html          200!
+# Página DEDICADA de Consejo Técnico — debe ir ANTES del comodín /servicios/*
+https://scalexlatam.com/servicios/consejo-tecnico       /landing/consejo-tecnico.html   200!
+https://www.scalexlatam.com/servicios/consejo-tecnico   /landing/consejo-tecnico.html   200!
+# Resto de fichas → template param-driven
 https://scalexlatam.com/servicios/*        /landing/servicio-detalle.html   200!
 https://www.scalexlatam.com/servicios/*    /landing/servicio-detalle.html   200!
 
