@@ -88,9 +88,13 @@ h1, h2 { font-weight: 400; line-height: 1.15; letter-spacing: normal; }
 .hero .eyebrow { color: var(--paper-75); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .18em; margin-bottom: 14px; }
 
 /* ── Propósito ──────────────────────────────────────────────────────────── */
-.purpose .container { padding-block: var(--space-7); display: grid; grid-template-columns: 1fr 1.2fr; gap: 56px; align-items: start; }
-.purpose .lead { max-width: 14ch; }
-.purpose p.big { font-size: var(--fs-lead); font-weight: 400; line-height: 1.3; max-width: 40ch; }
+.purpose .container { padding-block: var(--space-7); display: grid; grid-template-columns: 1.15fr .85fr; gap: 56px; align-items: center; }
+.purpose .lead { max-width: 18ch; }
+.purpose p.big { font-size: var(--fs-lead); font-weight: 400; line-height: 1.3; max-width: 42ch; margin-top: 22px; }
+.purpose__book { display: flex; flex-direction: column; align-items: center; margin: 0; }
+.purpose__book img { width: 100%; max-width: 400px; height: auto; display: block; }
+.purpose__book figcaption { margin-top: 16px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-60); }
+.purpose__book figcaption em { font-style: normal; color: var(--accent); }
 
 /* ── Encabezado de sección ──────────────────────────────────────────────── */
 .section-head { padding: var(--space-7) var(--pad-x) var(--space-5); max-width: var(--container); margin-inline: auto; }
@@ -321,8 +325,15 @@ h1, h2 { font-weight: 400; line-height: 1.15; letter-spacing: normal; }
 <!-- ══ BANDA 3 · Propuesta de valor ══════════════════════════════════════ -->
 <section class="band band--light purpose" id="proposito">
   <div class="container reveal">
-    <p class="lead">Todo se vuelve un número.</p>
-    <p class="big">Método de escalabilidad para empresas latinoamericanas. Del estancamiento al crecimiento, y del crecimiento a la escala —&nbsp;con precisión matemática. Cada indicador tiene un número; cada peso invertido, trazabilidad.</p>
+    <div class="purpose__text">
+      <p class="lead">Todo se vuelve un número.</p>
+      <p class="big">Método de escalabilidad para empresas latinoamericanas. Del estancamiento al crecimiento, y del crecimiento a la escala —&nbsp;con precisión matemática. Cada indicador tiene un número; cada peso invertido, trazabilidad.</p>
+    </div>
+    <figure class="purpose__book">
+      <!-- IMAGEN: libro del método SCALEx (isotipo transparente). -->
+      <img src="/landing/img/libro.png" alt="Libro «Método de escala para PyMEs latinoamericanas», de Agustín Lozano" />
+      <figcaption>El libro del método · <em>Próximamente</em></figcaption>
+    </figure>
   </div>
 </section>
 
