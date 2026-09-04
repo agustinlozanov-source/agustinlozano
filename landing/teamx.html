@@ -122,8 +122,8 @@
 .pricing-card--featured .btn { background: var(--accent-bright); color: var(--ink); }
 .pricing-card--featured .btn:hover { background: var(--accent); color: var(--paper); }
 /* Toggle de modalidad */
-.pricing.mode-solo .price-acmp, .pricing.mode-acompanado .price-solo { display: none; }
 .pricing.mode-solo .pricing-card__features.acmp { display: none; }
+.pricing-card__price .num { font-variant-numeric: tabular-nums; }
 .pricing__note { text-align: center; font-size: 16px; font-weight: 500; color: var(--ink-75); margin-top: 32px; }
 .pricing__note a { color: var(--accent); border-bottom: 1px solid rgba(14,107,92,.35); }
 @media (max-width: 900px) { .pricing-cards { grid-template-columns: 1fr; max-width: 480px; } }
@@ -331,8 +331,7 @@
     <div class="pricing-card">
       <div class="pricing-card__tier">Líder</div>
       <div class="pricing-card__capacity">1 líder · hasta 5 colaboradores</div>
-      <div class="pricing-card__price price-solo"><span class="cur">$</span>149<span class="per">USD / ciclo</span></div>
-      <div class="pricing-card__price price-acmp"><span class="cur">$</span>599<span class="per">USD / ciclo</span></div>
+      <div class="pricing-card__price"><span class="cur">$</span><span class="num" data-solo="149" data-acmp="599">149</span><span class="per">USD / ciclo</span></div>
       <ul class="pricing-card__features">
         <li class="pricing-card__feature">Tablero completo por 14 semanas</li>
         <li class="pricing-card__feature">Parámetros macro personalizables</li>
@@ -358,8 +357,7 @@
       <div class="pricing-card__badge">Más solicitado</div>
       <div class="pricing-card__tier">Equipo</div>
       <div class="pricing-card__capacity">1 líder · hasta 15 colaboradores</div>
-      <div class="pricing-card__price price-solo"><span class="cur">$</span>349<span class="per">USD / ciclo</span></div>
-      <div class="pricing-card__price price-acmp"><span class="cur">$</span>1,199<span class="per">USD / ciclo</span></div>
+      <div class="pricing-card__price"><span class="cur">$</span><span class="num" data-solo="349" data-acmp="1199">349</span><span class="per">USD / ciclo</span></div>
       <ul class="pricing-card__features">
         <li class="pricing-card__feature head">Todo lo de Líder, más:</li>
         <li class="pricing-card__feature">Rankings y comparativas entre miembros</li>
@@ -383,8 +381,7 @@
     <div class="pricing-card">
       <div class="pricing-card__tier">Organización</div>
       <div class="pricing-card__capacity">Hasta 5 líderes · hasta 50 colaboradores</div>
-      <div class="pricing-card__price price-solo"><span class="cur">$</span>749<span class="per">USD / ciclo</span></div>
-      <div class="pricing-card__price price-acmp"><span class="cur">$</span>2,499<span class="per">USD / ciclo</span></div>
+      <div class="pricing-card__price"><span class="cur">$</span><span class="num" data-solo="749" data-acmp="2499">749</span><span class="per">USD / ciclo</span></div>
       <ul class="pricing-card__features">
         <li class="pricing-card__feature head">Todo lo de Equipo, más:</li>
         <li class="pricing-card__feature">Multi-líder: cada gerente con su tablero</li>
@@ -512,19 +509,31 @@ function initTextTrace(el) {
   cards.forEach(function (c) { io.observe(c); });
 })();
 
-/* ── Pricing toggle ─────────────────────────────────────────────────────── */
+/* ── Pricing toggle + contador animado del precio ───────────────────────── */
 (function () {
   var section = document.querySelector('.pricing');
   var opts = document.querySelectorAll('.pricing-toggle__option');
   if (!section || !opts.length) return;
-  opts.forEach(function (b) {
-    b.addEventListener('click', function () {
-      var mode = b.getAttribute('data-mode');
-      section.classList.remove('mode-solo', 'mode-acompanado');
-      section.classList.add('mode-' + mode);
-      opts.forEach(function (o) { var on = o === b; o.classList.toggle('is-active', on); o.setAttribute('aria-pressed', on ? 'true' : 'false'); });
-    });
-  });
+  var nums = section.querySelectorAll('.pricing-card__price .num');
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function fmt(n) { return n.toLocaleString('en-US'); }
+  function tween(el, to) {
+    var from = parseInt(el.getAttribute('data-current') || el.textContent.replace(/,/g, ''), 10) || 0;
+    if (reduce || from === to) { el.textContent = fmt(to); el.setAttribute('data-current', to); return; }
+    var start = performance.now(), dur = 520;
+    (function step(now) {
+      var t = Math.min(1, (now - start) / dur), e = 1 - Math.pow(1 - t, 3);
+      el.textContent = fmt(Math.round(from + (to - from) * e));
+      if (t < 1) requestAnimationFrame(step); else { el.textContent = fmt(to); el.setAttribute('data-current', to); }
+    })(start);
+  }
+  function setMode(mode) {
+    section.classList.remove('mode-solo', 'mode-acompanado');
+    section.classList.add('mode-' + mode);
+    opts.forEach(function (o) { var on = o.getAttribute('data-mode') === mode; o.classList.toggle('is-active', on); o.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+    nums.forEach(function (n) { tween(n, parseInt(n.getAttribute(mode === 'acompanado' ? 'data-acmp' : 'data-solo'), 10)); });
+  }
+  opts.forEach(function (b) { b.addEventListener('click', function () { setMode(b.getAttribute('data-mode')); }); });
 })();
 </script>
 <script src="/landing/assets/site.js" defer></script>
