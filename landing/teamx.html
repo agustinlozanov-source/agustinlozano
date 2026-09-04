@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TEAMx — Sistema de Coaching de Performance | SCALEx</title>
+<meta name="description" content="Lleva a tu equipo al máximo rendimiento en 14 semanas. 7 parámetros cuantificables, dashboard completo, coaching opcional. Desde $149 USD por ciclo." />
+<meta name="keywords" content="coaching de equipos, performance management, tablero de coaching, gestión de rendimiento, SCALEx, TEAMx, LATAM" />
+<link rel="canonical" href="https://scalexlatam.com/productos/teamx" />
+<meta property="og:title" content="TEAMx — Coaching de Performance Cuantificable" />
+<meta property="og:description" content="7 parámetros. 14 semanas. Un equipo transformado. Desde $149 USD/ciclo." />
+<meta property="og:type" content="product" />
+<meta property="og:url" content="https://scalexlatam.com/productos/teamx" />
+<link rel="icon" type="image/png" href="/logos/SX Icon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
+<link rel="stylesheet" href="/landing/assets/site.css" />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "TEAMx",
+  "description": "Sistema de coaching de performance cuantificable. 7 parámetros, 14 semanas, dashboard completo.",
+  "brand": { "@type": "Brand", "name": "SCALEx" },
+  "offers": [
+    { "@type": "Offer", "name": "Líder — Solo", "price": "149", "priceCurrency": "USD", "description": "1 líder, hasta 5 colaboradores. Herramienta sin acompañamiento.", "url": "https://scalexlatam.com/productos/teamx#pricing" },
+    { "@type": "Offer", "name": "Equipo — Solo", "price": "349", "priceCurrency": "USD", "description": "1 líder, hasta 15 colaboradores. Rankings y comparativas.", "url": "https://scalexlatam.com/productos/teamx#pricing" },
+    { "@type": "Offer", "name": "Organización — Solo", "price": "749", "priceCurrency": "USD", "description": "Hasta 5 líderes, hasta 50 colaboradores. Multi-líder y benchmarks.", "url": "https://scalexlatam.com/productos/teamx#pricing" }
+  ]
+}
+</script>
+<style>
+:root {
+  --ease-smooth: cubic-bezier(.4, 0, .2, 1);
+  --ease-out: cubic-bezier(0, 0, .2, 1);
+  --duration-reveal: 600ms; --duration-hover: 180ms; --stagger-step: 80ms;
+}
+
+/* ── Text trace ─────────────────────────────────────────────────────────── */
+.text-trace { opacity: 0; }
+.text-trace.is-visible { opacity: 1; }
+.text-trace__char { display: inline-block; color: transparent; -webkit-text-stroke: 1.5px var(--paper); }
+.text-trace.is-visible .text-trace__char { animation: trace-fill var(--duration-reveal) var(--ease-smooth) forwards; animation-delay: calc(var(--char-index) * 40ms); }
+.text-trace.is-visible .text-trace__char--accent { animation-name: trace-fill-accent; }
+.band--light .text-trace__char { -webkit-text-stroke-color: var(--ink); }
+.band--light .text-trace.is-visible .text-trace__char { animation-name: trace-fill-light; }
+.band--light .text-trace.is-visible .text-trace__char--accent { animation-name: trace-fill-accent; }
+@keyframes trace-fill { 0%,50% { color: transparent; -webkit-text-stroke-width: 1.5px; } 100% { color: var(--paper); -webkit-text-stroke-width: 0; } }
+@keyframes trace-fill-light { 0%,50% { color: transparent; -webkit-text-stroke-width: 1.5px; } 100% { color: var(--ink); -webkit-text-stroke-width: 0; } }
+@keyframes trace-fill-accent { 0%,50% { color: transparent; -webkit-text-stroke-width: 1.5px; } 100% { color: var(--accent-bright); -webkit-text-stroke-width: 0; } }
+
+/* ── Hero TEAMx ─────────────────────────────────────────────────────────── */
+.teamx-hero .container { padding-block: var(--space-7); }
+.teamx-logo { font-size: clamp(3.25rem, 2rem + 6vw, 4.5rem); font-weight: 700; letter-spacing: -.02em; line-height: 1; }
+.teamx-logo .text-trace__char { font-weight: 700; }
+.teamx-logo .text-trace__char--accent { font-weight: 400; }
+.teamx-hero__sub { font-size: var(--fs-lead); font-weight: 400; color: var(--paper-75); margin-top: 24px; max-width: 26ch; line-height: 1.25; }
+
+/* ── Steps (cómo funciona) ──────────────────────────────────────────────── */
+.steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; position: relative; max-width: var(--container); margin-inline: auto; padding: var(--space-5) var(--pad-x) var(--space-7); }
+.steps::before { content: ''; position: absolute; top: calc(var(--space-5) + 24px); left: calc(var(--pad-x) + 48px); right: calc(var(--pad-x) + 48px); height: 1px; background: var(--hairline); }
+.step { text-align: center; padding: 0 24px; position: relative; }
+.step__number { width: 48px; height: 48px; background: var(--accent-deep); color: var(--paper); display: inline-grid; place-items: center; font-size: 18px; font-weight: 700; margin-bottom: 24px; position: relative; z-index: 1; }
+.step__icon { font-size: 24px; color: var(--accent-bright); margin-bottom: 12px; display: block; }
+.step__title { font-size: var(--fs-card); font-weight: 500; color: var(--paper); margin-bottom: 8px; }
+.step__desc { font-size: var(--fs-body); font-weight: 500; color: var(--paper-75); line-height: 1.55; }
+@media (max-width: 900px) { .steps { grid-template-columns: repeat(2, 1fr); row-gap: 48px; } .steps::before { display: none; } }
+@media (max-width: 600px) { .steps { grid-template-columns: 1fr; } }
+
+/* ── Feature grid ───────────────────────────────────────────────────────── */
+.feature-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; width: 100%; border-top: 1px solid var(--hairline-dark); }
+.feature-grid__card { background: var(--paper); color: var(--ink); padding: 40px 28px; border-right: 1px solid var(--hairline-dark); border-bottom: 1px solid var(--hairline-dark); border-left: 3px solid transparent; display: flex; flex-direction: column; gap: 14px; text-decoration: none; transition: border-color var(--duration-hover) var(--ease-smooth), background var(--duration-hover) var(--ease-smooth); opacity: 0; transform: translateY(24px); }
+.feature-grid__card.is-visible { animation: grid-reveal var(--duration-reveal) var(--ease-out) forwards; animation-delay: calc(var(--card-index) * var(--stagger-step)); }
+.feature-grid__card:hover { border-left-color: var(--accent-bright); background: rgba(33,33,33,.03); }
+.feature-grid__num { font-size: 12px; font-weight: 700; letter-spacing: .16em; color: var(--accent); }
+.feature-grid__icon { font-size: 30px; color: var(--accent); transition: transform var(--duration-hover) var(--ease-smooth); }
+.feature-grid__card:hover .feature-grid__icon { transform: scale(1.12); }
+.feature-grid__title { font-size: 18px; font-weight: 500; line-height: 1.3; }
+.feature-grid__desc { font-size: 14px; font-weight: 500; color: var(--ink-75); line-height: 1.5; }
+.feature-grid__card--cta { background: var(--accent-deep); color: var(--paper); align-items: flex-start; justify-content: center; }
+.feature-grid__card--cta .feature-grid__title, .feature-grid__card--cta .feature-grid__desc { color: var(--paper); }
+.feature-grid__card--cta:hover { background: var(--accent); border-left-color: var(--accent-bright); }
+@keyframes grid-reveal { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 900px) { .feature-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .feature-grid { grid-template-columns: 1fr; } }
+
+/* ── Escala de evaluación ───────────────────────────────────────────────── */
+.escala { max-width: var(--container); margin-inline: auto; padding: var(--space-5) var(--pad-x) 0; }
+.escala h3 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); margin-bottom: 18px; }
+.escala ul { list-style: none; display: grid; gap: 0; border-top: 1px solid var(--hairline-dark); max-width: 640px; }
+.escala li { display: flex; gap: 14px; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--hairline-dark); font-size: 15px; color: var(--ink-75); }
+.escala li b { color: var(--ink); font-weight: 700; min-width: 130px; display: inline-flex; align-items: center; gap: 8px; }
+.escala li .material-symbols-outlined { color: var(--accent); font-size: 18px; }
+
+/* ── Pricing ────────────────────────────────────────────────────────────── */
+.pricing-head { text-align: center; padding: 0 var(--pad-x); }
+.pricing-head h2 { font-size: var(--fs-display); font-weight: 400; }
+.pricing-head p { color: var(--ink-75); margin-top: 14px; }
+.pricing-toggle { display: inline-flex; border: 1px solid var(--hairline-dark); margin: 32px auto 0; }
+.pricing-toggle__option { padding: 12px 32px; font-size: var(--fs-body); font-weight: 700; text-transform: uppercase; letter-spacing: .08em; cursor: pointer; background: transparent; color: var(--ink-75); border: none; font-family: var(--font); transition: background var(--duration-hover) var(--ease-smooth), color var(--duration-hover) var(--ease-smooth); }
+.pricing-toggle__option.is-active { background: var(--ink); color: var(--paper); }
+.pricing-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; max-width: 960px; margin: 48px auto 0; }
+.pricing-card { padding: 48px 32px; border: 1px solid var(--hairline-dark); display: flex; flex-direction: column; gap: 20px; background: var(--paper); color: var(--ink); position: relative; }
+.pricing-card--featured { background: var(--ink); color: var(--paper); border-color: var(--accent-bright); z-index: 1; }
+.pricing-card__badge { position: absolute; top: 0; left: 0; right: 0; background: var(--accent-bright); color: var(--ink); text-align: center; padding: 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+.pricing-card--featured .pricing-card__tier { margin-top: 20px; }
+.pricing-card__tier { font-size: var(--fs-card); font-weight: 700; }
+.pricing-card__capacity { font-size: 14px; font-weight: 500; opacity: .75; margin-top: -12px; }
+.pricing-card__price { font-size: 48px; font-weight: 400; line-height: 1; }
+.pricing-card__price .cur { font-size: 24px; font-weight: 500; vertical-align: top; }
+.pricing-card__price .per { font-size: 14px; font-weight: 500; opacity: .75; display: block; margin-top: 6px; }
+.pricing-card__features { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
+.pricing-card__features.acmp { border-top: 1px solid var(--hairline-dark); padding-top: 16px; }
+.pricing-card--featured .pricing-card__features.acmp { border-top-color: var(--hairline); }
+.pricing-card__feature { font-size: var(--fs-body); font-weight: 500; line-height: 1.4; padding-left: 26px; position: relative; }
+.pricing-card__feature::before { content: '→'; position: absolute; left: 0; color: var(--accent-bright); font-weight: 700; }
+.pricing-card__feature.head { font-weight: 700; padding-left: 0; }
+.pricing-card__feature.head::before { content: ''; }
+.pricing-card .btn { margin-top: auto; width: 100%; justify-content: center; }
+.pricing-card--featured .btn { background: var(--accent-bright); color: var(--ink); }
+.pricing-card--featured .btn:hover { background: var(--accent); color: var(--paper); }
+/* Toggle de modalidad */
+.pricing.mode-solo .price-acmp, .pricing.mode-acompanado .price-solo { display: none; }
+.pricing.mode-solo .pricing-card__features.acmp { display: none; }
+.pricing__note { text-align: center; font-size: 16px; font-weight: 500; color: var(--ink-75); margin-top: 32px; }
+.pricing__note a { color: var(--accent); border-bottom: 1px solid rgba(14,107,92,.35); }
+@media (max-width: 900px) { .pricing-cards { grid-template-columns: 1fr; max-width: 480px; } }
+
+/* ── FAQ ────────────────────────────────────────────────────────────────── */
+.faq { max-width: 720px; margin-inline: auto; padding: var(--space-5) var(--pad-x) var(--space-7); }
+.faq details { border-bottom: 1px solid var(--hairline); }
+.faq summary { padding: 24px 0; font-size: var(--fs-body); font-weight: 700; color: var(--paper); cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: '+'; font-size: 24px; font-weight: 400; color: var(--accent-bright); }
+.faq details[open] summary::after { content: '−'; }
+.faq details p { padding: 0 0 24px; font-size: var(--fs-body); font-weight: 500; color: var(--paper-75); line-height: 1.55; }
+
+/* ── CTA acento ─────────────────────────────────────────────────────────── */
+.cta-accent { background: var(--accent); color: var(--paper); text-align: center; padding: var(--space-7) var(--pad-x); }
+.cta-accent h2 { font-size: var(--fs-display); font-weight: 400; color: var(--paper); max-width: 20ch; margin-inline: auto; }
+.cta-accent .btn { margin-top: var(--space-5); }
+
+/* Dashboard preview media placeholder */
+.dash-media { position: relative; }
+.dash-media .ph { position: absolute; inset: 0; }
+.dash-media { aspect-ratio: 16/10; }
+
+@media (prefers-reduced-motion: reduce) {
+  .text-trace { opacity: 1; }
+  .text-trace__char { animation: none !important; color: var(--paper); -webkit-text-stroke: 0; }
+  .band--light .text-trace__char { color: var(--ink); }
+  .text-trace__char--accent { color: var(--accent-bright) !important; }
+  .feature-grid__card { opacity: 1; transform: none; animation: none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ BANDA 1 · Header ══════════════════════════════════════════════════ -->
+<header class="topbar" id="topbar">
+  <div class="topbar__in">
+    <a href="/" aria-label="SCALEx — inicio"><img class="topbar__logo" src="/logos/Logo SCALEx negro.png" alt="SCALEx" /></a>
+    <nav class="nav" aria-label="Principal">
+      <a href="/metodo">Método</a>
+      <a href="/servicios">Servicios</a>
+      <a href="/insights">Insights</a>
+      <a href="/sobre">Sobre</a>
+      <a href="/#contacto">Contacto</a>
+    </nav>
+    <div class="topbar__tools">
+      <a class="tool" href="https://app.scalexlatam.com" target="_blank" rel="noopener">Portal ↗</a>
+      <button type="button" class="nav-toggle" aria-label="Menú" aria-expanded="false"><span class="material-symbols-outlined">menu</span></button>
+    </div>
+  </div>
+</header>
+
+<nav class="subnav" aria-label="Secciones">
+  <div class="subnav__in">
+    <span class="subnav__title"><a href="/productos/teamx">TEAMx</a></span>
+    <div class="subnav__links">
+      <a href="#como">Cómo funciona</a>
+      <a href="#mide">Qué mide</a>
+      <a href="#pricing">Precios</a>
+      <a href="#faq">FAQ</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ══ BANDA 2 · Hero TEAMx ══════════════════════════════════════════════ -->
+<section class="band band--dark teamx-hero">
+  <div class="container">
+    <h1 class="teamx-logo text-trace" data-accent-char="x" aria-label="TEAMx">TEAMx</h1>
+    <p class="teamx-hero__sub">Lleva a tu equipo al máximo rendimiento en 14 semanas.</p>
+  </div>
+</section>
+
+<!-- ══ BANDA 3 · Propuesta de valor ══════════════════════════════════════ -->
+<section class="band band--light page-head">
+  <div class="container reveal">
+    <p class="lead" style="max-width:70ch;">Un sistema de coaching cuantificable. 7 parámetros. 14 semanas. Cada aspecto de tu equipo medido con precisión matemática.</p>
+  </div>
+</section>
+
+<!-- ══ BANDA 4 · Cómo funciona ═══════════════════════════════════════════ -->
+<section class="band band--dark" id="como">
+  <div class="section-head reveal"><p class="kicker">El ciclo</p><h2>Cómo funciona</h2></div>
+  <div class="steps reveal">
+    <div class="step">
+      <div class="step__number">1</div>
+      <span class="step__icon material-symbols-outlined">tune</span>
+      <h3 class="step__title">Configura</h3>
+      <p class="step__desc">Define los parámetros macro y granulares para tu equipo. Personalízalos según cada rol.</p>
+    </div>
+    <div class="step">
+      <div class="step__number">2</div>
+      <span class="step__icon material-symbols-outlined">rate_review</span>
+      <h3 class="step__title">Evalúa</h3>
+      <p class="step__desc">Cada semana, califica a cada colaborador en la escala de 5 niveles. 15 minutos.</p>
+    </div>
+    <div class="step">
+      <div class="step__number">3</div>
+      <span class="step__icon material-symbols-outlined">monitoring</span>
+      <h3 class="step__title">Observa</h3>
+      <p class="step__desc">El dashboard muestra progreso, radares, rankings y comparativas en tiempo real.</p>
+    </div>
+    <div class="step">
+      <div class="step__number">4</div>
+      <span class="step__icon material-symbols-outlined">emoji_events</span>
+      <h3 class="step__title">Transforma</h3>
+      <p class="step__desc">En 14 semanas, tu equipo alcanza su máxima curva de rendimiento medible.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ BANDA 5 · Qué se mide ═════════════════════════════════════════════ -->
+<section class="band band--light" id="mide">
+  <div class="section-head reveal">
+    <p class="kicker">Parámetros</p>
+    <h2>Qué mide TEAMx.</h2>
+    <p>7 parámetros macro, personalizables y granulares. Cada uno se evalúa en 5 niveles cada semana.</p>
+  </div>
+  <div class="feature-grid feature-grid--light reveal-grid">
+    <div class="feature-grid__card" style="--card-index:0">
+      <span class="feature-grid__num">01</span>
+      <span class="feature-grid__icon material-symbols-outlined">event_note</span>
+      <h3 class="feature-grid__title">Planeación y organización</h3>
+      <p class="feature-grid__desc">Gestión del tiempo, calendario, herramientas de productividad.</p>
+    </div>
+    <div class="feature-grid__card" style="--card-index:1">
+      <span class="feature-grid__num">02</span>
+      <span class="feature-grid__icon material-symbols-outlined">verified</span>
+      <h3 class="feature-grid__title">Aspectos no negociables</h3>
+      <p class="feature-grid__desc">Lo que la empresa exige sin excepción. Cultura, políticas, estándares.</p>
+    </div>
+    <div class="feature-grid__card" style="--card-index:2">
+      <span class="feature-grid__num">03</span>
+      <span class="feature-grid__icon material-symbols-outlined">devices</span>
+      <h3 class="feature-grid__title">Conocimiento de sistemas</h3>
+      <p class="feature-grid__desc">Dominio de las herramientas y plataformas de la operación.</p>
+    </div>
+    <div class="feature-grid__card" style="--card-index:3">
+      <span class="feature-grid__num">04</span>
+      <span class="feature-grid__icon material-symbols-outlined">inventory_2</span>
+      <h3 class="feature-grid__title">Conocimiento de producto</h3>
+      <p class="feature-grid__desc">Qué tan bien conoce lo que vende o produce.</p>
+    </div>
+    <div class="feature-grid__card" style="--card-index:4">
+      <span class="feature-grid__num">05</span>
+      <span class="feature-grid__icon material-symbols-outlined">engineering</span>
+      <h3 class="feature-grid__title">Conocimientos técnicos</h3>
+      <p class="feature-grid__desc">Habilidades duras específicas del puesto.</p>
+    </div>
+    <div class="feature-grid__card" style="--card-index:5">
+      <span class="feature-grid__num">06</span>
+      <span class="feature-grid__icon material-symbols-outlined">psychology</span>
+      <h3 class="feature-grid__title">Actitud</h3>
+      <p class="feature-grid__desc">Disposición, iniciativa, proactividad. La parte humana del rendimiento.</p>
+    </div>
+    <div class="feature-grid__card" style="--card-index:6">
+      <span class="feature-grid__num">07</span>
+      <span class="feature-grid__icon material-symbols-outlined">speed</span>
+      <h3 class="feature-grid__title">Eficiencia</h3>
+      <p class="feature-grid__desc">El KPI duro: el resultado numérico por el que se mide cada puesto.</p>
+    </div>
+    <div class="feature-grid__card feature-grid__card--cta" style="--card-index:7">
+      <span class="feature-grid__icon material-symbols-outlined">edit</span>
+      <h3 class="feature-grid__title">Tú lo personalizas</h3>
+      <p class="feature-grid__desc">Renombra, agrega o quita sub-aspectos según cada rol.</p>
+    </div>
+  </div>
+
+  <div class="escala reveal">
+    <h3>Escala de evaluación semanal</h3>
+    <ul>
+      <li><b><span class="material-symbols-outlined">check_circle</span> Evidente</b> Hay evidencia de dominio o construcción activa.</li>
+      <li><b><span class="material-symbols-outlined">timelapse</span> En desarrollo</b> Entiende qué hacer, está trabajando en dominarlo.</li>
+      <li><b><span class="material-symbols-outlined">pending</span> Por desarrollar</b> Sabe que existe pero no lo aplica.</li>
+      <li><b><span class="material-symbols-outlined">cancel</span> Sin evidencia</b> No hay avance. La aguja no se ha movido.</li>
+      <li><b><span class="material-symbols-outlined">remove</span> No aplica</b> No pondera para esta persona.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ══ BANDA 6 · Dashboard preview (50/50) ═══════════════════════════════ -->
+<section class="band split split--reverse">
+  <div class="split__panel reveal">
+    <span class="idx">Dashboard</span>
+    <h2>Un dashboard. Todo tu equipo.</h2>
+    <p>Radares por parámetro. Progreso semana a semana. Rankings de equipo. Comparativas entre colaboradores. Todo exportable a PDF y Excel.</p>
+    <a class="btn btn--ghost" href="https://app.scalexlatam.com" target="_blank" rel="noopener">Ver demo <span class="material-symbols-outlined">arrow_forward</span></a>
+  </div>
+  <!-- IMAGEN: Screenshot del dashboard TEAMx (radares, progreso, rankings). Aspect 16:10. -->
+  <div class="split__media dash-media"><div class="ph" data-label="Screenshot del dashboard TEAMx"></div></div>
+</section>
+
+<!-- ══ BANDA 7 · Pricing ═════════════════════════════════════════════════ -->
+<section class="band band--light pricing mode-solo" id="pricing">
+  <div class="pricing-head reveal">
+    <h2>Elige tu plan.</h2>
+    <p>Precio por ciclo de 14 semanas. Renueva cuando quieras.</p>
+    <div class="pricing-toggle" role="group" aria-label="Modalidad">
+      <button type="button" class="pricing-toggle__option is-active" data-mode="solo" aria-pressed="true">Solo</button>
+      <button type="button" class="pricing-toggle__option" data-mode="acompanado" aria-pressed="false">Acompañado</button>
+    </div>
+  </div>
+
+  <div class="pricing-cards reveal">
+    <!-- Líder -->
+    <div class="pricing-card">
+      <div class="pricing-card__tier">Líder</div>
+      <div class="pricing-card__capacity">1 líder · hasta 5 colaboradores</div>
+      <div class="pricing-card__price price-solo"><span class="cur">$</span>149<span class="per">USD / ciclo</span></div>
+      <div class="pricing-card__price price-acmp"><span class="cur">$</span>599<span class="per">USD / ciclo</span></div>
+      <ul class="pricing-card__features">
+        <li class="pricing-card__feature">Tablero completo por 14 semanas</li>
+        <li class="pricing-card__feature">Parámetros macro personalizables</li>
+        <li class="pricing-card__feature">Escala de evaluación de 5 niveles</li>
+        <li class="pricing-card__feature">Dashboard: radares y progreso semanal</li>
+        <li class="pricing-card__feature">Exportables PDF y Excel</li>
+        <li class="pricing-card__feature">Guía metodológica de configuración</li>
+        <li class="pricing-card__feature">Soporte por email</li>
+      </ul>
+      <ul class="pricing-card__features acmp">
+        <li class="pricing-card__feature head">Con acompañamiento:</li>
+        <li class="pricing-card__feature">6 sesiones de coaching (1h, quincenal)</li>
+        <li class="pricing-card__feature">Diseño asistido de parámetros</li>
+        <li class="pricing-card__feature">Interpretación de resultados por coach SCALEx</li>
+        <li class="pricing-card__feature">Sesión de cierre con reporte ejecutivo</li>
+        <li class="pricing-card__feature">Soporte prioritario (chat)</li>
+      </ul>
+      <a class="btn btn--dark" href="/#contacto">Comenzar ciclo <span class="material-symbols-outlined">arrow_forward</span></a>
+    </div>
+
+    <!-- Equipo (featured) -->
+    <div class="pricing-card pricing-card--featured">
+      <div class="pricing-card__badge">Más solicitado</div>
+      <div class="pricing-card__tier">Equipo</div>
+      <div class="pricing-card__capacity">1 líder · hasta 15 colaboradores</div>
+      <div class="pricing-card__price price-solo"><span class="cur">$</span>349<span class="per">USD / ciclo</span></div>
+      <div class="pricing-card__price price-acmp"><span class="cur">$</span>1,199<span class="per">USD / ciclo</span></div>
+      <ul class="pricing-card__features">
+        <li class="pricing-card__feature head">Todo lo de Líder, más:</li>
+        <li class="pricing-card__feature">Rankings y comparativas entre miembros</li>
+        <li class="pricing-card__feature">Vista consolidada de equipo</li>
+        <li class="pricing-card__feature">Alertas de colaboradores en riesgo</li>
+        <li class="pricing-card__feature">Reportes ejecutivos trimestrales</li>
+      </ul>
+      <ul class="pricing-card__features acmp">
+        <li class="pricing-card__feature head">Con acompañamiento:</li>
+        <li class="pricing-card__feature">6 sesiones de coaching (1h, quincenal)</li>
+        <li class="pricing-card__feature">Diseño asistido de parámetros</li>
+        <li class="pricing-card__feature">Interpretación de resultados por coach SCALEx</li>
+        <li class="pricing-card__feature">Plan de acción por colaborador</li>
+        <li class="pricing-card__feature">Sesión de cierre con reporte ejecutivo</li>
+        <li class="pricing-card__feature">Soporte prioritario (chat)</li>
+      </ul>
+      <a class="btn" href="/#contacto">Comenzar ciclo <span class="material-symbols-outlined">arrow_forward</span></a>
+    </div>
+
+    <!-- Organización -->
+    <div class="pricing-card">
+      <div class="pricing-card__tier">Organización</div>
+      <div class="pricing-card__capacity">Hasta 5 líderes · hasta 50 colaboradores</div>
+      <div class="pricing-card__price price-solo"><span class="cur">$</span>749<span class="per">USD / ciclo</span></div>
+      <div class="pricing-card__price price-acmp"><span class="cur">$</span>2,499<span class="per">USD / ciclo</span></div>
+      <ul class="pricing-card__features">
+        <li class="pricing-card__feature head">Todo lo de Equipo, más:</li>
+        <li class="pricing-card__feature">Multi-líder: cada gerente con su tablero</li>
+        <li class="pricing-card__feature">Vista general de la organización</li>
+        <li class="pricing-card__feature">Benchmarks cruzados entre áreas</li>
+        <li class="pricing-card__feature">Onboarding personalizado (1 sesión)</li>
+      </ul>
+      <ul class="pricing-card__features acmp">
+        <li class="pricing-card__feature head">Con acompañamiento:</li>
+        <li class="pricing-card__feature">6 sesiones de coaching (1h, quincenal)</li>
+        <li class="pricing-card__feature">Diseño asistido de todos los tableros</li>
+        <li class="pricing-card__feature">Coach dedicado para todo el ciclo</li>
+        <li class="pricing-card__feature">Reportes ejecutivos para dirección general</li>
+        <li class="pricing-card__feature">Sesión de cierre con plan de siguiente ciclo</li>
+        <li class="pricing-card__feature">Soporte prioritario (chat + videollamada)</li>
+      </ul>
+      <a class="btn btn--dark" href="/#contacto">Comenzar ciclo <span class="material-symbols-outlined">arrow_forward</span></a>
+    </div>
+  </div>
+
+  <p class="pricing__note reveal">¿Más de 50 colaboradores? <a href="/#contacto">Escríbenos para un plan a la medida.</a></p>
+</section>
+
+<!-- ══ BANDA 8 · FAQ ═════════════════════════════════════════════════════ -->
+<section class="band band--dark" id="faq">
+  <div class="section-head reveal"><p class="kicker">Dudas</p><h2>Preguntas frecuentes.</h2></div>
+  <div class="faq reveal">
+    <details><summary>¿Qué pasa después de las 14 semanas?</summary><p>El ciclo termina con un reporte de cierre. Puedes renovar para un segundo ciclo con nuevos objetivos o mantener el nivel alcanzado. Cada ciclo es independiente.</p></details>
+    <details><summary>¿Cuánto tiempo toma la evaluación semanal?</summary><p>Entre 10 y 15 minutos por líder. Cada colaborador se evalúa en los parámetros configurados con un clic por aspecto granular.</p></details>
+    <details><summary>¿Los parámetros son fijos o los puedo cambiar?</summary><p>Los 7 parámetros macro son la estructura recomendada, pero puedes personalizar cada uno: renombrarlos, agregar o quitar sub-aspectos granulares, y desactivar los que no apliquen.</p></details>
+    <details><summary>¿Qué significa «No aplica» en la escala?</summary><p>Cuando un aspecto granular no es relevante para un colaborador específico, marcarlo como «No aplica» lo excluye del cálculo. Así el porcentaje refleja solo lo que se evalúa.</p></details>
+    <details><summary>¿Puedo usar TEAMx para diferentes áreas con distintos parámetros?</summary><p>Sí. En los planes Equipo y Organización, cada líder puede configurar sus propios parámetros según las necesidades de su área.</p></details>
+    <details><summary>¿Qué incluye el acompañamiento de un coach SCALEx?</summary><p>6 sesiones de una hora (quincenales) con un consultor certificado. Te ayuda a diseñar los parámetros, interpretar los resultados y planear las conversaciones con tu equipo.</p></details>
+    <details><summary>¿La herramienta funciona en celular?</summary><p>El dashboard es 100% responsivo. Los líderes pueden evaluar desde cualquier dispositivo.</p></details>
+    <details><summary>¿Necesito ser coach certificado para usarlo?</summary><p>No. TEAMx está diseñado para que cualquier líder con personas a cargo lo opere. La guía metodológica incluida te lleva paso a paso. El plan Acompañado agrega un coach si prefieres apoyo experto.</p></details>
+  </div>
+</section>
+
+<!-- ══ BANDA 9 · CTA de cierre ═══════════════════════════════════════════ -->
+<section class="band cta-accent">
+  <div class="reveal">
+    <h2>14 semanas. Un equipo transformado.</h2>
+    <a class="btn btn--on-accent" href="#pricing" style="background:var(--paper);color:var(--accent);">Comenzar ahora <span class="material-symbols-outlined">arrow_forward</span></a>
+  </div>
+</section>
+
+<!-- ══ BANDA 10 · Footer ═════════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="container">
+    <div>
+      <img class="footer__logo" src="/logos/Logo SCALEx blanco.png" alt="SCALEx" />
+      <p class="footer__tag">Método de escalabilidad empresarial para América Latina. Todo medible, todo rastreable.</p>
+    </div>
+    <div>
+      <h4>Producto</h4>
+      <ul>
+        <li><a href="/productos/teamx#como">Cómo funciona</a></li>
+        <li><a href="/productos/teamx#mide">Qué mide</a></li>
+        <li><a href="/productos/teamx#pricing">Precios</a></li>
+        <li><a href="/productos/teamx#faq">FAQ</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Ecosistema</h4>
+      <ul>
+        <li><a href="/metodo">Método</a></li>
+        <li><a href="/servicios">Servicios</a></li>
+        <li><a href="/sobre">Sobre</a></li>
+        <li><a href="https://app.scalexlatam.com" target="_blank" rel="noopener">Portal ↗</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Contacto</h4>
+      <ul>
+        <li><a href="mailto:hola@scalexlatam.com">Correo</a></li>
+        <li><a href="/#contacto">Solicitar información</a></li>
+      </ul>
+    </div>
+    <div class="footer__legal">
+      <span>© 2026 SCALEx · scalexlatam.com</span>
+      <span>Aviso de privacidad · Términos</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ── Text trace ─────────────────────────────────────────────────────────── */
+function initTextTrace(el) {
+  var accentWord = (el.dataset.accent || '').toLowerCase();
+  var accentChar = (el.dataset.accentChar || '').toLowerCase();
+  var text = el.getAttribute('aria-label') || el.textContent;
+  el.textContent = '';
+  var charIndex = 0;
+  text.split(' ').forEach(function (word, wordIdx) {
+    if (wordIdx > 0) { el.appendChild(document.createTextNode(' ')); }
+    var isAccentWord = accentWord && word.toLowerCase().replace(/[.,;:!?«»]/g, '') === accentWord;
+    [].forEach.call(word, function (ch) {
+      var span = document.createElement('span');
+      span.textContent = ch;
+      var isAccent = isAccentWord || (accentChar && ch.toLowerCase() === accentChar);
+      span.className = 'text-trace__char' + (isAccent ? ' text-trace__char--accent' : '');
+      span.style.setProperty('--char-index', charIndex++);
+      el.appendChild(span);
+    });
+  });
+}
+(function () {
+  var traces = document.querySelectorAll('.text-trace');
+  traces.forEach(initTextTrace);
+  if (!('IntersectionObserver' in window)) { traces.forEach(function (t) { t.classList.add('is-visible'); }); return; }
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('is-visible'); io.unobserve(e.target); } });
+  }, { threshold: 0.2 });
+  traces.forEach(function (t) { io.observe(t); });
+})();
+
+/* ── Feature grid staggered reveal ──────────────────────────────────────── */
+(function () {
+  var cards = document.querySelectorAll('.feature-grid__card');
+  if (!cards.length) return;
+  if (!('IntersectionObserver' in window)) { cards.forEach(function (c) { c.classList.add('is-visible'); }); return; }
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('is-visible'); io.unobserve(e.target); } });
+  }, { threshold: 0.2 });
+  cards.forEach(function (c) { io.observe(c); });
+})();
+
+/* ── Pricing toggle ─────────────────────────────────────────────────────── */
+(function () {
+  var section = document.querySelector('.pricing');
+  var opts = document.querySelectorAll('.pricing-toggle__option');
+  if (!section || !opts.length) return;
+  opts.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var mode = b.getAttribute('data-mode');
+      section.classList.remove('mode-solo', 'mode-acompanado');
+      section.classList.add('mode-' + mode);
+      opts.forEach(function (o) { var on = o === b; o.classList.toggle('is-active', on); o.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+    });
+  });
+})();
+</script>
+<script src="/landing/assets/site.js" defer></script>
+</body>
+</html>
