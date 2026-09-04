@@ -53,10 +53,9 @@
 
 /* ── Hero TEAMx ─────────────────────────────────────────────────────────── */
 .teamx-hero .container { padding-block: var(--space-7); }
-.teamx-logo { font-size: clamp(3.25rem, 2rem + 6vw, 4.5rem); font-weight: 700; letter-spacing: -.02em; line-height: 1; }
-.teamx-logo .text-trace__char { font-weight: 700; }
-.teamx-logo .text-trace__char--accent { font-weight: 400; }
-.teamx-hero__sub { font-size: var(--fs-lead); font-weight: 400; color: var(--paper-75); margin-top: 24px; max-width: 26ch; line-height: 1.25; }
+.teamx-hero__logo { margin: 0; }
+.teamx-hero__logo img { display: block; width: 100%; max-width: 460px; height: auto; }
+.teamx-hero__sub { font-size: var(--fs-lead); font-weight: 400; color: var(--paper-75); margin-top: 28px; max-width: 26ch; line-height: 1.25; }
 
 /* ── Steps (cómo funciona) ──────────────────────────────────────────────── */
 .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; position: relative; max-width: var(--container); margin-inline: auto; padding: var(--space-5) var(--pad-x) var(--space-7); }
@@ -190,7 +189,7 @@
 <!-- ══ BANDA 2 · Hero TEAMx ══════════════════════════════════════════════ -->
 <section class="band band--dark teamx-hero">
   <div class="container">
-    <h1 class="teamx-logo text-trace" data-accent-char="x" aria-label="TEAMx">TEAMx</h1>
+    <h1 class="teamx-hero__logo reveal"><img src="/landing/img/teamx-logo.png" alt="TEAMx — Scale your team" /></h1>
     <p class="teamx-hero__sub">Lleva a tu equipo al máximo rendimiento en 14 semanas.</p>
   </div>
 </section>
