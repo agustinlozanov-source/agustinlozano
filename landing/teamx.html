@@ -114,10 +114,9 @@
 .pricing-card__features { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
 .pricing-card__features.acmp { border-top: 1px solid var(--hairline-dark); padding-top: 16px; }
 .pricing-card--featured .pricing-card__features.acmp { border-top-color: var(--hairline); }
-.pricing-card__feature { font-size: var(--fs-body); font-weight: 500; line-height: 1.4; padding-left: 26px; position: relative; }
-.pricing-card__feature::before { content: '→'; position: absolute; left: 0; color: var(--accent-bright); font-weight: 700; }
-.pricing-card__feature.head { font-weight: 700; padding-left: 0; }
-.pricing-card__feature.head::before { content: ''; }
+.pricing-card__feature { font-size: var(--fs-body); font-weight: 500; line-height: 1.4; display: flex; gap: 12px; align-items: flex-start; }
+.pricing-card__feature svg { width: 18px; height: 18px; color: var(--accent-bright); flex: 0 0 auto; margin-top: 2px; }
+.pricing-card__feature.head { font-weight: 700; }
 .pricing-card .btn { margin-top: auto; width: 100%; justify-content: center; }
 .pricing-card--featured .btn { background: var(--accent-bright); color: var(--ink); }
 .pricing-card--featured .btn:hover { background: var(--accent); color: var(--paper); }
@@ -333,21 +332,21 @@
       <div class="pricing-card__capacity">1 líder · hasta 5 colaboradores</div>
       <div class="pricing-card__price"><span class="cur">$</span><span class="num" data-solo="149" data-acmp="599">149</span><span class="per">USD / ciclo</span></div>
       <ul class="pricing-card__features">
-        <li class="pricing-card__feature">Tablero completo por 14 semanas</li>
-        <li class="pricing-card__feature">Parámetros macro personalizables</li>
-        <li class="pricing-card__feature">Escala de evaluación de 5 niveles</li>
-        <li class="pricing-card__feature">Dashboard: radares y progreso semanal</li>
-        <li class="pricing-card__feature">Exportables PDF y Excel</li>
-        <li class="pricing-card__feature">Guía metodológica de configuración</li>
-        <li class="pricing-card__feature">Soporte por email</li>
+        <li class="pricing-card__feature"><i data-lucide="layout-dashboard"></i><span>Tablero completo por 14 semanas</span></li>
+        <li class="pricing-card__feature"><i data-lucide="sliders-horizontal"></i><span>Parámetros macro personalizables</span></li>
+        <li class="pricing-card__feature"><i data-lucide="list-checks"></i><span>Escala de evaluación de 5 niveles</span></li>
+        <li class="pricing-card__feature"><i data-lucide="radar"></i><span>Dashboard: radares y progreso semanal</span></li>
+        <li class="pricing-card__feature"><i data-lucide="file-down"></i><span>Exportables PDF y Excel</span></li>
+        <li class="pricing-card__feature"><i data-lucide="book-open"></i><span>Guía metodológica de configuración</span></li>
+        <li class="pricing-card__feature"><i data-lucide="mail"></i><span>Soporte por email</span></li>
       </ul>
       <ul class="pricing-card__features acmp">
         <li class="pricing-card__feature head">Con acompañamiento:</li>
-        <li class="pricing-card__feature">6 sesiones de coaching (1h, quincenal)</li>
-        <li class="pricing-card__feature">Diseño asistido de parámetros</li>
-        <li class="pricing-card__feature">Interpretación de resultados por coach SCALEx</li>
-        <li class="pricing-card__feature">Sesión de cierre con reporte ejecutivo</li>
-        <li class="pricing-card__feature">Soporte prioritario (chat)</li>
+        <li class="pricing-card__feature"><i data-lucide="calendar-clock"></i><span>6 sesiones de coaching (1h, quincenal)</span></li>
+        <li class="pricing-card__feature"><i data-lucide="pencil-ruler"></i><span>Diseño asistido de parámetros</span></li>
+        <li class="pricing-card__feature"><i data-lucide="user-check"></i><span>Interpretación de resultados por coach SCALEx</span></li>
+        <li class="pricing-card__feature"><i data-lucide="file-check"></i><span>Sesión de cierre con reporte ejecutivo</span></li>
+        <li class="pricing-card__feature"><i data-lucide="message-circle"></i><span>Soporte prioritario (chat)</span></li>
       </ul>
       <a class="btn btn--dark" href="/#contacto">Comenzar ciclo <span class="material-symbols-outlined">arrow_forward</span></a>
     </div>
@@ -360,19 +359,19 @@
       <div class="pricing-card__price"><span class="cur">$</span><span class="num" data-solo="349" data-acmp="1199">349</span><span class="per">USD / ciclo</span></div>
       <ul class="pricing-card__features">
         <li class="pricing-card__feature head">Todo lo de Líder, más:</li>
-        <li class="pricing-card__feature">Rankings y comparativas entre miembros</li>
-        <li class="pricing-card__feature">Vista consolidada de equipo</li>
-        <li class="pricing-card__feature">Alertas de colaboradores en riesgo</li>
-        <li class="pricing-card__feature">Reportes ejecutivos trimestrales</li>
+        <li class="pricing-card__feature"><i data-lucide="bar-chart-3"></i><span>Rankings y comparativas entre miembros</span></li>
+        <li class="pricing-card__feature"><i data-lucide="users"></i><span>Vista consolidada de equipo</span></li>
+        <li class="pricing-card__feature"><i data-lucide="bell-ring"></i><span>Alertas de colaboradores en riesgo</span></li>
+        <li class="pricing-card__feature"><i data-lucide="file-text"></i><span>Reportes ejecutivos trimestrales</span></li>
       </ul>
       <ul class="pricing-card__features acmp">
         <li class="pricing-card__feature head">Con acompañamiento:</li>
-        <li class="pricing-card__feature">6 sesiones de coaching (1h, quincenal)</li>
-        <li class="pricing-card__feature">Diseño asistido de parámetros</li>
-        <li class="pricing-card__feature">Interpretación de resultados por coach SCALEx</li>
-        <li class="pricing-card__feature">Plan de acción por colaborador</li>
-        <li class="pricing-card__feature">Sesión de cierre con reporte ejecutivo</li>
-        <li class="pricing-card__feature">Soporte prioritario (chat)</li>
+        <li class="pricing-card__feature"><i data-lucide="calendar-clock"></i><span>6 sesiones de coaching (1h, quincenal)</span></li>
+        <li class="pricing-card__feature"><i data-lucide="pencil-ruler"></i><span>Diseño asistido de parámetros</span></li>
+        <li class="pricing-card__feature"><i data-lucide="user-check"></i><span>Interpretación de resultados por coach SCALEx</span></li>
+        <li class="pricing-card__feature"><i data-lucide="clipboard-list"></i><span>Plan de acción por colaborador</span></li>
+        <li class="pricing-card__feature"><i data-lucide="file-check"></i><span>Sesión de cierre con reporte ejecutivo</span></li>
+        <li class="pricing-card__feature"><i data-lucide="message-circle"></i><span>Soporte prioritario (chat)</span></li>
       </ul>
       <a class="btn" href="/#contacto">Comenzar ciclo <span class="material-symbols-outlined">arrow_forward</span></a>
     </div>
@@ -384,19 +383,19 @@
       <div class="pricing-card__price"><span class="cur">$</span><span class="num" data-solo="749" data-acmp="2499">749</span><span class="per">USD / ciclo</span></div>
       <ul class="pricing-card__features">
         <li class="pricing-card__feature head">Todo lo de Equipo, más:</li>
-        <li class="pricing-card__feature">Multi-líder: cada gerente con su tablero</li>
-        <li class="pricing-card__feature">Vista general de la organización</li>
-        <li class="pricing-card__feature">Benchmarks cruzados entre áreas</li>
-        <li class="pricing-card__feature">Onboarding personalizado (1 sesión)</li>
+        <li class="pricing-card__feature"><i data-lucide="layout-grid"></i><span>Multi-líder: cada gerente con su tablero</span></li>
+        <li class="pricing-card__feature"><i data-lucide="building-2"></i><span>Vista general de la organización</span></li>
+        <li class="pricing-card__feature"><i data-lucide="git-compare"></i><span>Benchmarks cruzados entre áreas</span></li>
+        <li class="pricing-card__feature"><i data-lucide="user-plus"></i><span>Onboarding personalizado (1 sesión)</span></li>
       </ul>
       <ul class="pricing-card__features acmp">
         <li class="pricing-card__feature head">Con acompañamiento:</li>
-        <li class="pricing-card__feature">6 sesiones de coaching (1h, quincenal)</li>
-        <li class="pricing-card__feature">Diseño asistido de todos los tableros</li>
-        <li class="pricing-card__feature">Coach dedicado para todo el ciclo</li>
-        <li class="pricing-card__feature">Reportes ejecutivos para dirección general</li>
-        <li class="pricing-card__feature">Sesión de cierre con plan de siguiente ciclo</li>
-        <li class="pricing-card__feature">Soporte prioritario (chat + videollamada)</li>
+        <li class="pricing-card__feature"><i data-lucide="calendar-clock"></i><span>6 sesiones de coaching (1h, quincenal)</span></li>
+        <li class="pricing-card__feature"><i data-lucide="pencil-ruler"></i><span>Diseño asistido de todos los tableros</span></li>
+        <li class="pricing-card__feature"><i data-lucide="graduation-cap"></i><span>Coach dedicado para todo el ciclo</span></li>
+        <li class="pricing-card__feature"><i data-lucide="briefcase"></i><span>Reportes ejecutivos para dirección general</span></li>
+        <li class="pricing-card__feature"><i data-lucide="file-check"></i><span>Sesión de cierre con plan de siguiente ciclo</span></li>
+        <li class="pricing-card__feature"><i data-lucide="video"></i><span>Soporte prioritario (chat + videollamada)</span></li>
       </ul>
       <a class="btn btn--dark" href="/#contacto">Comenzar ciclo <span class="material-symbols-outlined">arrow_forward</span></a>
     </div>
@@ -536,6 +535,8 @@ function initTextTrace(el) {
   opts.forEach(function (b) { b.addEventListener('click', function () { setMode(b.getAttribute('data-mode')); }); });
 })();
 </script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>if (window.lucide) lucide.createIcons();</script>
 <script src="/landing/assets/site.js" defer></script>
 </body>
 </html>
