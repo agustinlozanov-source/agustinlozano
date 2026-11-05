@@ -15,7 +15,9 @@ h1{font-size:76px;font-weight:600;line-height:.95;letter-spacing:-.045em;max-wid
 .chip{padding:11px 20px;border-radius:999px;background:rgba(244,244,244,.12);font-size:21px;font-weight:600;letter-spacing:-.01em}
 .chip--lima{background:#dfff18;color:#232323}
 .foto{width:455px;flex:none;position:relative}
+.sello{position:absolute;left:-92px;top:52px;z-index:3;width:184px;height:184px}
 .foto img{width:100%;height:100%;object-fit:cover;object-position:74% 34%}
+.foto img.sello{width:184px;height:184px;object-fit:contain}
 .foto::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#232323 0%,rgba(35,35,35,.55) 22%,transparent 55%)}
 </style></head>
 <body>
@@ -31,5 +33,6 @@ h1{font-size:76px;font-weight:600;line-height:.95;letter-spacing:-.045em;max-wid
   </div>
   <div class="foto">
     <img src="imagenes/hero-tino.webp" alt="">
+    <img class="sello" src="imagenes/sello-garantia.png" alt="">
   </div>
 </body></html>
