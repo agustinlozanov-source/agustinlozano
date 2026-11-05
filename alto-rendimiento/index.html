@@ -239,6 +239,19 @@ details.trans[open] .opcion__b{border-radius:var(--radius-3) var(--radius-3) .5r
 .field__input{width:100%;min-height:3.25rem;padding:.875rem 1rem;border:.0625rem solid color-mix(in srgb,var(--color-1) 45%,transparent);border-radius:.875rem;background:var(--color-2);color:var(--color-1);font-size:1rem}
 .field__input:focus-visible{border-color:var(--color-1)}
 
+/* garantía */
+.gar{display:grid;gap:2rem;align-items:center}
+@media(min-width:52rem){.gar{grid-template-columns:auto 1fr;gap:3rem}}
+.gar__sello{width:clamp(9rem,22vw,13.5rem);justify-self:center}
+.gar__sello img{width:100%}
+.gar__t{font-size:clamp(1.9rem,4.2vw,2.75rem);font-weight:600;line-height:1.04;letter-spacing:-.04em}
+.gar__p{margin-top:1rem;font-size:clamp(1.0625rem,1.3vw,1.1875rem);line-height:1.55;max-width:38rem}
+.gar__pasos{display:grid;gap:.875rem;margin-top:1.75rem}
+.gar__paso{display:grid;grid-template-columns:1.75rem 1fr;gap:.875rem;align-items:start}
+.gar__n{display:grid;place-items:center;width:1.75rem;height:1.75rem;border-radius:var(--radius-3);background:var(--color-4);color:var(--color-1);font-size:.875rem;font-weight:700}
+.gar__paso span{line-height:1.5}
+.gar__bordes{margin-top:1.75rem;padding-top:1.25rem;border-top:.0625rem solid color-mix(in srgb,var(--color-1) 14%,transparent);font-size:.9375rem;line-height:1.6;color:color-mix(in srgb,var(--color-1) 72%,transparent)}
+
 /* logística y preguntas */
 .logi .card h3{display:flex;align-items:center;gap:.5rem}
 .queda .card h3{display:flex;align-items:center;gap:.625rem}
@@ -587,6 +600,7 @@ body{padding-bottom:5rem}
           <li>El tablero cargado con tu equipo, y tres meses de uso sin costo</li>
           <li>El plan de 90 días, escrito por tu equipo</li>
           <li>Constancia con badge verificable para cada asistente</li>
+          <li><b>Garantía 9/10:</b> si tu equipo lo califica debajo de 9, regreso con otro taller sin costo</li>
         </ul>
 
       </div>
@@ -669,7 +683,30 @@ body{padding-bottom:5rem}
   </div>
 </section>
 
-<!-- 7 · LOGÍSTICA Y PREGUNTAS -->
+<!-- 7 · LA GARANTÍA -->
+<section class="sec sec--next" id="garantia" style="padding-top:0">
+  <div class="wrap gar">
+    <figure class="gar__sello">
+      <img src="../imagenes/sello-garantia.png" alt="Garantía 9 de 10, la califica tu equipo, anónimo, al cierre" width="1254" height="1254" loading="lazy">
+    </figure>
+    <div>
+      <span class="eyebrow">La garantía</span>
+      <h2 class="gar__t">Lo califica tu equipo, no yo.</h2>
+      <p class="gar__p">Al cerrar el segundo día tu equipo evalúa el taller ahí mismo, en la sala. Si el promedio queda por debajo de 9, <b>regreso con un segundo taller, del mismo formato, sobre el tema que ustedes elijan. Sin costo.</b></p>
+
+      <div class="gar__pasos">
+        <div class="gar__paso"><span class="gar__n">1</span><span>Antes del cierre, todos contestan al mismo tiempo desde su teléfono. Sin nombres.</span></div>
+        <div class="gar__paso"><span class="gar__n">2</span><span>Cinco preguntas sobre lo que se prometió: si entienden cómo medir a su equipo, qué automatizar primero, si el tablero quedó cargado, si el plan de 90 días es realista, y si lo recomendarían.</span></div>
+        <div class="gar__paso"><span class="gar__n">3</span><span>El promedio se proyecta en pantalla en ese momento, delante de todos.</span></div>
+        <div class="gar__paso"><span class="gar__n">4</span><span>Si sale debajo de 9, acordamos ahí mismo el tema del segundo taller y la fecha.</span></div>
+      </div>
+
+      <p class="gar__bordes">El segundo taller es del mismo formato: día y medio, en sus oficinas, hasta 15 personas. El vuelo y el hospedaje siguen por cuenta de la empresa, como en el primero.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 8 · LOGÍSTICA Y PREGUNTAS -->
 <section class="sec sec--next" id="logistica">
   <div class="wrap">
     <div class="sec__head">
