@@ -1,0 +1,6 @@
+# Datos que no se publican
+.datos-fiscales.local.md
+*.local.md
+
+# Sistema
+.DS_Store

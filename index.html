@@ -647,8 +647,10 @@
   
   
 
-  #hero .hero__marca { position: absolute; z-index: 1; left: 45%; top: 38%; width: clamp(10rem, 18vw, 19rem); height: auto; pointer-events: none; filter: drop-shadow(0 0.5rem 1.5rem rgba(0,0,0,.45)); }
-  @media (max-width: 61.99rem) { #hero .hero__marca { left: 48%; top: 44%; width: 11rem; } }
+  #hero .hero__marca { position: absolute; z-index: 1; left: 43%; top: 50%; width: clamp(8rem, 13vw, 13.5rem); height: auto; pointer-events: none; filter: drop-shadow(0 0.5rem 1.5rem rgba(0,0,0,.45)); }
+  /* Los globos bajan para no quedar sobre la boca. */
+  @media (min-width: 48rem) { #hero .hero__chip { translate: 0 4.5rem; } }
+  @media (max-width: 61.99rem) { #hero .hero__marca { left: 45%; top: 54%; width: 9rem; } }
   @media (max-width: 47.99rem) { #hero .hero__marca { left: auto; right: 6%; top: auto; bottom: 16%; width: 8.5rem; } }
 
   #start .start__window::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
@@ -694,7 +696,7 @@
 <!-- hero: first screen: headline over a full-bleed photo, lead, proof line, button; caption chips ride curved lines across the photo (animation: scene:hero) -->
 <section class="hero on-dark" id="hero" data-8b-section="hero" aria-labelledby="hero-title">
   <div class="hero__media">
-    <img src="imagenes/hero-tino.webp" width="1672" height="941" style="background:#232323 62% 18% / cover no-repeat" alt="Agustín Lozano en su oficina, mirando fuera de cámara" fetchpriority="high" decoding="async">
+    <img src="imagenes/hero-tino.webp" width="1448" height="1086" style="background:#232323 62% 18% / cover no-repeat" alt="Tino Lozano en su oficina, de noche, con la ciudad al fondo" fetchpriority="high" decoding="async">
   </div>
   <div class="hero__shade" aria-hidden="true"></div>
   <img class="hero__marca" src="logos/tino-lozano-firma-recorte.png" width="1574" height="1170" alt="Tino Lozano" loading="eager" decoding="async">

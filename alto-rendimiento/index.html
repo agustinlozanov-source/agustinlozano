@@ -1,0 +1,763 @@
+<!doctype html>
+<!--
+  Alto rendimiento in company — página de propuesta.
+  Vive en la marca personal (agustinlozano.com) y hereda los tokens y los átomos
+  de la página principal: Host Grotesk, --color-1..9, --radius-*, .m-*.
+  Un solo archivo, sin build, sin GSAP ni Lenis: esta página se lee y se imprime.
+
+  Lleva noindex a propósito: solo la abre quien recibe el enlace.
+
+  ── Lo que hay que mantener al día ──────────────────────────────────
+  · Las fechas abiertas, en la sección "Fechas y reserva".
+  · El precio: si entra el estímulo fronterizo y el IVA baja a 8 %, el total
+    pasa de $68,440 a $63,720, aquí y en el precio de Stripe.
+  · El enlace de pago vive en la cuenta de Stripe "Tino Lozano".
+-->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Alto rendimiento in company — Tino Lozano</title>
+<meta name="description" content="Día y medio en tu empresa. Cómo se mide un equipo y cómo se automatiza una operación.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Alto rendimiento in company">
+<meta property="og:description" content="Día y medio en tu empresa. Cómo se mide un equipo y cómo se automatiza una operación.">
+<meta property="og:image" content="https://agustinlozano.com/imagenes/tino-junta.webp">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2064%2064'%3E%3Crect%20width%3D'64'%20height%3D'64'%20rx%3D'14'%20fill%3D'%23232323'%2F%3E%3Ctext%20x%3D'32'%20y%3D'45'%20font-family%3D'Arial%2CHelvetica%2Csans-serif'%20font-size%3D'34'%20font-weight%3D'700'%20text-anchor%3D'middle'%20fill%3D'%23dfff18'%3EAR%3C%2Ftext%3E%3C%2Fsvg%3E">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<style>
+@font-face{font-family:'Host Grotesk';font-style:normal;font-weight:300 800;font-display:swap;src:url(https://fonts.gstatic.com/s/hostgrotesk/v5/co3BmWBnlCJ3U42vbbfdwMjZqljm0U0.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:'Host Grotesk';font-style:normal;font-weight:300 800;font-display:swap;src:url(https://fonts.gstatic.com/s/hostgrotesk/v5/co3BmWBnlCJ3U42vbbfdwMjZpFjm.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+</style>
+<style>
+/* ── tokens, heredados de la página principal ───────────────────── */
+:root{
+  --color-1:#232323; --color-2:#f4f4f4; --color-3:#e7e7e7; --color-4:#dfff18;
+  --color-5:#5e5e5e; --color-6:#1c1c1c; --color-7:#c9c9c9;
+  --font-1:"Host Grotesk","Host Grotesk Fallback",Arial,sans-serif;
+  --radius-1:3.5rem; --radius-2:1.75rem; --radius-3:62.5rem; --radius-4:1.25rem;
+  --shadow-1:0 1.5rem 3rem -1.5rem color-mix(in srgb,var(--color-1) 60%,transparent);
+  --shadow-2:0 .75rem 1.75rem -.75rem color-mix(in srgb,var(--color-4) 85%,transparent);
+  --space-1:clamp(1.125rem,4.2vw,3.5rem);
+  --space-2:clamp(4rem,8vw,7rem);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;background:var(--color-2);scroll-behavior:smooth}
+body{margin:0;background:var(--color-2);color:var(--color-1);font-family:var(--font-1);font-size:1.0625rem;font-weight:400;line-height:1.55}
+img,svg{display:block;max-width:100%}img{height:auto}
+h1,h2,h3,p,ol,ul,dl,dd,figure{margin:0}
+ol,ul{padding:0;list-style:none}
+a{color:inherit}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:.1875rem solid var(--color-1);outline-offset:.1875rem}
+.on-dark :focus-visible{outline-color:var(--color-2)}
+::selection{background:var(--color-4);color:var(--color-1)}
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+/* ── átomos ─────────────────────────────────────────────────────── */
+.t2{font-size:clamp(2.6rem,6vw,5rem);font-weight:600;line-height:.98;letter-spacing:-.045em}
+.t3{font-size:clamp(1.9rem,4.2vw,3.1rem);font-weight:600;line-height:1.04;letter-spacing:-.04em}
+.t4{font-size:clamp(1.125rem,1.35vw,1.3125rem);font-weight:400;line-height:1.45;letter-spacing:-.01em}
+.t5{font-size:clamp(1.1875rem,1.6vw,1.4375rem);font-weight:600;line-height:1.2;letter-spacing:-.02em}
+.t6{font-size:.9375rem;font-weight:600;line-height:1.25}
+.t7{font-size:.8125rem;line-height:1.5;color:color-mix(in srgb,currentColor 78%,transparent)}
+.t8{font-size:1rem;line-height:1.5;color:color-mix(in srgb,currentColor 76%,transparent)}
+.eyebrow{display:inline-flex;align-items:center;gap:.5rem;font-size:.8125rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--color-5)}
+.on-dark .eyebrow{color:color-mix(in srgb,var(--color-2) 62%,transparent)}
+.btn,.btn-2{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:3.25rem;padding:.875rem 1.625rem;border:0;border-radius:var(--radius-3);font-size:1rem;font-weight:600;line-height:1.2;text-decoration:none;cursor:pointer;transition:translate .25s}
+.btn{background:var(--color-4);color:var(--color-1);box-shadow:var(--shadow-2)}
+.btn-2{background:var(--color-1);color:var(--color-2)}
+.on-dark .btn-2{background:transparent;color:var(--color-2);border:.0625rem solid color-mix(in srgb,var(--color-2) 30%,transparent)}
+@media(hover:hover){.btn:hover,.btn-2:hover{translate:0 -.125rem}}
+.link{font-weight:600;text-decoration:none;border-bottom:.125rem solid var(--color-4);padding-bottom:.0625rem}
+.card{display:grid;gap:.875rem;align-content:start;padding:1.5rem;border-radius:var(--radius-2);background:var(--color-3);color:var(--color-1)}
+.on-dark .card{background:color-mix(in srgb,var(--color-2) 8%,transparent);color:var(--color-2)}
+.ico{width:1.125rem;height:1.125rem;flex:none;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.ico-lg{width:1.625rem;height:1.625rem;stroke-width:1.6}
+.chip{display:inline-block;padding:.4375rem .875rem;border-radius:var(--radius-3);background:var(--color-3);font-size:.875rem;font-weight:600}
+.on-dark .chip{background:color-mix(in srgb,var(--color-2) 12%,transparent)}
+.hueco{display:inline-block;padding:.25rem .5rem;border-radius:.375rem;background:var(--color-4);color:var(--color-1);font-weight:700;font-size:.9em}
+
+/* ── estructura ─────────────────────────────────────────────────── */
+.wrap{width:100%;max-width:72rem;margin-inline:auto;padding-inline:var(--space-1)}
+.sec{padding-block:var(--space-2)}
+.sec--dark{background:var(--color-1);color:var(--color-2);border-radius:var(--radius-1) var(--radius-1) 0 0}
+.sec--next{background:var(--color-2);border-radius:var(--radius-1) var(--radius-1) 0 0;margin-top:calc(-1 * var(--radius-1));position:relative}
+.sec__head{display:grid;gap:1rem;max-width:46rem;margin-bottom:2.75rem}
+
+/* barra superior */
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--color-2) 88%,transparent);backdrop-filter:blur(.75rem);border-bottom:.0625rem solid color-mix(in srgb,var(--color-1) 10%,transparent)}
+.top__bar{display:flex;align-items:center;justify-content:space-between;gap:1rem;min-height:4.25rem}
+.top__brand{display:flex;align-items:center;gap:.625rem;text-decoration:none;font-weight:600;letter-spacing:-.02em}
+.top__brand img{height:2.125rem;width:auto;filter:brightness(0)}
+.pie__firma{margin-top:1.75rem}
+.pie__firma img{height:4.5rem;width:auto;opacity:.92}
+
+/* encabezado */
+.hero{padding-block:clamp(2.5rem,6vw,4.5rem) var(--space-2)}
+.hero__grid{display:grid;gap:clamp(2rem,4vw,3.5rem);align-items:center}
+@media(min-width:62rem){.hero__grid{grid-template-columns:1.15fr .85fr}}
+.hero__title{margin-top:1rem}
+.hero__sub{margin-top:1.25rem;max-width:34rem}
+.hero__facts{display:grid;gap:.75rem;margin-top:2rem;padding:0}
+@media(min-width:34rem){.hero__facts{grid-template-columns:repeat(3,1fr)}}
+.fact{padding:1rem 1.125rem;border-radius:var(--radius-4);background:var(--color-3)}
+.fact__k{display:flex;align-items:center;gap:.4375rem;font-size:.75rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--color-5)}
+.fact__k .ico{width:.9375rem;height:.9375rem}
+.fact__v{display:block;margin-top:.25rem;font-size:1.25rem;font-weight:600;letter-spacing:-.02em}
+.hero__cta{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:2rem}
+.hero__fig{border-radius:var(--radius-2);overflow:hidden;box-shadow:var(--shadow-1)}
+.hero__fig img{width:100%;aspect-ratio:4/3;object-fit:cover}
+
+/* el día y medio */
+.dia{display:grid;gap:1.25rem}
+@media(min-width:48rem){.dia{grid-template-columns:1fr 1fr}}
+.bloque{display:grid;gap:.5rem;padding:1.5rem;border-radius:var(--radius-2);background:color-mix(in srgb,var(--color-2) 7%,transparent)}
+.bloque__n{font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--color-4)}
+.bloque__h{font-size:1.3125rem;font-weight:600;letter-spacing:-.02em}
+.bloque ul{display:grid;gap:.4375rem;margin-top:.375rem}
+.bloque li{position:relative;padding-left:1.125rem;font-size:1rem;line-height:1.45;color:color-mix(in srgb,var(--color-2) 82%,transparent)}
+.bloque li::before{content:"";position:absolute;left:0;top:.6875rem;width:.375rem;height:.375rem;border-radius:50%;background:var(--color-4)}
+.bloque--mesas{background:var(--color-4);color:var(--color-1)}
+.bloque--mesas .bloque__n{color:color-mix(in srgb,var(--color-1) 65%,transparent)}
+.bloque--mesas li{color:color-mix(in srgb,var(--color-1) 85%,transparent)}
+.bloque--mesas li::before{background:var(--color-1)}
+
+/* qué queda */
+.queda{display:grid;gap:1.25rem}
+@media(min-width:48rem){.queda{grid-template-columns:1fr 1fr}}
+.lista{display:grid;gap:.625rem;margin-top:1rem}
+.lista li{position:relative;padding-left:1.625rem;line-height:1.45}
+.lista li::before{content:"";position:absolute;left:0;top:.4375rem;width:.875rem;height:.875rem;border-radius:50%;background:var(--color-4)}
+.lista--check li::after{content:"";position:absolute;left:.25rem;top:.6875rem;width:.375rem;height:.1875rem;border-left:.125rem solid var(--color-1);border-bottom:.125rem solid var(--color-1);rotate:-45deg}
+
+/* tablero */
+.tablero{display:grid;gap:1.75rem}
+@media(min-width:56rem){.tablero{grid-template-columns:1.1fr .9fr;align-items:center}}
+.carrusel{display:grid;gap:.875rem}
+.carrusel__pista{display:flex;gap:1rem;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;border-radius:var(--radius-2);scrollbar-width:none}
+.carrusel__pista::-webkit-scrollbar{display:none}
+.carrusel__lam{flex:0 0 100%;scroll-snap-align:center;margin:0;border-radius:var(--radius-2);overflow:hidden;background:var(--color-3);box-shadow:var(--shadow-1)}
+.carrusel__lam img{width:100%;display:block}
+.carrusel__lam figcaption{padding:.75rem 1rem;font-size:.8125rem;line-height:1.4;color:color-mix(in srgb,var(--color-1) 72%,transparent)}
+.carrusel__mandos{display:flex;align-items:center;gap:.75rem}
+.carrusel__b{display:grid;place-items:center;width:2.875rem;height:2.875rem;flex:none;padding:0;border:0;border-radius:var(--radius-3);background:var(--color-4);color:var(--color-1);cursor:pointer;box-shadow:var(--shadow-2)}
+.carrusel__b:disabled{background:color-mix(in srgb,var(--color-1) 10%,transparent);color:color-mix(in srgb,var(--color-1) 35%,transparent);box-shadow:none;cursor:default}
+@media(hover:hover){.carrusel__b:not(:disabled):hover{background:var(--color-1);color:var(--color-4)}}
+.carrusel__b .ico{width:1.25rem;height:1.25rem;stroke-width:2.1}
+.carrusel__b--prev .ico{rotate:180deg}
+.carrusel__puntos{display:flex;gap:.4375rem;margin-left:auto}
+.carrusel__p{width:.5rem;height:.5rem;padding:0;border:0;border-radius:50%;background:color-mix(in srgb,var(--color-1) 24%,transparent);cursor:pointer}
+.carrusel__p[aria-current="true"]{background:var(--color-1);width:1.5rem;border-radius:var(--radius-3)}
+.tablero__falta{display:grid;place-items:center;gap:.5rem;padding:3rem 1.5rem;text-align:center;border:.125rem dashed color-mix(in srgb,var(--color-1) 30%,transparent);border-radius:var(--radius-2);background:var(--color-3)}
+.params{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.25rem}
+
+/* fechas */
+.fechas{display:grid;gap:.875rem;margin-bottom:2.75rem;grid-auto-rows:1fr}
+@media(min-width:34rem){.fechas{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:58rem){.fechas{grid-template-columns:repeat(3,1fr)}}
+.fecha{position:relative;display:block;cursor:pointer}
+.fecha input{position:absolute;opacity:0;pointer-events:none}
+.fecha__caja{display:grid;grid-template-rows:auto auto auto auto 1.375rem;height:100%;padding:1.5rem 1.5rem 1.25rem;border-radius:var(--radius-2);border:.125rem solid color-mix(in srgb,var(--color-2) 20%,transparent);background:color-mix(in srgb,var(--color-2) 5%,transparent);transition:border-color .2s,background .2s}
+.fecha__dia{font-size:2.375rem;font-weight:600;line-height:1;letter-spacing:-.045em;font-variant-numeric:tabular-nums}
+.fecha__mes{margin-top:.375rem;font-size:.6875rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:color-mix(in srgb,var(--color-2) 58%,transparent)}
+.fecha__linea{margin:1rem 0 .875rem;height:.0625rem;background:color-mix(in srgb,var(--color-2) 20%,transparent)}
+.fecha__ciudad{font-size:1.1875rem;font-weight:600;letter-spacing:-.02em}
+.fecha__dias{margin-top:.1875rem;font-size:.875rem;color:color-mix(in srgb,var(--color-2) 66%,transparent)}
+.fecha__nota{align-self:end;font-size:.6875rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;line-height:1.375rem;white-space:nowrap;color:var(--color-4)}
+.fecha input:checked+.fecha__caja{border-color:var(--color-4);background:color-mix(in srgb,var(--color-4) 13%,transparent)}
+.fecha input:checked+.fecha__caja .fecha__linea{background:color-mix(in srgb,var(--color-4) 55%,transparent)}
+.fecha input:focus-visible+.fecha__caja{outline:.1875rem solid var(--color-2);outline-offset:.1875rem}
+@media(hover:hover){.fecha:hover .fecha__caja{border-color:color-mix(in srgb,var(--color-2) 42%,transparent)}}
+.fecha__marca{position:absolute;top:1.5rem;right:1.5rem;width:1.25rem;height:1.25rem;border-radius:50%;border:.125rem solid color-mix(in srgb,var(--color-2) 32%,transparent)}
+.fecha input:checked~.fecha__marca{background:var(--color-4);border-color:var(--color-4)}
+.fecha input:checked~.fecha__marca::after{content:"";position:absolute;left:.3125rem;top:.1875rem;width:.3125rem;height:.5625rem;border-right:.125rem solid var(--color-1);border-bottom:.125rem solid var(--color-1);rotate:45deg}
+
+/* precio */
+.precio{display:grid;gap:1.5rem}
+@media(min-width:56rem){.precio{grid-template-columns:.9fr 1.1fr;align-items:start}}
+.precio__box{padding:1.75rem;border-radius:var(--radius-2);background:var(--color-1);color:var(--color-2)}
+.precio__fila{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1rem}
+.precio__cifra{font-size:clamp(2.75rem,6vw,3.75rem);font-weight:600;letter-spacing:-.045em;line-height:1}
+.precio__iva{font-size:1.25rem;font-weight:600;letter-spacing:-.02em;color:color-mix(in srgb,var(--color-2) 62%,transparent)}
+.precio__total{display:block;margin-bottom:.5rem;font-size:1.0625rem;font-weight:600;letter-spacing:-.015em;color:var(--color-2)}
+.precio__nota{margin-top:1.125rem;font-size:.9375rem;line-height:1.6;color:color-mix(in srgb,var(--color-2) 74%,transparent)}
+.precio__incluye{display:grid;gap:.5rem;margin-top:1.5rem;padding-top:1.5rem;border-top:.0625rem solid color-mix(in srgb,var(--color-2) 18%,transparent)}
+.precio__incluye li{position:relative;padding-left:1.375rem;font-size:1rem;line-height:1.45;color:color-mix(in srgb,var(--color-2) 86%,transparent)}
+.precio__incluye li::before{content:"+";position:absolute;left:0;top:0;color:var(--color-4);font-weight:700}
+.reglas{display:grid;gap:1.125rem;margin-top:1.75rem}
+.regla{display:grid;grid-template-columns:1.5rem 1fr;gap:.875rem;align-items:start}
+.regla .ico{width:1.3125rem;height:1.3125rem;margin-top:.1875rem;color:var(--color-4)}
+.regla b{display:block;margin-bottom:.125rem;letter-spacing:-.015em}
+.regla span{font-size:1rem;line-height:1.5;color:color-mix(in srgb,var(--color-2) 74%,transparent)}
+
+/* pago */
+.pago{display:grid;gap:1rem;margin-top:2rem;grid-auto-rows:1fr;grid-template-columns:minmax(0,1fr)}
+@media(min-width:34rem){.pago{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.opcion{display:flex;flex-direction:column;align-items:center;gap:.75rem;padding:1.5rem 1.25rem;border-radius:var(--radius-2);background:var(--color-2);color:var(--color-1);text-align:center}
+.opcion h3{display:flex;align-items:center;gap:.5rem;font-size:1.1875rem;font-weight:600;letter-spacing:-.02em;white-space:nowrap}
+.opcion h3 .ico{width:1.3125rem;height:1.3125rem}
+.opcion__msi{display:inline-flex;align-items:center;gap:.375rem;white-space:nowrap;padding:.3125rem .6875rem;border-radius:var(--radius-3);background:var(--color-4);color:var(--color-1);font-size:.75rem;font-weight:700;letter-spacing:-.01em;line-height:1.2}
+.opcion__msi .ico{width:.875rem;height:.875rem}
+.marcas{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.75rem}
+.marcas svg{height:2.125rem;width:auto;fill:color-mix(in srgb,var(--color-1) 78%,transparent)}
+.marcas .m-mc{height:1.75rem}
+.opcion__pie{margin-top:auto;display:grid;gap:.4375rem;width:100%;padding-top:.625rem}
+.opcion__b{display:flex;align-items:center;justify-content:center;gap:.4375rem;width:100%;min-height:3.125rem;padding:.75rem 1rem;border:0;border-radius:var(--radius-3);background:var(--color-1);color:var(--color-2);font-size:.9375rem;font-weight:600;line-height:1.2;white-space:nowrap;text-decoration:none;cursor:pointer;list-style:none;transition:background .2s,color .2s}
+.opcion__b::-webkit-details-marker{display:none}
+@media(hover:hover){.opcion__b:hover{background:var(--color-4);color:var(--color-1)}}
+.opcion__b .ico{width:1rem;height:1rem}
+.opcion__b .ico{width:1rem;height:1rem}
+.opcion__seguro{display:flex;align-items:center;justify-content:center;gap:.375rem;white-space:nowrap;font-size:.75rem;line-height:1.3;color:color-mix(in srgb,var(--color-1) 72%,transparent)}
+.opcion__seguro .ico{width:.8125rem;height:.8125rem}
+.pago__nota{margin-top:1rem;font-style:italic;font-size:.8125rem;line-height:1.5;color:color-mix(in srgb,var(--color-2) 70%,transparent)}
+details.trans{color:var(--color-1)}
+details.trans[open] .opcion__b{border-radius:var(--radius-3) var(--radius-3) .5rem .5rem}
+.trans__datos{margin-top:.375rem;padding:.875rem 1rem;display:grid;gap:.3125rem;text-align:left;border-radius:.75rem;background:var(--color-3)}
+.trans__datos dt{font-size:.625rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--color-5)}
+.trans__datos dd{font-size:.9375rem;font-weight:600;font-variant-numeric:tabular-nums}
+
+/* formulario */
+.form{display:grid;gap:1rem;margin-top:1.75rem;padding:1.75rem;border-radius:var(--radius-2);background:var(--color-3);color:var(--color-1)}
+@media(min-width:40rem){.form__row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}}
+.field{display:grid;gap:.5rem}
+.field__label{font-size:.9375rem;font-weight:600}
+.field__input{width:100%;min-height:3.25rem;padding:.875rem 1rem;border:.0625rem solid color-mix(in srgb,var(--color-1) 45%,transparent);border-radius:.875rem;background:var(--color-2);color:var(--color-1);font-size:1rem}
+.field__input:focus-visible{border-color:var(--color-1)}
+
+/* logística y preguntas */
+.logi .card h3{display:flex;align-items:center;gap:.5rem}
+.queda .card h3{display:flex;align-items:center;gap:.625rem}
+.logi{display:grid;gap:1rem}
+@media(min-width:48rem){.logi{grid-template-columns:repeat(2,1fr)}}
+details.q{padding:1.125rem 0;border-bottom:.0625rem solid color-mix(in srgb,var(--color-1) 14%,transparent)}
+details.q>summary{font-size:1.125rem;font-weight:600;letter-spacing:-.015em;cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:1rem}
+details.q>summary::-webkit-details-marker{display:none}
+details.q>summary::after{content:"+";color:var(--color-5);font-weight:400}
+details.q[open]>summary::after{content:"–"}
+details.q p{margin-top:.75rem;max-width:44rem;color:color-mix(in srgb,var(--color-1) 78%,transparent)}
+
+/* pie */
+.pie{background:var(--color-6);color:var(--color-2);border-radius:var(--radius-1) var(--radius-1) 0 0;padding-block:var(--space-2) 2.5rem}
+.pie__grid{display:grid;gap:2rem}
+@media(min-width:48rem){.pie__grid{grid-template-columns:1.2fr .8fr}}
+.pie__retrato{float:left;width:8.5rem;margin:.25rem 1.375rem .625rem 0;border-radius:var(--radius-4);overflow:hidden}
+.pie__retrato img{width:100%;aspect-ratio:1;object-fit:cover}
+.pie__logos{display:flex;flex-wrap:wrap;align-items:center;gap:1.5rem;margin-top:1.25rem}
+.pie__logos a{display:block;opacity:.85;transition:opacity .2s}
+.pie__logos a:hover{opacity:1}
+.pie__logos img{height:1.75rem;width:auto}
+.pie__fiscal{display:grid;gap:.375rem;margin-top:1.25rem}
+.pie__fiscal dt{font-size:.75rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:color-mix(in srgb,var(--color-2) 55%,transparent)}
+.pie__fiscal dd{font-size:1rem}
+
+/* barra fija en teléfono */
+.movil{position:fixed;z-index:30;left:0;right:0;bottom:0;display:flex;gap:.5rem;padding:.75rem;background:color-mix(in srgb,var(--color-2) 94%,transparent);backdrop-filter:blur(.75rem);border-top:.0625rem solid color-mix(in srgb,var(--color-1) 12%,transparent)}
+.movil .btn,.movil .btn-2{flex:1;min-height:3rem;padding-inline:1rem;font-size:.9375rem}
+@media(min-width:48rem){.movil{display:none}}
+body{padding-bottom:5rem}
+@media(min-width:48rem){body{padding-bottom:0}}
+
+/* impresión: la misma página es el PDF */
+@media print{
+  :root{--space-2:1.75rem}
+  html,body{background:#fff;color:#000;font-size:10.5pt}
+  .top,.movil,.hero__cta,.pago,.form,.btn,.btn-2{display:none!important}
+  .sec,.hero{padding-block:1rem;break-inside:avoid}
+  .sec--dark,.pie,.precio__box,.bloque{background:#fff!important;color:#000!important;border:.5pt solid #999;border-radius:8pt}
+  .bloque li,.precio__incluye li,.precio__nota{color:#000!important}
+  .bloque__n{color:#000!important}
+  .sec--next{margin-top:0}
+  details.q,details.trans{break-inside:avoid}
+  details.q p{display:block!important}
+  .hero__fig,.tablero__falta{display:none}
+  a{text-decoration:none}
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+<symbol id="i-reloj" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+<symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></symbol>
+<symbol id="i-etiqueta" viewBox="0 0 24 24"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0l-7.2-7.2A2 2 0 0 1 3 12V5a2 2 0 0 1 2-2h7a2 2 0 0 1 1.4.6l7.2 7.2a2 2 0 0 1 0 2.8z"/><circle cx="7.6" cy="7.6" r="1.3"/></symbol>
+<symbol id="i-calendario" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 11h18"/></symbol>
+<symbol id="i-lista" viewBox="0 0 24 24"><path d="M9 6h12M9 12h12M9 18h12M4 6h.01M4 12h.01M4 18h.01"/></symbol>
+<symbol id="i-tarjeta" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h3"/></symbol>
+<symbol id="i-banco" viewBox="0 0 24 24"><path d="M12 3 21 8H3zM5 11v7M10 11v7M14 11v7M19 11v7M3 21h18"/></symbol>
+<symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 11.5a8.5 8.5 0 0 1-12.6 7.4L3 21l2.2-5.2A8.5 8.5 0 1 1 21 11.5z"/></symbol>
+<symbol id="m-visa" viewBox="0 0 24 24"><title>Visa</title><path d="M9.112 8.262L5.97 15.758H3.92L2.374 9.775c-.094-.368-.175-.503-.461-.658C1.447 8.864.677 8.627 0 8.479l.046-.217h3.3a.904.904 0 01.894.764l.817 4.338 2.018-5.102zm8.033 5.049c.008-1.979-2.736-2.088-2.717-2.972.006-.269.262-.555.822-.628a3.66 3.66 0 011.913.336l.34-1.59a5.207 5.207 0 00-1.814-.333c-1.917 0-3.266 1.02-3.278 2.479-.012 1.079.963 1.68 1.698 2.04.756.367 1.01.603 1.006.931-.005.504-.602.725-1.16.734-.975.015-1.54-.263-1.992-.473l-.351 1.642c.453.208 1.289.39 2.156.398 2.037 0 3.37-1.006 3.377-2.564m5.061 2.447H24l-1.565-7.496h-1.656a.883.883 0 00-.826.55l-2.909 6.946h2.036l.405-1.12h2.488zm-2.163-2.656l1.02-2.815.588 2.815zm-8.16-4.84l-1.603 7.496H8.34l1.605-7.496z"/></symbol>
+<symbol id="m-mc" viewBox="0 0 24 24"><title>Mastercard</title><path d="M11.343 18.031c.058.049.12.098.181.146-1.177.783-2.59 1.238-4.107 1.238C3.32 19.416 0 16.096 0 12c0-4.095 3.32-7.416 7.416-7.416 1.518 0 2.931.456 4.105 1.238-.06.051-.12.098-.165.15C9.6 7.489 8.595 9.688 8.595 12c0 2.311 1.001 4.51 2.748 6.031zm5.241-13.447c-1.52 0-2.931.456-4.105 1.238.06.051.12.098.165.15C14.4 7.489 15.405 9.688 15.405 12c0 2.31-1.001 4.507-2.748 6.031-.058.049-.12.098-.181.146 1.177.783 2.588 1.238 4.107 1.238C20.68 19.416 24 16.096 24 12c0-4.094-3.32-7.416-7.416-7.416zM12 6.174c-.096.075-.189.15-.28.231C10.156 7.764 9.169 9.765 9.169 12c0 2.236.987 4.236 2.551 5.595.09.08.185.158.28.232.096-.074.189-.152.28-.232 1.563-1.359 2.551-3.359 2.551-5.595 0-2.235-.987-4.236-2.551-5.595-.09-.08-.184-.156-.28-.231z"/></symbol>
+<symbol id="m-amex" viewBox="0 0 24 24"><title>American Express</title><path d="M16.015 14.378c0-.32-.135-.496-.344-.622-.21-.12-.464-.135-.81-.135h-1.543v2.82h.675v-1.027h.72c.24 0 .39.024.478.125.12.13.104.38.104.55v.35h.66v-.555c-.002-.25-.017-.376-.108-.516-.06-.08-.18-.18-.33-.234l.02-.008c.18-.072.48-.297.48-.747zm-.87.407l-.028-.002c-.09.053-.195.058-.33.058h-.81v-.63h.824c.12 0 .24 0 .33.05.098.048.156.147.15.255 0 .12-.045.215-.134.27zM20.297 15.837H19v.6h1.304c.676 0 1.05-.278 1.05-.884 0-.28-.066-.448-.187-.582-.153-.133-.392-.193-.73-.207l-.376-.015c-.104 0-.18 0-.255-.03-.09-.03-.15-.105-.15-.21 0-.09.017-.166.09-.21.083-.046.177-.066.272-.06h1.23v-.602h-1.35c-.704 0-.958.437-.958.84 0 .9.776.855 1.407.87.104 0 .18.015.225.06.046.03.082.106.082.18 0 .077-.035.15-.08.18-.06.053-.15.07-.277.07zM0 0v10.096L.81 8.22h1.75l.225.464V8.22h2.043l.45 1.02.437-1.013h6.502c.295 0 .56.057.756.236v-.23h1.787v.23c.307-.17.686-.23 1.12-.23h2.606l.24.466v-.466h1.918l.254.465v-.466h1.858v3.948H20.87l-.36-.6v.585h-2.353l-.256-.63h-.583l-.27.614h-1.213c-.48 0-.84-.104-1.08-.24v.24h-2.89v-.884c0-.12-.03-.12-.105-.135h-.105v1.036H6.067v-.48l-.21.48H4.69l-.202-.48v.465H2.235l-.256-.624H1.4l-.256.624H0V24h23.786v-7.108c-.27.135-.613.18-.973.18H21.09v-.255c-.21.165-.57.255-.914.255H14.71v-.9c0-.12-.018-.12-.12-.12h-.075v1.022h-1.8v-1.066c-.298.136-.643.15-.928.136h-.214v.915h-2.18l-.54-.617-.57.6H4.742v-3.93h3.61l.518.602.554-.6h2.412c.28 0 .74.03.942.225v-.24h2.177c.202 0 .644.045.903.225v-.24h3.265v.24c.163-.164.508-.24.803-.24h1.89v.24c.194-.15.464-.24.84-.24h1.176V0H0zM21.156 14.955c.004.005.006.012.01.016.01.01.024.01.032.02l-.042-.035zM23.828 13.082h.065v.555h-.065zM23.865 15.03v-.005c-.03-.025-.046-.048-.075-.07-.15-.153-.39-.215-.764-.225l-.36-.012c-.12 0-.194-.007-.27-.03-.09-.03-.15-.105-.15-.21 0-.09.03-.16.09-.204.076-.045.15-.05.27-.05h1.223v-.588h-1.283c-.69 0-.96.437-.96.84 0 .9.78.855 1.41.87.104 0 .18.015.224.06.046.03.076.106.076.18 0 .07-.034.138-.09.18-.045.056-.136.07-.27.07h-1.288v.605h1.287c.42 0 .734-.118.9-.36h.03c.09-.134.135-.3.135-.523 0-.24-.045-.39-.135-.526zM18.597 14.208v-.583h-2.235V16.458h2.235v-.585h-1.57v-.57h1.533v-.584h-1.532v-.51M13.51 8.787h.685V11.6h-.684zM13.126 9.543l-.007.006c0-.314-.13-.5-.34-.624-.217-.125-.47-.135-.81-.135H10.43v2.82h.674v-1.034h.72c.24 0 .39.03.487.12.122.136.107.378.107.548v.354h.677v-.553c0-.25-.016-.375-.11-.516-.09-.107-.202-.19-.33-.237.172-.07.472-.3.472-.75zm-.855.396h-.015c-.09.054-.195.056-.33.056H11.1v-.623h.825c.12 0 .24.004.33.05.09.04.15.128.15.25s-.047.22-.134.266zM15.92 9.373h.632v-.6h-.644c-.464 0-.804.105-1.02.33-.286.3-.362.69-.362 1.11 0 .512.123.833.36 1.074.232.238.645.31.97.31h.78l.255-.627h1.39l.262.627h1.36v-2.11l1.272 2.11h.95l.002.002V8.786h-.684v1.963l-1.18-1.96h-1.02V11.4L18.11 8.744h-1.004l-.943 2.22h-.3c-.177 0-.362-.03-.468-.134-.125-.15-.186-.36-.186-.662 0-.285.08-.51.194-.63.133-.135.272-.165.516-.165zm1.668-.108l.464 1.118v.002h-.93l.466-1.12zM2.38 10.97l.254.628H4V9.393l.972 2.205h.584l.973-2.202.015 2.202h.69v-2.81H6.118l-.807 1.904-.876-1.905H3.343v2.663L2.205 8.787h-.997L.01 11.597h.72l.26-.626h1.39zm-.688-1.705l.46 1.118-.003.002h-.915l.457-1.12zM11.856 13.62H9.714l-.85.923-.825-.922H5.346v2.82H8l.855-.932.824.93h1.302v-.94h.838c.6 0 1.17-.164 1.17-.945l-.006-.003c0-.78-.598-.93-1.128-.93zM7.67 15.853l-.014-.002H6.02v-.557h1.47v-.574H6.02v-.51H7.7l.733.82-.764.824zm2.642.33l-1.03-1.147 1.03-1.108v2.253zm1.553-1.258h-.885v-.717h.885c.24 0 .42.098.42.344 0 .243-.15.372-.42.372zM9.967 9.373v-.586H7.73V11.6h2.237v-.58H8.4v-.564h1.527V9.88H8.4v-.507"/></symbol>
+<symbol id="i-candado" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></symbol>
+<symbol id="i-avion" viewBox="0 0 24 24"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></symbol>
+<symbol id="i-factura" viewBox="0 0 24 24"><path d="M14 3v5h5M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8zM9 13h6M9 17h4"/></symbol>
+<symbol id="i-flecha" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+<symbol id="i-persona" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+<symbol id="i-empresa" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="1.5"/><path d="M10 21v-4h4v4M9 8h.01M15 8h.01M9 12h.01M15 12h.01"/></symbol>
+<symbol id="i-pantalla" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M12 16v4M8 20h8"/></symbol>
+<symbol id="i-equipo" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2 20a7 7 0 0 1 14 0M17 5.6a3.5 3.5 0 0 1 0 6.8M18.5 20a7 7 0 0 0-3-5.7"/></symbol>
+<symbol id="i-diana" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5"/></symbol>
+<symbol id="i-palomita" viewBox="0 0 24 24"><path d="M4 12.5 9 17.5 20 6.5"/></symbol>
+</defs></svg>
+
+<header class="top">
+  <div class="wrap top__bar">
+    <a class="top__brand" href="https://agustinlozano.com">
+      <img src="../logos/tino-lozano-firma-recorte.png" alt="Tino Lozano">
+    </a>
+    <a class="btn-2" href="https://wa.me/528683028939?text=Hola%20Agust%C3%ADn%2C%20vengo%20de%20la%20p%C3%A1gina%20del%20taller%20Alto%20rendimiento%20in%20company." style="min-height:2.75rem;padding:.625rem 1.25rem;font-size:.9375rem"><svg class="ico"><use href="#i-chat"/></svg>Escríbeme</a>
+  </div>
+</header>
+
+<main>
+
+<!-- 1 · ENCABEZADO -->
+<section class="hero wrap" id="inicio">
+  <div class="hero__grid">
+    <div>
+      <span class="eyebrow">Taller in company · Tino Lozano</span>
+      <h1 class="t2 hero__title">Alto rendimiento in company</h1>
+      <p class="t4 hero__sub">Día y medio en tu empresa. Cómo se mide un equipo y cómo se automatiza una operación.</p>
+      <ul class="hero__facts">
+        <li class="fact"><span class="fact__k"><svg class="ico"><use href="#i-reloj"/></svg>Duración</span><span class="fact__v">Día y medio</span></li>
+        <li class="fact"><span class="fact__k"><svg class="ico"><use href="#i-pin"/></svg>Dónde</span><span class="fact__v">En tu empresa</span></li>
+        <li class="fact"><span class="fact__k"><svg class="ico"><use href="#i-etiqueta"/></svg>Inversión</span><span class="fact__v">$59,000 + IVA</span></li>
+      </ul>
+      <div class="hero__cta">
+        <a class="btn" href="#reservar"><svg class="ico"><use href="#i-calendario"/></svg>Reservar una fecha</a>
+        <a class="btn-2" href="#dia"><svg class="ico"><use href="#i-lista"/></svg>Ver el programa</a>
+      </div>
+    </div>
+    <figure class="hero__fig">
+      <img src="../imagenes/tino-junta.webp" alt="Tino Lozano explicando frente a un pizarrón cuadriculado" width="1600" height="1200">
+    </figure>
+  </div>
+</section>
+
+<!-- 2 · LA PREGUNTA -->
+<section class="sec sec--dark on-dark" id="pregunta">
+  <div class="wrap">
+    <div class="sec__head">
+      <span class="eyebrow">Lo que contesta</span>
+      <h2 class="t3">Cómo rendir más sin contratar más gente.</h2>
+      <p class="t4" style="color:color-mix(in srgb,var(--color-2) 80%,transparent)">Hay dos palancas: <b>la gente medida</b> y <b>el trabajo automatizado</b>. Un diagnóstico corrido en tu propia sala decide cuál de las dos te urge primero. Lo demás son opiniones.</p>
+      <p class="t5" style="color:var(--color-4);margin-top:.5rem">Que la empresa gane autonomía por capas, y que cada capa se pague con las horas que libera.</p>
+    </div>
+
+    <!-- 3 · QUÉ PASA EN EL DÍA Y MEDIO -->
+    <div id="dia">
+      <div class="sec__head" style="margin-bottom:1.75rem">
+        <span class="eyebrow">El programa</span>
+        <h2 class="t3">Qué pasa en el día y medio.</h2>
+      </div>
+      <div class="dia">
+        <article class="bloque">
+          <span class="bloque__n">Día 1 · Bloque 1</span>
+          <h3 class="bloque__h">Dónde está la empresa</h3>
+          <ul>
+            <li>La autonomía de una organización, con el paralelo de la autorrealización de una persona</li>
+            <li>Las capas de autonomía: el modelo que la construye por etapas</li>
+            <li>La anatomía de una organización: áreas, departamentos, procesos, tareas, subtareas, responsables e indicadores</li>
+            <li>DX49 abierto en la sala, sobre un departamento de los presentes</li>
+          </ul>
+        </article>
+        <article class="bloque">
+          <span class="bloque__n">Día 1 · Bloque 2</span>
+          <h3 class="bloque__h">La gente</h3>
+          <ul>
+            <li>El equipo tradicional y el equipo de alto rendimiento, lado a lado</li>
+            <li>La curva del día cero a la semana catorce</li>
+            <li>Las seis dimensiones de un equipo medible</li>
+            <li>La actividad medible como unidad mínima del tablero</li>
+            <li>La eficiencia como razón matemática del puesto</li>
+            <li>La transversalidad: el mismo tablero en ventas, en compras y en operación</li>
+            <li>El coach, el jefe y el mentor: tres conductas distintas</li>
+            <li>Carga del tablero con tu equipo real</li>
+          </ul>
+        </article>
+        <article class="bloque">
+          <span class="bloque__n">Día 1 · Bloque 3</span>
+          <h3 class="bloque__h">El trabajo</h3>
+          <ul>
+            <li>El banco de tiempo: cuántas horas son automatizables en los próximos tres meses</li>
+            <li>El algoritmo, el flujo de reglas y el agente: tres maneras de automatizar</li>
+            <li>El semáforo y el agente de tránsito</li>
+            <li>El orden de construcción: del diagnóstico al primer proceso corriendo</li>
+          </ul>
+        </article>
+        <article class="bloque">
+          <span class="bloque__n">Día 1 · Cierre</span>
+          <h3 class="bloque__h">Los próximos 90 días</h3>
+          <ul>
+            <li>La cuenta de lo que valen las horas liberadas</li>
+            <li>El plan, escrito por tu equipo, en una hoja</li>
+          </ul>
+        </article>
+        <article class="bloque bloque--mesas" style="grid-column:1/-1">
+          <span class="bloque__n">Día 2 · Hasta el mediodía</span>
+          <h3 class="bloque__h">Mesas de trabajo, departamento por departamento</h3>
+          <ul>
+            <li>Cada área llena su propio tablero y su propio mapa con datos reales, con Agustín sentado en cada mesa</li>
+            <li>En el departamento elegido se revisa el cuestionario de DX49 contestado desde el día anterior, con el resultado preliminar en pantalla</li>
+            <li>Un entregable por mesa, con tiempo cerrado</li>
+          </ul>
+        </article>
+      </div>
+      <p class="t8" style="margin-top:1.25rem;color:color-mix(in srgb,var(--color-2) 70%,transparent)">El cuestionario del departamento elegido queda abierto una semana más, para que el equipo lo termine con calma. Al cerrarlo recibes un documento de hallazgos de esa área.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 4 · QUÉ QUEDA -->
+<section class="sec sec--next" id="queda">
+  <div class="wrap">
+    <div class="sec__head">
+      <span class="eyebrow">Perfil de salida</span>
+      <h2 class="t3">Qué queda, cuando nos vamos.</h2>
+    </div>
+    <div class="queda">
+      <article class="card">
+        <h3 class="t5"><svg class="ico ico-lg"><use href="#i-persona"/></svg>Cada persona</h3>
+        <ul class="lista">
+          <li>Lee el tablero de su equipo e interpreta las seis dimensiones</li>
+          <li>Distingue cuándo conducirse como jefe, como mentor y como coach</li>
+          <li>Convierte una responsabilidad en una actividad medible</li>
+          <li>Sostiene la junta semanal del tablero por su cuenta</li>
+          <li>Nombra un indicador propio y lo defiende con un número</li>
+          <li>Distingue un algoritmo, un flujo de reglas y un agente, y sabe cuál le conviene a un proceso suyo</li>
+          <li>Estima las horas que libera automatizar un proceso de su área</li>
+          <li>Mapea su propia área: procesos, tareas, responsables e indicadores</li>
+        </ul>
+      </article>
+      <article class="card">
+        <h3 class="t5"><svg class="ico ico-lg"><use href="#i-empresa"/></svg>La empresa</h3>
+        <ul class="lista">
+          <li>Su equipo cargado en el tablero, con la línea base medida al día cero</li>
+          <li>Un área diagnosticada a fondo, con su banco de tiempo calculado</li>
+          <li>Un plan de 90 días escrito por sus propios mandos</li>
+          <li>Un lenguaje común para hablar de rendimiento entre áreas</li>
+          <li>La lista ordenada de sus primeros procesos automatizables</li>
+          <li>Tres meses de la herramienta corriendo, sin costo</li>
+        </ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- 5 · EL TABLERO -->
+<section class="sec" id="tablero" style="padding-top:0">
+  <div class="wrap tablero">
+    <div class="carrusel" id="carrusel-tablero">
+      <div class="carrusel__pista" tabindex="0" aria-label="Pantallas del tablero">
+        <figure class="carrusel__lam">
+          <img src="../imagenes/tablero-gladiadores.webp" alt="Tablero semanal del equipo: cada persona con sus catorce semanas, su porcentaje acumulado y su racha" width="2000" height="1088" loading="lazy">
+          <figcaption>El equipo completo, semana por semana, con el acumulado de cada quien.</figcaption>
+        </figure>
+        <figure class="carrusel__lam">
+          <img src="../imagenes/tablero-sesion.webp" alt="Sesión semanal de coaching: agenda, acuerdos arrastrados y el tablero de la semana anterior" width="2000" height="1091" loading="lazy">
+          <figcaption>La sesión semanal: los acuerdos, lo que quedó pendiente y el tablero anterior al lado.</figcaption>
+        </figure>
+        <figure class="carrusel__lam">
+          <img src="../imagenes/tablero-evolucion.webp" alt="Gráfica de evolución por dimensión de una persona a lo largo de seis semanas" width="2000" height="1090" loading="lazy">
+          <figcaption>La curva de una persona, dimensión por dimensión, semana tras semana.</figcaption>
+        </figure>
+      </div>
+      <div class="carrusel__mandos">
+        <button class="carrusel__b carrusel__b--prev" type="button" aria-label="Anterior"><svg class="ico"><use href="#i-flecha"/></svg></button>
+        <button class="carrusel__b carrusel__b--next" type="button" aria-label="Siguiente"><svg class="ico"><use href="#i-flecha"/></svg></button>
+        <div class="carrusel__puntos" role="tablist" aria-label="Ir a la pantalla"></div>
+      </div>
+    </div>
+    <div>
+      <span class="eyebrow">La herramienta</span>
+      <h2 class="t3" style="margin-top:.75rem">El tablero que se queda corriendo.</h2>
+      <p class="t4" style="margin-top:1rem">Seis dimensiones por persona, semana por semana, con visibilidad individual y de equipo. Se carga en la sala, con nombres reales, y sigue midiendo cuando nos vamos.</p>
+      <ul class="params">
+        <li class="chip">Planeación y organización</li>
+        <li class="chip">No negociables</li>
+        <li class="chip">Uso de sistemas</li>
+        <li class="chip">Conocimiento del producto</li>
+        <li class="chip">Conocimientos técnicos</li>
+        <li class="chip">Actitud</li>
+      </ul>
+      <p class="t8" style="margin-top:1.125rem">Y por encima de las seis, la <b>eficiencia</b>: la razón matemática del puesto. Lo que cada quien existe para mover.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 6 · FECHAS Y PRECIO -->
+<section class="sec sec--dark on-dark" id="reservar">
+  <div class="wrap">
+    <div class="sec__head">
+      <span class="eyebrow">Fechas y reserva</span>
+      <h2 class="t3">Pocas fechas, y las eliges tú.</h2>
+      <p class="t4" style="color:color-mix(in srgb,var(--color-2) 80%,transparent)">Cada taller es un viaje, así que el calendario abre fechas contadas. Elige la que te acomode y queda reservada al recibir el anticipo.</p>
+    </div>
+    <div class="fechas">
+          <label class="fecha">
+            <input type="radio" name="fecha" value="Queretaro-9-10-nov" form="reserva">
+            <span class="fecha__caja">
+              <span class="fecha__dia">9–10</span>
+              <span class="fecha__mes">Noviembre</span>
+              <span class="fecha__linea" aria-hidden="true"></span>
+              <span class="fecha__ciudad">Querétaro</span>
+              <span class="fecha__dias">lunes y martes</span>
+              <span class="fecha__nota">La próxima semana</span>
+            </span>
+            <span class="fecha__marca" aria-hidden="true"></span>
+          </label>
+          <label class="fecha">
+            <input type="radio" name="fecha" value="Puebla-16-17-nov" form="reserva">
+            <span class="fecha__caja">
+              <span class="fecha__dia">16–17</span>
+              <span class="fecha__mes">Noviembre</span>
+              <span class="fecha__linea" aria-hidden="true"></span>
+              <span class="fecha__ciudad">Puebla</span>
+              <span class="fecha__dias">lunes y martes</span>
+              <span class="fecha__nota"></span>
+            </span>
+            <span class="fecha__marca" aria-hidden="true"></span>
+          </label>
+          <label class="fecha">
+            <input type="radio" name="fecha" value="Puebla-23-24-nov" form="reserva">
+            <span class="fecha__caja">
+              <span class="fecha__dia">23–24</span>
+              <span class="fecha__mes">Noviembre</span>
+              <span class="fecha__linea" aria-hidden="true"></span>
+              <span class="fecha__ciudad">Puebla</span>
+              <span class="fecha__dias">lunes y martes</span>
+              <span class="fecha__nota"></span>
+            </span>
+            <span class="fecha__marca" aria-hidden="true"></span>
+          </label>
+          <label class="fecha">
+            <input type="radio" name="fecha" value="Cancun-9-10-dic" form="reserva">
+            <span class="fecha__caja">
+              <span class="fecha__dia">9–10</span>
+              <span class="fecha__mes">Diciembre</span>
+              <span class="fecha__linea" aria-hidden="true"></span>
+              <span class="fecha__ciudad">Cancún</span>
+              <span class="fecha__dias">miércoles y jueves</span>
+              <span class="fecha__nota"></span>
+            </span>
+            <span class="fecha__marca" aria-hidden="true"></span>
+          </label>
+          <label class="fecha">
+            <input type="radio" name="fecha" value="Cancun-14-15-dic" form="reserva">
+            <span class="fecha__caja">
+              <span class="fecha__dia">14–15</span>
+              <span class="fecha__mes">Diciembre</span>
+              <span class="fecha__linea" aria-hidden="true"></span>
+              <span class="fecha__ciudad">Cancún</span>
+              <span class="fecha__dias">lunes y martes</span>
+              <span class="fecha__nota"></span>
+            </span>
+            <span class="fecha__marca" aria-hidden="true"></span>
+          </label>
+    </div>
+
+    <div class="precio">
+      <div class="precio__box">
+        <span class="eyebrow">Inversión</span>
+        <div class="precio__fila">
+          <p class="precio__cifra">$59,000 <span class="precio__iva">+ IVA</span></p>
+          <a class="btn" href="#pago"><svg class="ico"><use href="#i-tarjeta"/></svg>Pagar ahora</a>
+        </div>
+        <p class="precio__nota"><b class="precio__total">Total con IVA: $68,440 MXN</b>Hasta 15 personas · pago por adelantado.<br>Vuelo y hospedaje van por tu cuenta, directo con la aerolínea y el hotel.</p>
+        <ul class="precio__incluye">
+          <li>Día y medio de taller en tus oficinas</li>
+          <li>Diagnóstico DX49 de un departamento, con documento de hallazgos</li>
+          <li>El tablero cargado con tu equipo, y tres meses de uso sin costo</li>
+          <li>El plan de 90 días, escrito por tu equipo</li>
+          <li>Constancia con badge verificable para cada asistente</li>
+        </ul>
+
+      </div>
+      <div>
+        <div class="reglas">
+          <div class="regla"><svg class="ico"><use href="#i-tarjeta"/></svg><span><b>El pago va por adelantado</b>Se cubre completo al reservar y se factura todo de una vez, sin parcialidades que luego haya que perseguir.</span></div>
+          <div class="regla"><svg class="ico"><use href="#i-calendario"/></svg><span><b>La fecha se puede mover</b>Si te cambia la agenda, la cambiamos sin costo hasta con una semana de anticipación, sujeta a las fechas que queden abiertas.</span></div>
+          <div class="regla"><svg class="ico"><use href="#i-avion"/></svg><span><b>Vuelo y hospedaje van aparte</b>Los cubre tu empresa directamente, así que la aerolínea y el hotel te facturan a ti. Yo no intervengo ahí.</span></div>
+          <div class="regla"><svg class="ico"><use href="#i-factura"/></svg><span><b>Tu factura, sin pedirla</b>El CFDI se timbra y se envía en cuanto entra el pago. Y si necesitas la factura antes para liberar la transferencia, con gusto se emite primero y se complementa al recibirla.</span></div>
+        </div>
+
+        <div class="pago" id="pago">
+          <div class="opcion">
+            <h3><svg class="ico"><use href="#i-tarjeta"/></svg>Con tarjeta</h3>
+            <span class="opcion__msi"><svg class="ico"><use href="#i-calendario"/></svg>Hasta 12 meses sin intereses</span>
+            <div class="marcas" role="img" aria-label="Aceptamos Visa, Mastercard y American Express">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#m-visa"/></svg>
+              <svg class="m-mc" viewBox="0 0 24 24" aria-hidden="true"><use href="#m-mc"/></svg>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#m-amex"/></svg>
+            </div>
+            <div class="opcion__pie">
+              <a class="opcion__b" href="https://buy.stripe.com/14AbJ067ubTPb1Hbtwfw400"><svg class="ico"><use href="#i-flecha"/></svg>Pagar en línea</a>
+              <p class="opcion__seguro"><svg class="ico"><use href="#i-candado"/></svg>Pago seguro con Stripe</p>
+            </div>
+          </div>
+          <div class="opcion">
+            <h3><svg class="ico"><use href="#i-banco"/></svg>Por transferencia</h3>
+            <div class="opcion__pie">
+              <details class="trans">
+                <summary class="opcion__b"><svg class="ico"><use href="#i-flecha"/></svg>Datos de transferencia</summary>
+                <dl class="trans__datos">
+                  <dt>Titular</dt><dd>Agustín Lozano</dd>
+                  <dt>Banco</dt><dd>Santander</dd>
+                  <dt>CLABE</dt><dd>014818606286393427</dd>
+                  <dt>Referencia</dt><dd>El nombre de tu empresa</dd>
+                </dl>
+              </details>
+              <p class="opcion__seguro"><svg class="ico"><use href="#i-banco"/></svg>SPEI · mismo día hábil</p>
+            </div>
+          </div>
+        </div>
+        <p class="pago__nota">Al pagar en línea la factura sale sola, con los datos que dejes abajo; los meses sin intereses aplican con tarjetas de crédito mexicanas participantes. Para transferir, como referencia basta el nombre de tu empresa.</p>
+
+        <form class="form" id="reserva" name="reserva-alto-rendimiento" method="POST" data-netlify="true">
+          <input type="hidden" name="form-name" value="reserva-alto-rendimiento">
+          <h3 class="t5">Datos para tu factura</h3>
+          <p class="t8">Déjalos aquí y el CFDI sale con el pago, sin que tengas que pedirlo.</p>
+          <div class="form__row">
+            <label class="field"><span class="field__label">Razón social</span><input class="field__input" name="razon_social" required></label>
+            <label class="field"><span class="field__label">RFC</span><input class="field__input" name="rfc" required></label>
+          </div>
+          <div class="form__row">
+            <label class="field"><span class="field__label">Régimen fiscal</span><input class="field__input" name="regimen" required></label>
+            <label class="field"><span class="field__label">Código postal fiscal</span><input class="field__input" name="cp" inputmode="numeric" required></label>
+          </div>
+          <div class="form__row">
+            <label class="field"><span class="field__label">Uso de CFDI</span>
+              <select class="field__input" name="uso_cfdi">
+                <option value="G03">G03 · Gastos en general</option>
+                <option value="P01">P01 · Por definir</option>
+              </select>
+            </label>
+            <label class="field"><span class="field__label">Correo para la factura</span><input class="field__input" type="email" name="correo" required></label>
+          </div>
+          <div class="form__row">
+            <label class="field"><span class="field__label">Empresa y ciudad del taller</span><input class="field__input" name="empresa" required></label>
+            <label class="field"><span class="field__label">Cómo vas a pagar</span>
+              <select class="field__input" name="forma_pago">
+                <option>Tarjeta, en línea</option>
+                <option>Transferencia</option>
+                <option>Transferencia, con factura por adelantado</option>
+              </select>
+            </label>
+          </div>
+          <button class="btn" type="submit"><svg class="ico"><use href="#i-flecha"/></svg>Enviar mis datos</button>
+          <p class="t7">El paquete de alta de proveedor —constancia de situación fiscal, opinión de cumplimiento y carátula bancaria— se envía al confirmar. También lo puedes pedir por WhatsApp.</p>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 · LOGÍSTICA Y PREGUNTAS -->
+<section class="sec sec--next" id="logistica">
+  <div class="wrap">
+    <div class="sec__head">
+      <span class="eyebrow">Para que no batalles</span>
+      <h2 class="t3">Lo que hace falta de tu lado.</h2>
+    </div>
+    <div class="logi">
+      <div class="card"><h3 class="t6"><svg class="ico"><use href="#i-pantalla"/></svg>Una sala</h3><p class="t8">Con pantalla o proyector y una pared libre, para unas 15 personas. El segundo día nos sirve tenerla con mesas separadas, una por departamento.</p></div>
+      <div class="card"><h3 class="t6"><svg class="ico"><use href="#i-equipo"/></svg>Quiénes asisten</h3><p class="t8">Sobre todo los mandos que dirigen gente, porque son quienes van a usar el tablero. Y quien venga sin equipo a su cargo también gana: entender cómo se mide a un equipo cambia la manera de trabajar dentro de uno.</p></div>
+      <div class="card"><h3 class="t6"><svg class="ico"><use href="#i-diana"/></svg>Un departamento voluntario</h3><p class="t8">Uno que se anime a que lo veamos a fondo. Lo elegimos juntos durante el día 1, ya con el mapa de la operación enfrente y con su líder en la sala.</p></div>
+      <div class="card"><h3 class="t6"><svg class="ico"><use href="#i-palomita"/></svg>Y nada más</h3><p class="t8">Los accesos a la herramienta, los formatos de las mesas y las constancias los llevo yo. Tú pon la sala y a tu gente.</p></div>
+    </div>
+
+    <div style="margin-top:3rem;max-width:52rem">
+      <h2 class="t5" style="margin-bottom:.5rem">Preguntas que siempre salen</h2>
+      <details class="q"><summary>¿Somos 20 y no 15. Se puede?</summary><p>Sí, se platica y casi siempre se acomoda sin costo adicional; lo que cuidamos es que el trabajo de mesas siga siendo útil para todos. Y te lo digo también al revés, para que no haya sorpresas: si son menos de 15 el precio no baja, porque el día y el viaje cuestan lo mismo.</p></details>
+      <details class="q"><summary>¿Se puede en un solo día?</summary><p>Se puede, y lo que se queda fuera es el trabajo de mesas. Te llevarías el método y el tablero cargado, que ya es bastante, aunque cada área no alcanzaría a llenar lo suyo con sus propios datos. Si tu agenda solo da para un día, lo vemos.</p></details>
+      <details class="q"><summary>¿Qué pasa si falta alguien del equipo?</summary><p>No pasa nada: el tablero se carga igual y esa persona se suma después, sin problema. Lo único que no se repone es la sesión de su mesa, porque ahí es donde su área define sus propios indicadores.</p></details>
+      <details class="q"><summary>¿El diagnóstico es de toda la empresa?</summary><p>De un departamento, a fondo, y con el método a la vista para que después puedas repetirlo tú en las demás áreas. Si prefieres que lo hagamos nosotros para toda la organización, eso se cotiza aparte y con gusto te lo preparo.</p></details>
+      <details class="q"><summary>¿Y después de los tres meses de herramienta?</summary><p>Decides con los resultados enfrente, que es la única forma justa de decidirlo. Si quieres seguir, se contrata por asiento al mes; y si no, exportas tus datos y ahí queda, sin ataduras ni letras chiquitas.</p></details>
+      <details class="q"><summary>¿Hay acompañamiento semanal incluido?</summary><p>En este taller no, y es a propósito: la idea es que tu gente salga capaz de sostener la junta semanal por su cuenta. Si después quieres que los acompañe durante las catorce semanas, existe como programa aparte y lo platicamos cuando quieras.</p></details>
+      <details class="q"><summary>¿Se puede dar a dos empresas en el mismo viaje?</summary><p>Claro, en días consecutivos. Solo conviene avisarlo al reservar, porque ese viaje queda amarrado para las dos y así nadie se queda fuera.</p></details>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="pie on-dark">
+  <div class="wrap pie__grid">
+    <div>
+      <span class="eyebrow">Quién está detrás</span>
+      <figure class="pie__retrato"><img src="../imagenes/tino-recorte-lima.webp" alt="Tino Lozano" width="2000" height="2000" loading="lazy"></figure>
+      <p class="t4" style="margin-top:.75rem;max-width:34rem;color:color-mix(in srgb,var(--color-2) 82%,transparent)">El método es <b>SCALEx</b> y vive en su propia plataforma. La tecnología, los sistemas a medida y el CRM con agentes los construye <b>FlowHub</b>. Las dos son empresas de <b>Altec Group</b>, el holding que dirijo, y por eso un taller de una persona llega con método, plataforma y constancia detrás.</p>
+      <div class="pie__logos">
+        <a href="https://scalexlatam.com" aria-label="SCALEx"><img src="../logos/Logo%20SCALEx%20blanco.png" alt="SCALEx"></a>
+        <a href="https://flowhubcrm.app" aria-label="FlowHub"><img src="../logos/flow%20hub%20logo%202.png" alt="FlowHub"></a>
+      </div>
+      <div class="pie__firma"><img src="../logos/tino-lozano-firma-recorte.png" alt="Tino Lozano" width="1574" height="1170"></div>
+      <p class="t7" style="margin-top:1rem">Docente de alta dirección · <a class="link" href="https://agustinlozano.com">agustinlozano.com</a></p>
+    </div>
+    <div>
+      <span class="eyebrow">Alta de proveedor</span>
+      <p class="t4" style="margin-top:.75rem;color:color-mix(in srgb,var(--color-2) 80%,transparent)">Constancia de situación fiscal, opinión de cumplimiento y carátula bancaria: pídelas y te llegan el mismo día.</p>
+      <a class="btn-2" style="margin-top:1rem" href="https://wa.me/528683028939?text=Hola%20Agust%C3%ADn%2C%20%C2%BFme%20compartes%20el%20paquete%20de%20alta%20de%20proveedor%20del%20taller%3F"><svg class="ico"><use href="#i-chat"/></svg>Solicitar por WhatsApp</a>
+    </div>
+  </div>
+</footer>
+
+<div class="movil">
+  <a class="btn" href="#reservar"><svg class="ico"><use href="#i-calendario"/></svg>Reservar fecha</a>
+  <a class="btn-2" href="https://wa.me/528683028939?text=Hola%20Agust%C3%ADn%2C%20vengo%20de%20la%20p%C3%A1gina%20del%20taller."><svg class="ico"><use href="#i-chat"/></svg>WhatsApp</a>
+</div>
+
+<script>
+/* Carrusel del tablero. Sin librerías: la pista ya hace scroll-snap por CSS,
+   esto solo mueve el scroll y mantiene los puntos al día. */
+(() => {
+  const caja = document.getElementById('carrusel-tablero');
+  if (!caja) return;
+  const pista = caja.querySelector('.carrusel__pista');
+  const lams  = [...pista.children];
+  const prev  = caja.querySelector('.carrusel__b--prev');
+  const next  = caja.querySelector('.carrusel__b--next');
+  const puntos = caja.querySelector('.carrusel__puntos');
+
+  lams.forEach((_, i) => {
+    const b = document.createElement('button');
+    b.className = 'carrusel__p';
+    b.type = 'button';
+    b.setAttribute('aria-label', 'Pantalla ' + (i + 1) + ' de ' + lams.length);
+    b.addEventListener('click', () => ir(i));
+    puntos.append(b);
+  });
+
+  /* Las láminas llevan separación, así que no basta multiplicar por el ancho:
+     hay que leer dónde empieza cada una de verdad, o el ajuste magnético
+     devuelve la pista a donde estaba. */
+  const inicio = i => lams[i].offsetLeft - pista.offsetLeft;
+  const actual = () => {
+    const x = pista.scrollLeft;
+    let mejor = 0;
+    lams.forEach((_, i) => {
+      if (Math.abs(inicio(i) - x) < Math.abs(inicio(mejor) - x)) mejor = i;
+    });
+    return mejor;
+  };
+  const ir = i => pista.scrollTo({ left: inicio(Math.max(0, Math.min(lams.length - 1, i))) });
+
+  function pintar() {
+    const i = actual();
+    [...puntos.children].forEach((p, n) => p.setAttribute('aria-current', String(n === i)));
+    prev.disabled = i <= 0;
+    next.disabled = i >= lams.length - 1;
+  }
+
+  prev.addEventListener('click', () => ir(actual() - 1));
+  next.addEventListener('click', () => ir(actual() + 1));
+  pista.addEventListener('scroll', () => { clearTimeout(pista._t); pista._t = setTimeout(pintar, 90); });
+  addEventListener('resize', pintar);
+  pintar();
+})();
+</script>
+</body>
+</html>
