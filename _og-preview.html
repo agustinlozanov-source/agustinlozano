@@ -1,0 +1,35 @@
+<!doctype html>
+<!-- Fuente de la tarjeta de vista previa (og:image). Para regenerarla:
+     Chrome --headless --window-size=1200,630 --screenshot=salida.png <esta url>
+     y guardar como imagenes/og-alto-rendimiento.jpg -->
+<html lang="es"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:'Host Grotesk';font-style:normal;font-weight:300 800;src:url(https://fonts.gstatic.com/s/hostgrotesk/v5/co3BmWBnlCJ3U42vbbfdwMjZpFjm.woff2) format('woff2')}
+*{box-sizing:border-box;margin:0}
+body{width:1200px;height:630px;overflow:hidden;font-family:'Host Grotesk',Arial,sans-serif;background:#232323;color:#f4f4f4;display:flex}
+.txt{flex:1;padding:66px 0 66px 72px;display:flex;flex-direction:column;justify-content:center;gap:0}
+.eyebrow{font-size:19px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#dfff18;margin-bottom:22px}
+h1{font-size:76px;font-weight:600;line-height:.95;letter-spacing:-.045em;max-width:9.2em}
+.sub{margin-top:26px;font-size:27px;line-height:1.35;letter-spacing:-.015em;color:rgba(244,244,244,.78);max-width:15em}
+.datos{display:flex;gap:12px;margin-top:40px;flex-wrap:wrap}
+.chip{padding:11px 20px;border-radius:999px;background:rgba(244,244,244,.12);font-size:21px;font-weight:600;letter-spacing:-.01em}
+.chip--lima{background:#dfff18;color:#232323}
+.foto{width:455px;flex:none;position:relative}
+.foto img{width:100%;height:100%;object-fit:cover;object-position:74% 34%}
+.foto::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#232323 0%,rgba(35,35,35,.55) 22%,transparent 55%)}
+</style></head>
+<body>
+  <div class="txt">
+    <div class="eyebrow">Taller in company · Tino Lozano</div>
+    <h1>Alto rendimiento in company</h1>
+    <p class="sub">Cómo se mide un equipo y cómo se automatiza una operación.</p>
+    <div class="datos">
+      <span class="chip chip--lima">Día y medio</span>
+      <span class="chip">En tu empresa</span>
+      <span class="chip">Hasta 15 personas</span>
+    </div>
+  </div>
+  <div class="foto">
+    <img src="imagenes/hero-tino.webp" alt="">
+  </div>
+</body></html>
