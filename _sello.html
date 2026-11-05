@@ -1,0 +1,44 @@
+<!doctype html>
+<!-- Sello de garantía. Regenerar:
+     Chrome --headless --window-size=900,900 --default-background-color=00000000
+            --screenshot=salida.png <esta url> -->
+<html lang="es"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:'Host Grotesk';font-style:normal;font-weight:300 800;src:url(https://fonts.gstatic.com/s/hostgrotesk/v5/co3BmWBnlCJ3U42vbbfdwMjZpFjm.woff2) format('woff2')}
+*{margin:0;box-sizing:border-box}
+html,body{width:900px;height:900px;background:transparent}
+body{display:grid;place-items:center}
+svg{width:860px;height:860px;overflow:visible}
+.aro{fill:none;stroke:#dfff18}
+.curva{font-family:'Host Grotesk',Arial,sans-serif;font-size:31px;font-weight:700;letter-spacing:.17em;fill:#dfff18}
+.titulo{font-family:'Host Grotesk',Arial,sans-serif;font-size:62px;font-weight:700;letter-spacing:.24em;fill:#f4f4f4;text-anchor:middle}
+.cifra{font-family:'Host Grotesk',Arial,sans-serif;font-size:270px;font-weight:600;letter-spacing:-.05em;fill:#dfff18;text-anchor:middle}
+.pie{font-family:'Host Grotesk',Arial,sans-serif;font-size:36px;font-weight:500;font-style:italic;letter-spacing:-.01em;fill:rgba(244,244,244,.82);text-anchor:middle}
+.raya{stroke:rgba(244,244,244,.3);stroke-width:2}
+</style></head>
+<body>
+<svg viewBox="0 0 860 860" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Solo el arco de arriba: una vuelta completa deja la cola de cabeza. -->
+    <path id="arco" d="M 78,430 A 352,352 0 0,1 782,430"/>
+  </defs>
+
+  <circle cx="430" cy="430" r="415" fill="#232323"/>
+  <circle class="aro" cx="430" cy="430" r="398" stroke-width="3"/>
+  <circle class="aro" cx="430" cy="430" r="306" stroke-width="2" stroke-opacity=".45"/>
+
+  <text class="curva">
+    <textPath href="#arco" startOffset="50%" text-anchor="middle">LO CALIFICA TU EQUIPO · ANÓNIMO</textPath>
+  </text>
+
+  <!-- Tres puntos cierran el aro abajo, donde el texto quedaría invertido. -->
+  <circle cx="394" cy="782" r="7" fill="#dfff18"/>
+  <circle cx="430" cy="786" r="7" fill="#dfff18"/>
+  <circle cx="466" cy="782" r="7" fill="#dfff18"/>
+
+  <text class="titulo" x="430" y="300">GARANTÍA</text>
+  <line class="raya" x1="300" y1="340" x2="560" y2="340"/>
+  <text class="cifra" x="430" y="570">9/10</text>
+  <text class="pie" x="430" y="648">o te devuelvo el honorario</text>
+</svg>
+</body></html>
