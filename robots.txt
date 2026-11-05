@@ -1,0 +1,24 @@
+# Los rastreadores que arman las vistas previas de los enlaces sí pasan:
+# sin ellos, compartir la página por WhatsApp no muestra tarjeta.
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: WhatsApp
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: Slackbot-LinkExpanding
+Allow: /
+
+User-agent: TelegramBot
+Allow: /
+
+# Los buscadores no indexan la página del taller: se llega por enlace directo.
+User-agent: *
+Disallow: /alto-rendimiento/
+Disallow: /_og-preview.html
