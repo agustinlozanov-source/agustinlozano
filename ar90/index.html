@@ -1,0 +1,1088 @@
+<!doctype html>
+<!--
+  agustinlozano.com/ar90 — la página del webinar «Alto rendimiento en 90 días».
+
+  Un solo archivo, sin build, como el resto del sitio.
+
+  Los datos del evento están en un solo lugar: el bloque DATOS del script, al
+  final. Fecha, hora, cupo y las dos ligas se cambian ahí y se actualizan en
+  todos los lugares de la página a la vez, incluida la cuenta regresiva y el
+  botón de agregar al calendario. No hay fechas escritas a mano en el HTML.
+
+  El formulario usa Netlify Forms: funciona desde el primer día sin backend.
+  Los registros se ven en el panel de Netlify y se pueden exportar. Cuando se
+  quiera que caigan directo en FlowHub, se cambia el `action` por la función
+  correspondiente y se queda todo lo demás igual.
+-->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Alto rendimiento en 90 días — Webinar gratuito con Tino Lozano</title>
+<meta name="description" content="Una hora en vivo: cómo se mide un equipo en ocho números y cómo se sostiene el coaching sin tu agenda. El tablero es tuyo al salir, con 30 días sin costo.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://agustinlozano.com/ar90">
+
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_MX">
+<meta property="og:url" content="https://agustinlozano.com/ar90">
+<meta property="og:title" content="Alto rendimiento en 90 días — Webinar gratuito">
+<meta property="og:description" content="Una hora en vivo. Cómo se mide un equipo en ocho números. El tablero es tuyo al salir.">
+<meta property="og:image" content="https://agustinlozano.com/imagenes/og-alto-rendimiento.jpg">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2064%2064'%3E%3Crect%20width%3D'64'%20height%3D'64'%20rx%3D'14'%20fill%3D'%233533cd'%2F%3E%3Ctext%20x%3D'32'%20y%3D'45'%20font-family%3D'Arial%2CHelvetica%2Csans-serif'%20font-size%3D'34'%20font-weight%3D'700'%20text-anchor%3D'middle'%20fill%3D'%23ffffff'%3E90%3C%2Ftext%3E%3C%2Fsvg%3E">
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="https://fonts.gstatic.com/s/hostgrotesk/v5/co3BmWBnlCJ3U42vbbfdwMjZpFjm.woff2" as="font" type="font/woff2" crossorigin>
+
+<style>
+@font-face {
+  font-family: 'Host Grotesk';
+  font-style: normal;
+  font-weight: 300 800;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/hostgrotesk/v5/co3BmWBnlCJ3U42vbbfdwMjZqljm0U0.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Host Grotesk';
+  font-style: normal;
+  font-weight: 300 800;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/hostgrotesk/v5/co3BmWBnlCJ3U42vbbfdwMjZpFjm.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  --verde: #1aab99;
+  --azul: #0066ff;
+  --indigo: #3533cd;
+  --marca: linear-gradient(110deg, #1aab99, #0066ff, #3533cd);
+  --marca-suave: linear-gradient(110deg, #1aab99 0%, #0066ff 55%, #3533cd 100%);
+
+  --tinta: #0b1020;
+  --papel: #ffffff;
+  --humo: #f3f6fc;
+  --gris: #5d6782;
+  --linea: #e2e8f5;
+
+  --r1: 32px;
+  --r2: 22px;
+  --r3: 999px;
+  --sombra: 0 30px 70px -32px rgba(11, 16, 32, .45);
+  --sombra-chica: 0 14px 34px -18px rgba(11, 16, 32, .4);
+  --ancho: 1140px;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: 'Host Grotesk', system-ui, -apple-system, Arial, sans-serif;
+  color: var(--tinta);
+  background: var(--papel);
+  -webkit-font-smoothing: antialiased;
+  font-size: 18px;
+  line-height: 1.55;
+}
+
+img { max-width: 100%; display: block; }
+a { color: inherit; }
+
+.wrap { width: min(100% - 40px, var(--ancho)); margin-inline: auto; }
+
+.sec { padding: clamp(64px, 9vw, 118px) 0; }
+.sec--humo { background: var(--humo); }
+.sec--tinta { background: var(--tinta); color: #fff; }
+.sec--tinta .ojillo { color: #8ea2c8; }
+.sec--tinta p { color: #c6d1e6; }
+
+h1, h2, h3 { margin: 0; letter-spacing: -.02em; line-height: 1.04; font-weight: 800; }
+h2 { font-size: clamp(32px, 4.4vw, 54px); }
+h3 { font-size: clamp(21px, 2.1vw, 26px); line-height: 1.2; }
+p { margin: 0; }
+
+.ojillo {
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--gris);
+  margin-bottom: 14px;
+}
+
+.entrada { font-size: clamp(18px, 1.8vw, 21px); color: var(--gris); max-width: 62ch; margin-top: 18px; }
+
+/* ---- Botones ---------------------------------------------------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 19px 38px;
+  border: 0;
+  border-radius: var(--r3);
+  background: var(--marca);
+  color: #fff;
+  font: inherit;
+  font-size: 19px;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: var(--sombra-chica);
+  transition: transform .16s ease, box-shadow .16s ease, filter .16s ease;
+}
+.btn:hover { transform: translateY(-2px); box-shadow: 0 22px 44px -20px rgba(53, 51, 205, .7); }
+.btn:active { transform: translateY(0); }
+.btn--blanco { background: #fff; color: var(--indigo); }
+.btn--linea {
+  background: transparent;
+  color: var(--tinta);
+  box-shadow: none;
+  border: 2px solid var(--linea);
+}
+.btn--linea:hover { border-color: var(--azul); color: var(--azul); box-shadow: none; }
+.btn--wa { background: #25d366; color: #0a2e16; }
+.btn--ancho { width: 100%; }
+
+.bajo-btn { font-size: 14.5px; color: var(--gris); margin-top: 13px; }
+.sec--tinta .bajo-btn { color: #8ea2c8; }
+
+.acciones { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin-top: 26px; }
+
+/* ---- Portada ----------------------------------------------------------- */
+
+/* La barra de arriba es una franja oscura a propósito. Continuar el degradado
+   de la imagen con uno de CSS deja una costura visible, y una franja de otro
+   color se lee como lo que es: la barra del sitio. */
+.nav { background: var(--tinta); padding: 14px 0; }
+.nav__reja { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+
+/* El hero es la imagen y nada más. La proporción del contenedor es la misma
+   del archivo, así que no hay recorte y los botones caen siempre en el hueco
+   que el diseño les dejó. */
+.portada {
+  position: relative;
+  aspect-ratio: 1774 / 887;
+  max-height: 860px;
+  background: var(--marca-suave);
+  color: #fff;
+  overflow: hidden;
+}
+.portada__arte {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+.portada__acciones {
+  position: absolute;
+  left: 4.6%;
+  bottom: 8%;
+  z-index: 1;
+}
+.portada__acciones .acciones { margin-top: 0; }
+.franja-datos__pie {
+  margin: 16px 0 0;
+  text-align: center;
+  font-size: 14.5px;
+  color: var(--gris);
+}
+.franja-datos__pie b { color: var(--tinta); }
+
+/* Visible para buscadores y lectores de pantalla, invisible en la página: el
+   titular de verdad está dentro de la imagen. */
+.solo-lectores {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.portada > .wrap { position: relative; z-index: 1; }
+
+/* También necesita posición propia: el arte va absoluto y se le montaba
+   encima, dejando la firma invisible. */
+.firma { height: 62px; width: auto; filter: drop-shadow(0 6px 14px rgba(0,0,0,.2)); }
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  background: #fff;
+  color: var(--tinta);
+  border-radius: var(--r3);
+  padding: 11px 22px;
+  font-size: 15.5px;
+  font-weight: 700;
+  box-shadow: var(--sombra-chica);
+}
+.chip em { font-style: normal; color: var(--gris); font-weight: 600; }
+.chip i { width: 9px; height: 9px; border-radius: 999px; background: #ff4d4d; display: block; animation: late 1.8s ease-in-out infinite; }
+@keyframes late { 50% { opacity: .35; transform: scale(.78); } }
+
+/* La altura la manda el contenido, con un mínimo para que el arte respire. El
+   arte cubre la caja que resulte y recorta por la izquierda, que es justo la
+   zona despejada. */
+/* El arte va absoluto dentro de este mismo bloque, así que el texto necesita
+   posición propia para pintarse encima: un elemento estático queda por debajo
+   de cualquier hermano posicionado, aunque vaya después en el HTML. */
+
+
+.retrato {
+  position: relative;
+  border-radius: var(--r1);
+  overflow: hidden;
+  box-shadow: var(--sombra);
+  aspect-ratio: 4 / 5;
+  background: rgba(255,255,255,.14);
+}
+.retrato img { width: 100%; height: 100%; object-fit: cover; object-position: center 22%; }
+.credencial {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  background: var(--marca);
+  border-radius: var(--r3);
+  padding: 14px 22px;
+  text-align: center;
+  box-shadow: var(--sombra-chica);
+}
+.credencial b { display: block; font-size: clamp(22px, 2.4vw, 30px); font-weight: 800; letter-spacing: -.02em; }
+.credencial span { font-size: 13.5px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.92); }
+
+/* ---- Barra de datos ---------------------------------------------------- */
+
+.datos {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  background: #fff;
+  border-radius: var(--r1);
+  box-shadow: var(--sombra);
+  margin-top: -34px;
+  overflow: hidden;
+}
+/* La barra vive fuera del hero y se trepa sobre él: la mitad de arriba queda
+   sobre el arte y la de abajo sobre el blanco de la sección siguiente. */
+.franja-datos { position: relative; z-index: 3; }
+.dato { display: flex; align-items: center; gap: 16px; padding: 26px 30px; color: var(--tinta); }
+.dato + .dato { border-left: 1px solid var(--linea); }
+.dato svg { width: 38px; height: 38px; flex-shrink: 0; }
+.dato b { display: block; font-size: clamp(18px, 1.8vw, 22px); font-weight: 800; line-height: 1.15; }
+.dato span { font-size: 15.5px; color: var(--gris); font-weight: 600; }
+
+/* ---- Cuenta regresiva -------------------------------------------------- */
+
+.reloj { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 28px; }
+.reloj div {
+  background: rgba(255,255,255,.17);
+  border: 1px solid rgba(255,255,255,.32);
+  border-radius: var(--r2);
+  padding: 14px 20px;
+  min-width: 92px;
+  text-align: center;
+  backdrop-filter: blur(6px);
+}
+.reloj b { display: block; font-size: 30px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+.reloj span { font-size: 12.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; opacity: .86; }
+
+/* ---- Video ------------------------------------------------------------- */
+
+.marco-video {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--r1);
+  overflow: hidden;
+  background: var(--tinta);
+  box-shadow: var(--sombra);
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: #fff;
+}
+.marco-video::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(620px 420px at 30% 20%, rgba(26,171,153,.4), transparent 60%),
+              radial-gradient(620px 480px at 80% 80%, rgba(53,51,205,.55), transparent 62%);
+}
+.marco-video > * { position: relative; }
+.marco-video iframe, .marco-video video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.play {
+  width: 88px; height: 88px; border-radius: 999px;
+  background: #fff; display: grid; place-items: center; margin: 0 auto 20px;
+  box-shadow: 0 18px 40px -16px rgba(0,0,0,.6);
+}
+.play svg { width: 30px; height: 30px; fill: var(--indigo); margin-left: 5px; }
+.marco-video p { color: #a9b8d6; font-size: 15.5px; margin-top: 10px; }
+
+/* ---- Rejas y tarjetas -------------------------------------------------- */
+
+.reja { display: grid; gap: 22px; }
+.reja--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.reja--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+.ficha {
+  background: #fff;
+  border: 1px solid var(--linea);
+  border-radius: var(--r1);
+  padding: clamp(26px, 2.6vw, 36px);
+  box-shadow: var(--sombra-chica);
+}
+.sec--tinta .ficha { background: rgba(255,255,255,.055); border-color: rgba(255,255,255,.14); box-shadow: none; }
+.ficha p { color: var(--gris); margin-top: 12px; font-size: 17px; }
+.sec--tinta .ficha p { color: #b9c6df; }
+.numerito {
+  width: 46px; height: 46px; border-radius: 14px;
+  background: var(--marca); color: #fff;
+  display: grid; place-items: center;
+  font-size: 19px; font-weight: 800;
+  margin-bottom: 18px;
+}
+
+.agenda { display: grid; gap: 16px; margin-top: 44px; }
+.paso {
+  display: grid;
+  grid-template-columns: 112px 1fr;
+  gap: 24px;
+  align-items: start;
+  background: #fff;
+  border: 1px solid var(--linea);
+  border-radius: var(--r2);
+  padding: 24px 28px;
+}
+.paso b.min {
+  font-size: 15px; font-weight: 800; letter-spacing: .06em;
+  color: var(--azul); padding-top: 4px;
+}
+.paso h3 { margin-bottom: 6px; }
+.paso p { color: var(--gris); font-size: 16.5px; }
+
+/* ---- Mockups ----------------------------------------------------------- */
+
+.mock {
+  border-radius: var(--r2);
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.14);
+  box-shadow: 0 34px 70px -30px rgba(0,0,0,.8);
+  background: #0a0e1a;
+}
+.mock img { width: 100%; height: auto; aspect-ratio: 2000 / 1090; background: #0a0e1a; }
+.mock figcaption { padding: 18px 24px; font-size: 15.5px; color: #b9c6df; border-top: 1px solid rgba(255,255,255,.1); }
+.mock--grande { grid-column: 1 / -1; }
+
+/* ---- Listas ------------------------------------------------------------ */
+
+.palomas { list-style: none; margin: 26px 0 0; padding: 0; display: grid; gap: 14px; }
+.palomas li { display: grid; grid-template-columns: 28px 1fr; gap: 14px; align-items: start; font-size: 17.5px; }
+.palomas svg { width: 26px; height: 26px; margin-top: 2px; }
+
+/* ---- Preguntas --------------------------------------------------------- */
+
+details {
+  background: #fff;
+  border: 1px solid var(--linea);
+  border-radius: var(--r2);
+  padding: 22px 26px;
+  margin-bottom: 12px;
+}
+details[open] { border-color: #c3d2f0; }
+summary { font-weight: 800; font-size: 19px; cursor: pointer; list-style: none; display: flex; justify-content: space-between; gap: 18px; align-items: center; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: '+'; font-size: 28px; font-weight: 400; color: var(--azul); line-height: 1; }
+details[open] summary::after { content: '–'; }
+details p { color: var(--gris); margin-top: 14px; font-size: 17px; }
+
+/* ---- Registro ---------------------------------------------------------- */
+
+.registro { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 480px); gap: clamp(28px, 4vw, 56px); align-items: start; }
+.formulario { background: #fff; border-radius: var(--r1); padding: clamp(28px, 3vw, 40px); box-shadow: var(--sombra); color: var(--tinta); }
+.campo { margin-bottom: 16px; }
+.campo label { display: block; font-size: 14.5px; font-weight: 700; margin-bottom: 7px; }
+.campo input, .campo select {
+  width: 100%;
+  padding: 15px 18px;
+  border: 2px solid var(--linea);
+  border-radius: 14px;
+  font: inherit;
+  font-size: 17px;
+  background: #fff;
+  color: var(--tinta);
+}
+.campo input:focus, .campo select:focus { outline: 0; border-color: var(--azul); }
+.aviso { font-size: 13.5px; color: var(--gris); margin-top: 14px; text-align: center; }
+.trampa { position: absolute; left: -9999px; }
+
+/* ---- Barra pegada ------------------------------------------------------ */
+
+.pegada {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: 40;
+  background: rgba(255,255,255,.93);
+  backdrop-filter: blur(14px);
+  border-top: 1px solid var(--linea);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  transform: translateY(110%);
+  transition: transform .26s ease;
+}
+.pegada.vista { transform: translateY(0); }
+.pegada__texto b { display: block; font-size: 16.5px; font-weight: 800; line-height: 1.2; }
+.pegada__texto span { font-size: 14px; color: var(--gris); }
+.pegada .btn { padding: 15px 30px; font-size: 17px; }
+
+/* ---- Pie --------------------------------------------------------------- */
+
+.pie { background: var(--tinta); color: #8ea2c8; padding: 54px 0 40px; font-size: 15.5px; }
+.pie__reja { display: flex; flex-wrap: wrap; gap: 24px; justify-content: space-between; align-items: center; }
+.pie a { color: #c6d1e6; text-decoration: none; }
+.pie a:hover { color: #fff; }
+
+/* ---- Pantallas chicas -------------------------------------------------- */
+
+@media (max-width: 920px) {
+  /* El arte es apaisado 2:1 y en un teléfono deja al sujeto diminuto. Mientras
+     no exista la versión vertical, aquí se muestra recortado sobre su lado y
+     dentro de una tarjeta redondeada, que además evita cualquier costura entre
+     la imagen y el degradado de la sección. */
+  /* En el teléfono entra la versión vertical del arte. Los botones siguen
+     bajando a la franja: el hueco que el diseño deja abajo da para uno, y
+     aquí van apilados a lo ancho. */
+  .portada { aspect-ratio: 1122 / 1402; max-height: none; }
+  .portada__acciones { position: static; }
+  .franja-datos {
+    background: var(--marca-suave);
+    padding: 26px 0 36px;
+  }
+  .franja-datos .portada__acciones { margin-bottom: 26px; }
+  /* Aquí la franja va sobre el degradado, así que el gris de escritorio se
+     pierde. */
+  .franja-datos__pie { color: rgba(255, 255, 255, .9); }
+  .franja-datos__pie b { color: #fff; }
+  /* Con la cuenta regresiva, la pastilla se parte en tres renglones en un
+     teléfono angosto. La fecha basta; los días que faltan ya están en el
+     bloque de registro. */
+  .datos { grid-template-columns: 1fr; margin-top: 0; }
+  .dato + .dato { border-left: 0; border-top: 1px solid var(--linea); }
+  .retrato { aspect-ratio: 1 / 1; }
+  .chip { white-space: nowrap; font-size: 13.5px; padding: 9px 16px; }
+  .chip em { display: none; }
+  .firma { height: 40px; }
+  .reja--2, .reja--3 { grid-template-columns: 1fr; }
+  .registro { grid-template-columns: 1fr; }
+  .paso { grid-template-columns: 1fr; gap: 8px; }
+  .pegada__texto { display: none; }
+  .pegada .btn { width: 100%; }
+}
+
+@media (max-width: 520px) {
+  body { font-size: 17px; }
+  .firma { height: 46px; }
+  .chip { padding: 9px 16px; font-size: 13.5px; }
+  .btn { width: 100%; padding: 18px 26px; }
+  .acciones { gap: 12px; }
+  .reloj div { min-width: 72px; padding: 12px 14px; }
+  .reloj b { font-size: 27px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+  html { scroll-behavior: auto; }
+}
+</style>
+</head>
+<body>
+
+<!-- ====================== PORTADA ====================== -->
+<!--
+  El hero es una sola pieza: el titular, la píldora y la bajada viven dentro de
+  la imagen, igual que en el flyer. Encima solo van los dos botones, porque
+  tienen que poderse picar, y debajo la barra blanca de datos, porque ahí vive
+  la fecha y la fecha todavía puede moverse.
+
+  Por eso el <h1> va oculto a la vista: el buscador y un lector de pantalla
+  necesitan el titular como texto, aunque quien mira lo lea en la imagen.
+-->
+<div class="nav">
+  <div class="wrap nav__reja">
+    <a href="/"><img class="firma" src="/logos/tino-lozano-firma-recorte.png" alt="Tino Lozano"></a>
+    <span class="chip"><i></i> En vivo · <span data-dato="fechaCorta">—</span> <em id="faltan"></em></span>
+  </div>
+</div>
+
+<header class="portada" id="inicio">
+  <h1 class="solo-lectores">Alto rendimiento en 90 días · Webinar gratuito con Tino Lozano</h1>
+
+  <picture>
+    <source media="(max-width: 920px)" srcset="/imagenes/hero-ar90-vertical.webp"
+            width="1122" height="1402">
+    <img class="portada__arte" src="/imagenes/hero-ar90.webp" width="1774" height="887"
+         fetchpriority="high"
+         alt="Alto rendimiento en 90 días. Cómo se mide un equipo en ocho números. El tablero es tuyo al salir.">
+  </picture>
+
+  <div class="portada__acciones">
+    <div class="acciones">
+      <a class="btn" href="#registro">Regístrate gratis</a>
+      <a class="btn btn--blanco" href="#video">Ver la invitación</a>
+    </div>
+  </div>
+</header>
+
+<div class="franja-datos">
+  <div class="wrap">
+    <div class="datos">
+      <div class="dato">
+        <svg viewBox="0 0 48 48" fill="none"><rect x="6" y="10" width="36" height="32" rx="7" fill="#fff" stroke="#0066ff" stroke-width="3"/><path d="M6 19h36" stroke="#0066ff" stroke-width="3"/><path d="M16 6v8M32 6v8" stroke="#1aab99" stroke-width="3" stroke-linecap="round"/><rect x="13" y="25" width="7" height="6" rx="2" fill="#1aab99"/><rect x="24" y="25" width="7" height="6" rx="2" fill="#3533cd"/></svg>
+        <div><b data-dato="fechaLarga">—</b><span data-dato="hora">—</span></div>
+      </div>
+      <div class="dato">
+        <svg viewBox="0 0 48 48" fill="none"><rect x="5" y="13" width="26" height="22" rx="6" fill="#fff" stroke="#0066ff" stroke-width="3"/><path d="M31 23l10-6v14l-10-6z" fill="#1aab99"/></svg>
+        <div><b>1 hora</b><span>en vivo, con preguntas</span></div>
+      </div>
+      <div class="dato">
+        <svg viewBox="0 0 48 48" fill="none"><rect x="5" y="9" width="38" height="26" rx="5" fill="#fff" stroke="#3533cd" stroke-width="3"/><path d="M18 41h12" stroke="#3533cd" stroke-width="3" stroke-linecap="round"/><path d="M24 35v6" stroke="#3533cd" stroke-width="3"/><rect x="12" y="23" width="5" height="7" rx="1.5" fill="#1aab99"/><rect x="21" y="18" width="5" height="12" rx="1.5" fill="#0066ff"/><rect x="30" y="14" width="5" height="16" rx="1.5" fill="#3533cd"/></svg>
+        <div><b>30 días del tablero</b><span>sin costo, al salir</span></div>
+      </div>
+    </div>
+    <p class="franja-datos__pie">
+      Cupo limitado, sin costo y sin tarjeta · con <b>Tino Lozano</b>, CEO Altec Group
+    </p>
+  </div>
+</div>
+
+<!-- ====================== VIDEO ====================== -->
+<section class="sec" id="video">
+  <div class="wrap">
+    <p class="ojillo">La invitación</p>
+    <h2>Te cuento en un minuto de qué va.</h2>
+    <p class="entrada">Qué vas a ver esa hora, para quién es y qué te llevas puesto cuando termine.</p>
+
+    <div style="margin-top:40px">
+      <!--
+        Cuando esté el video: borra el bloque de adentro y deja uno de estos.
+
+        Archivo propio (recomendado, se ve sin salir de la página):
+        <video controls playsinline poster="/imagenes/portada-invitacion.jpg">
+          <source src="/ar90/invitacion.mp4" type="video/mp4">
+        </video>
+
+        YouTube:
+        <iframe src="https://www.youtube.com/embed/ID" title="Invitación"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"
+                allowfullscreen loading="lazy"></iframe>
+      -->
+      <div class="marco-video">
+        <div>
+          <div class="play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+          <h3 style="color:#fff">El video de invitación va aquí</h3>
+          <p>Grabación pendiente · hueco reservado en 16:9</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="acciones">
+      <a class="btn" href="#registro">Apartar mi lugar</a>
+      <span class="bajo-btn" style="margin-top:0">Toma menos de un minuto.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== POR QUÉ ====================== -->
+<section class="sec sec--tinta" id="por-que">
+  <div class="wrap">
+    <p class="ojillo">Por qué esta hora</p>
+    <h2>Lo que mejora en tu equipo<br>pasa por tus horas.</h2>
+    <p class="entrada" style="color:#c6d1e6">
+      Tu empresa puede ir bien y aun así no poder caminar sin ti. Eso casi nunca se ve en el
+      estado de resultados: se ve en tu calendario, cuando toda decisión de peso espera a que
+      tú entres a la junta.
+    </p>
+
+    <div class="reja reja--3" style="margin-top:46px">
+      <article class="ficha">
+        <div class="numerito">1</div>
+        <h3>Nadie sabe qué medir</h3>
+        <p>«Buen desempeño» es una opinión, y una opinión no se puede mejorar porque no se
+           puede comparar contra la semana pasada.</p>
+      </article>
+      <article class="ficha">
+        <div class="numerito">2</div>
+        <h3>El coaching depende de ti</h3>
+        <p>Preparar bien una conversación cuesta media hora por persona. Multiplícalo por tu
+           equipo y entenderás por qué se deja de hacer en febrero.</p>
+      </article>
+      <article class="ficha">
+        <div class="numerito">3</div>
+        <h3>Los planes no llegan al lunes</h3>
+        <p>El taller levanta a todos y a las tres semanas la operación se lo come. Sin un
+           número semanal, no hay nada que sostenga el cambio.</p>
+      </article>
+    </div>
+
+    <div class="acciones">
+      <a class="btn btn--blanco" href="#registro">Quiero el tablero</a>
+      <span class="bajo-btn" style="margin-top:0">Jueves, una hora, y te lo llevas.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== LA HORA ====================== -->
+<section class="sec" id="hora">
+  <div class="wrap">
+    <p class="ojillo">El programa</p>
+    <h2>Qué pasa en esa hora.</h2>
+    <p class="entrada">Sin relleno y sin motivación. Sales con un instrumento y sabiendo usarlo.</p>
+
+    <div class="agenda">
+      <article class="paso">
+        <b class="min">0 – 10 min</b>
+        <div>
+          <h3>La cuenta de tus horas</h3>
+          <p>Cuántas de tus últimas cuarenta horas se fueron en decisiones que alguien de tu
+             equipo podía tomar. El número lo sacas tú, con tus datos, ahí mismo.</p>
+        </div>
+      </article>
+      <article class="paso">
+        <b class="min">10 – 25 min</b>
+        <div>
+          <h3>Los ocho parámetros</h3>
+          <p>Planeación, organización, no negociables, conocimiento de sistemas, de producto,
+             conocimientos técnicos, actitud y eficiencia. Qué mide cada uno y por qué ocho.</p>
+        </div>
+      </article>
+      <article class="paso">
+        <b class="min">25 – 35 min</b>
+        <div>
+          <h3>Calificamos a una persona real, en vivo</h3>
+          <p>Con el equipo de alguien de la sala, en anónimo. En cuatro minutos lo abstracto
+             se convierte en un número que se puede defender.</p>
+        </div>
+      </article>
+      <article class="paso">
+        <b class="min">35 – 50 min</b>
+        <div>
+          <h3>El agente que prepara la conversación</h3>
+          <p>Lee la evaluación y devuelve tres preguntas poderosas, los patrones que se
+             repiten y un plan con una acción verificable por semana. En pantalla, en vivo.</p>
+        </div>
+      </article>
+      <article class="paso">
+        <b class="min">50 – 60 min</b>
+        <div>
+          <h3>Tus siguientes 90 días</h3>
+          <p>Cómo queda tu tablero el lunes, quién lo revisa y cada cuándo. Y tus preguntas,
+             hasta que se acaben.</p>
+        </div>
+      </article>
+    </div>
+
+    <div class="acciones">
+      <a class="btn" href="#registro">Regístrate gratis</a>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== EL TABLERO ====================== -->
+<section class="sec sec--tinta" id="tablero">
+  <div class="wrap">
+    <p class="ojillo">El instrumento</p>
+    <h2>Esto es lo que te llevas.</h2>
+    <p class="entrada" style="color:#c6d1e6">
+      La plataforma existe y está corriendo hoy. Estas son capturas de pantalla de la
+      herramienta con la que ya trabajan equipos reales.
+    </p>
+
+    <div class="reja reja--2" style="margin-top:46px">
+      <figure class="mock mock--grande">
+        <img src="/imagenes/tablero-evolucion.webp" width="2000" height="1090" alt="Reporte de evolución por dimensión de un colaborador a lo largo de seis semanas">
+        <figcaption>La curva: cómo se mueve cada parámetro semana a semana, por persona.</figcaption>
+      </figure>
+      <figure class="mock">
+        <img src="/imagenes/tablero-sesion.webp" width="2000" height="1091" alt="Pantalla de sesión de coaching dentro del tablero" loading="lazy">
+        <figcaption>La sesión de coaching, con lo acordado y la fecha de revisión.</figcaption>
+      </figure>
+      <figure class="mock">
+        <img src="/imagenes/tablero-gladiadores.webp" width="2000" height="1088" alt="Vista del equipo dentro del tablero" loading="lazy">
+        <figcaption>El equipo completo, en un solo lugar y en un solo lenguaje.</figcaption>
+      </figure>
+    </div>
+
+    <div class="acciones">
+      <a class="btn btn--blanco" href="#registro">Quiero mis 30 días</a>
+      <span class="bajo-btn" style="margin-top:0">Se activan el mismo día del webinar.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== QUÉ TE LLEVAS ====================== -->
+<section class="sec sec--humo" id="llevas">
+  <div class="wrap">
+    <div class="reja reja--2" style="align-items:center">
+      <div>
+        <p class="ojillo">Pase lo que pase</p>
+        <h2>Una hora, y el tablero<br>es tuyo al salir.</h2>
+        <p class="entrada">Sin comprar nada, sin reunión después y sin llamada de ventas. Si
+           la herramienta te sirve, ya lo vas a saber tú solo en treinta días.</p>
+
+        <ul class="palomas">
+          <li>
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="#1aab99"/><path d="M7 12.4l3.4 3.3L17 9" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span><b>30 días del tablero</b>, con tu equipo cargado.</span>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="#0066ff"/><path d="M7 12.4l3.4 3.3L17 9" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span><b>La guía de los ocho parámetros</b>, para calificar sin inventar criterios.</span>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="#3533cd"/><path d="M7 12.4l3.4 3.3L17 9" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span><b>La grabación</b>, por si ese día se te atraviesa algo.</span>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="#1aab99"/><path d="M7 12.4l3.4 3.3L17 9" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span><b>El grupo de WhatsApp</b>, para las dudas de las primeras semanas.</span>
+          </li>
+        </ul>
+
+        <div class="acciones">
+          <a class="btn" href="#registro">Apartar mi lugar</a>
+        </div>
+      </div>
+
+      <div class="ficha">
+        <h3>Para quién es</h3>
+        <p style="margin-bottom:22px">Directores, dueños y gerentes con gente a cargo, en
+           empresas de diez personas para arriba. Si tienes a quién medir, te sirve.</p>
+        <h3>Para quién no</h3>
+        <p>Si buscas una charla motivacional o un marco teórico de liderazgo, esta hora te va
+           a parecer seca. Aquí se califica, se cuenta y se decide.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== QUIÉN ====================== -->
+<section class="sec" id="quien">
+  <div class="wrap">
+    <div class="reja reja--2" style="align-items:center">
+      <figure class="retrato" style="aspect-ratio:1/1;box-shadow:var(--sombra-chica)">
+        <img src="/imagenes/tino-junta.webp" alt="Tino Lozano trabajando con un equipo directivo" loading="lazy">
+      </figure>
+      <div>
+        <p class="ojillo">Quién lo da</p>
+        <h2>Tino Lozano</h2>
+        <p class="entrada">
+          Quince años convirtiendo operaciones en números: qué cuesta, qué deja y dónde se
+          fuga. CEO de <b>Altec Group</b>, el holding detrás de <b>SCALEx</b>, la metodología
+          con la que se mide el tablero, y de <b>FlowHub</b>, donde se construyen los sistemas
+          y los agentes.
+        </p>
+        <p class="entrada">
+          El método es SCALEx y la plataforma donde vive es <b>app.scalexlatam.com</b>. Quien
+          firma esta hora es Tino; lo que la sostiene es un sistema que ya opera.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== DUDAS ====================== -->
+<section class="sec sec--humo" id="dudas">
+  <div class="wrap" style="max-width:860px">
+    <p class="ojillo">Antes de registrarte</p>
+    <h2 style="margin-bottom:38px">Lo que todos preguntan.</h2>
+
+    <details open>
+      <summary>¿De verdad es gratis?</summary>
+      <p>Sí. La hora no cuesta y los treinta días del tablero tampoco. No se pide tarjeta en
+         ningún momento, ni al registrarte ni al activar la herramienta.</p>
+    </details>
+    <details>
+      <summary>¿Y si ese día no puedo entrar?</summary>
+      <p>Regístrate igual. A todos los registrados les llega la grabación al día siguiente, y
+         los treinta días del tablero se activan de todas formas.</p>
+    </details>
+    <details>
+      <summary>¿Necesito traer a mi equipo?</summary>
+      <p>No hace falta. Puedes entrar solo y cargar a tu gente después. Si entran dos o tres
+         de tu empresa, la conversación del lunes les sale mucho más fácil.</p>
+    </details>
+    <details>
+      <summary>¿Qué tan grande tiene que ser mi empresa?</summary>
+      <p>De diez personas para arriba empieza a tener sentido medir. Por debajo de eso,
+         probablemente ya sabes de memoria cómo va cada quien.</p>
+    </details>
+    <details>
+      <summary>¿Esto es una presentación de venta disfrazada?</summary>
+      <p>Al final cuento qué más hacemos, en dos minutos y sin presión. El resto de la hora
+         es contenido y una demostración en vivo. El tablero te lo llevas aunque no compres
+         nada nunca.</p>
+    </details>
+    <details>
+      <summary>¿En qué plataforma es?</summary>
+      <p>En línea. La liga de acceso te llega por correo al registrarte y se repite el mismo
+         día, una hora antes de empezar.</p>
+    </details>
+  </div>
+</section>
+
+<!-- ====================== REGISTRO ====================== -->
+<section class="sec sec--tinta" id="registro">
+  <div class="wrap">
+    <div class="registro">
+      <div>
+        <p class="ojillo">Tu lugar</p>
+        <h2>Nos vemos<br><span data-dato="fechaLarga">—</span>.</h2>
+        <p class="entrada" style="color:#c6d1e6">
+          <span data-dato="hora">—</span>, una hora, en vivo. Te llega la liga por correo en
+          cuanto te registres, y un recordatorio el mismo día.
+        </p>
+
+        <div class="reloj" id="reloj2" style="justify-content:flex-start"></div>
+
+        <div class="acciones" style="margin-top:34px">
+          <a class="btn btn--wa" id="grupoWa" href="#" rel="noopener">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 2.1.55 4.08 1.6 5.85L2 22l4.38-1.68a9.9 9.9 0 004.66 1.19h.01c5.46 0 9.91-4.45 9.91-9.91C20.96 6.45 16.5 2 12.04 2zm5.8 14.03c-.25.69-1.44 1.32-1.98 1.37-.53.05-1.02.24-3.44-.72-2.9-1.14-4.73-4.13-4.87-4.32-.14-.19-1.16-1.54-1.16-2.94s.73-2.09.99-2.38c.26-.29.57-.36.76-.36l.54.01c.17.01.41-.07.64.49.25.59.84 2.04.91 2.19.07.15.12.32.02.51-.1.19-.15.31-.29.48-.15.17-.31.38-.44.51-.15.14-.3.3-.13.59.17.29.76 1.25 1.63 2.03 1.12 1 2.06 1.3 2.35 1.45.29.14.46.12.63-.07.17-.19.73-.85.92-1.14.19-.29.39-.24.65-.14.26.09 1.67.79 1.95.93.29.14.48.22.55.34.07.12.07.69-.18 1.38z"/></svg>
+            Entrar al grupo de WhatsApp
+          </a>
+        </div>
+        <p class="bajo-btn">Avisos del webinar y dudas durante las primeras semanas.</p>
+      </div>
+
+      <!--
+        Netlify Forms: funciona sin backend. Los registros aparecen en el panel
+        de Netlify, en Forms → webinar-ar90, y se exportan en CSV.
+
+        Para mandarlos a FlowHub más adelante: cambia el `action` por la función
+        que reciba el lead y quita `data-netlify`. El resto se queda igual.
+      -->
+      <form class="formulario" name="webinar-ar90" method="POST"
+            data-netlify="true" netlify-honeypot="empresa-extra" action="/ar90/gracias/">
+        <input type="hidden" name="form-name" value="webinar-ar90">
+        <p class="trampa"><label>No llenes esto <input name="empresa-extra" tabindex="-1" autocomplete="off"></label></p>
+
+        <h3 style="margin-bottom:20px">Regístrate gratis</h3>
+
+        <div class="campo">
+          <label for="nombre">Nombre y apellido</label>
+          <input id="nombre" name="nombre" type="text" required autocomplete="name" placeholder="Mariana Ortiz">
+        </div>
+        <div class="campo">
+          <label for="correo">Correo</label>
+          <input id="correo" name="correo" type="email" required autocomplete="email" placeholder="mariana@empresa.com">
+        </div>
+        <div class="campo">
+          <label for="telefono">WhatsApp</label>
+          <input id="telefono" name="telefono" type="tel" required autocomplete="tel" placeholder="+52 55 1234 5678">
+        </div>
+        <div class="campo">
+          <label for="empresa">Empresa</label>
+          <input id="empresa" name="empresa" type="text" required autocomplete="organization" placeholder="Empresa SA de CV">
+        </div>
+        <div class="campo">
+          <label for="gente">¿A cuánta gente tienes a cargo?</label>
+          <select id="gente" name="gente" required>
+            <option value="">Elige una</option>
+            <option>Menos de 10</option>
+            <option>De 10 a 30</option>
+            <option>De 30 a 100</option>
+            <option>Más de 100</option>
+          </select>
+        </div>
+
+        <button class="btn btn--ancho" type="submit">Apartar mi lugar</button>
+        <p class="aviso">Sin costo y sin tarjeta. Tus datos se usan para mandarte la liga y la
+           grabación, nada más.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== PIE ====================== -->
+<footer class="pie">
+  <div class="wrap pie__reja">
+    <div>
+      <b style="color:#fff">Alto rendimiento en 90 días</b><br>
+      <span data-dato="fechaLarga">—</span> · <span data-dato="hora">—</span>
+    </div>
+    <div>
+      <a href="/">agustinlozano.com</a> ·
+      <a href="https://app.scalexlatam.com" rel="noopener">SCALEx</a> ·
+      <a href="/alto-rendimiento/">Taller in company</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ====================== BARRA PEGADA ====================== -->
+<div class="pegada" id="pegada">
+  <div class="pegada__texto">
+    <b>Alto rendimiento en 90 días</b>
+    <span><span data-dato="fechaLarga">—</span> · <span data-dato="hora">—</span></span>
+  </div>
+  <a class="btn" href="#registro">Regístrate gratis</a>
+</div>
+
+<script>
+/* Los datos del evento viven aquí y nada más aquí.
+ *
+ * `cuando` es la fecha y hora de inicio con el huso de la Ciudad de México,
+ * que desde 2022 ya no cambia en invierno y por eso queda fijo en -06:00.
+ *
+ * Ojo con el día de la semana: el flyer decía «jueves 4 de diciembre» y el 4
+ * de diciembre de 2026 cae en viernes. Si se mueve a otro día, hay que
+ * cambiarlo también en el flyer, en el video y en los anuncios. */
+var DATOS = {
+  cuando: '2026-12-03T17:00:00-06:00',
+  fechaLarga: 'Jueves 3 de diciembre',
+  fechaCorta: '3 de diciembre',
+  hora: '17:00 h, CDMX',
+  /* El grupo de WhatsApp: pega aquí la liga de invitación cuando exista. Hasta
+     entonces, el botón se esconde solo en vez de llevar a ningún lado. */
+  grupoWhatsApp: '',
+};
+
+/* Cada dato se escribe en todos los lugares que lo piden, de una sola vez. */
+document.querySelectorAll('[data-dato]').forEach(function (n) {
+  var v = DATOS[n.getAttribute('data-dato')];
+  if (v) n.textContent = v;
+});
+
+/* El botón del grupo aparece solo cuando hay liga. Un botón que no lleva a
+   ningún lado cuesta más confianza de la que ahorra. */
+(function () {
+  var wa = document.getElementById('grupoWa');
+  if (!wa) return;
+  if (DATOS.grupoWhatsApp) {
+    wa.href = DATOS.grupoWhatsApp;
+    wa.target = '_blank';
+  } else {
+    var caja = wa.closest('.acciones');
+    if (caja) caja.style.display = 'none';
+    var pie = caja && caja.nextElementSibling;
+    if (pie && pie.classList.contains('bajo-btn')) pie.style.display = 'none';
+  }
+})();
+
+/* La cuenta regresiva. Se dibuja en los dos relojes a la vez y, una vez que
+   empieza el webinar, se cambia sola por un aviso en lugar de contar en
+   negativo. */
+(function () {
+  var cajas = [document.getElementById('reloj2')].filter(Boolean);
+  var corta = document.getElementById('faltan');
+  var meta = new Date(DATOS.cuando).getTime();
+
+  function pinta() {
+    var falta = meta - Date.now();
+    var html;
+    if (corta) {
+      var d = Math.ceil(falta / 86400000);
+      corta.textContent = falta <= 0 ? '· ahora' : (d === 1 ? '· mañana' : '· faltan ' + d + ' días');
+    }
+    if (!cajas.length) return;
+    if (falta <= 0) {
+      html = '<div style="min-width:auto;padding:14px 26px"><b style="font-size:21px">Estamos en vivo</b></div>';
+    } else {
+      var s = Math.floor(falta / 1000);
+      var partes = [
+        [Math.floor(s / 86400), 'días'],
+        [Math.floor(s / 3600) % 24, 'horas'],
+        [Math.floor(s / 60) % 60, 'min'],
+        [s % 60, 'seg'],
+      ];
+      html = partes.map(function (p) {
+        return '<div><b>' + String(p[0]).padStart(2, '0') + '</b><span>' + p[1] + '</span></div>';
+      }).join('');
+    }
+    cajas.forEach(function (c) { c.innerHTML = html; });
+  }
+
+  pinta();
+  setInterval(pinta, 1000);
+})();
+
+/* En pantallas angostas los botones bajan a la franja de datos, debajo de la
+   imagen. Se mueve el bloque en lugar de duplicarlo: un solo juego de botones
+   que mantener. */
+(function () {
+  var acciones = document.querySelector('.portada__acciones');
+  var franja = document.querySelector('.franja-datos .wrap');
+  var portada = document.querySelector('.portada');
+  if (!acciones || !franja || !portada) return;
+  var angosta = window.matchMedia('(max-width: 920px)');
+
+  function acomoda() {
+    var destino = angosta.matches ? franja : portada;
+    if (acciones.parentElement !== destino) {
+      destino.insertBefore(acciones, destino.firstChild);
+    }
+  }
+
+  acomoda();
+  angosta.addEventListener('change', acomoda);
+})();
+
+/* La barra de abajo entra cuando la portada ya se fue, y se quita sola al
+   llegar al formulario para no taparlo. */
+(function () {
+  var barra = document.getElementById('pegada');
+  var registro = document.getElementById('registro');
+  if (!barra || !registro) return;
+
+  function revisa() {
+    var pasoPortada = window.scrollY > window.innerHeight * 0.75;
+    var enRegistro = registro.getBoundingClientRect().top < window.innerHeight;
+    barra.classList.toggle('vista', pasoPortada && !enRegistro);
+  }
+
+  revisa();
+  window.addEventListener('scroll', revisa, { passive: true });
+  window.addEventListener('resize', revisa);
+})();
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Event",
+  "name": "Alto rendimiento en 90 días",
+  "description": "Webinar gratuito de una hora: cómo se mide un equipo en ocho números y cómo se sostiene el coaching sin la agenda del director.",
+  "startDate": "2026-12-03T17:00:00-06:00",
+  "endDate": "2026-12-03T18:00:00-06:00",
+  "eventAttendanceMode": "https://schema.org/OnlineEventAttendanceMode",
+  "eventStatus": "https://schema.org/EventScheduled",
+  "location": {
+    "@type": "VirtualLocation",
+    "url": "https://agustinlozano.com/ar90"
+  },
+  "image": ["https://agustinlozano.com/imagenes/og-alto-rendimiento.jpg"],
+  "organizer": {
+    "@type": "Person",
+    "name": "Tino Lozano",
+    "url": "https://agustinlozano.com"
+  },
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "MXN",
+    "availability": "https://schema.org/InStock",
+    "url": "https://agustinlozano.com/ar90"
+  }
+}
+</script>
+
+</body>
+</html>
