@@ -176,6 +176,13 @@ button,input,select{font:inherit;color:inherit}
 .fecha input:checked+.fecha__caja .fecha__linea{background:color-mix(in srgb,var(--color-4) 55%,transparent)}
 .fecha input:focus-visible+.fecha__caja{outline:.1875rem solid var(--color-2);outline-offset:.1875rem}
 @media(hover:hover){.fecha:hover .fecha__caja{border-color:color-mix(in srgb,var(--color-2) 42%,transparent)}}
+/* Una fecha ya apartada se queda a la vista a propósito: un calendario con
+   huecos ocupados dice más de la demanda que uno que solo muestra lo libre. */
+.fecha--tomada{cursor:default}
+.fecha--tomada .fecha__caja{opacity:.46;border-style:dashed;background:transparent}
+.fecha--tomada .fecha__nota{justify-self:start;padding:.0625rem .5rem;border-radius:62.5rem;background:color-mix(in srgb,var(--color-2) 15%,transparent);color:color-mix(in srgb,var(--color-2) 75%,transparent)}
+.fecha--tomada .fecha__marca{display:none}
+@media(hover:hover){.fecha--tomada:hover .fecha__caja{border-color:color-mix(in srgb,var(--color-2) 20%,transparent)}}
 .fecha__marca{position:absolute;top:1.5rem;right:1.5rem;width:1.25rem;height:1.25rem;border-radius:50%;border:.125rem solid color-mix(in srgb,var(--color-2) 32%,transparent)}
 .fecha input:checked~.fecha__marca{background:var(--color-4);border-color:var(--color-4)}
 .fecha input:checked~.fecha__marca::after{content:"";position:absolute;left:.3125rem;top:.1875rem;width:.3125rem;height:.5625rem;border-right:.125rem solid var(--color-1);border-bottom:.125rem solid var(--color-1);rotate:45deg}
@@ -536,27 +543,27 @@ body{padding-bottom:5rem}
             </span>
             <span class="fecha__marca" aria-hidden="true"></span>
           </label>
-          <label class="fecha">
-            <input type="radio" name="fecha" value="Puebla-16-17-nov" form="reserva">
+          <label class="fecha fecha--tomada">
+            <input type="radio" name="fecha" value="Puebla-16-17-nov" form="reserva" disabled>
             <span class="fecha__caja">
               <span class="fecha__dia">16–17</span>
               <span class="fecha__mes">Noviembre</span>
               <span class="fecha__linea" aria-hidden="true"></span>
               <span class="fecha__ciudad">Puebla</span>
               <span class="fecha__dias">lunes y martes</span>
-              <span class="fecha__nota"></span>
+              <span class="fecha__nota">Reservada</span>
             </span>
             <span class="fecha__marca" aria-hidden="true"></span>
           </label>
-          <label class="fecha">
-            <input type="radio" name="fecha" value="Puebla-23-24-nov" form="reserva">
+          <label class="fecha fecha--tomada">
+            <input type="radio" name="fecha" value="Guadalajara-23-24-nov" form="reserva" disabled>
             <span class="fecha__caja">
               <span class="fecha__dia">23–24</span>
               <span class="fecha__mes">Noviembre</span>
               <span class="fecha__linea" aria-hidden="true"></span>
-              <span class="fecha__ciudad">Puebla</span>
+              <span class="fecha__ciudad">Guadalajara</span>
               <span class="fecha__dias">lunes y martes</span>
-              <span class="fecha__nota"></span>
+              <span class="fecha__nota">Reservada</span>
             </span>
             <span class="fecha__marca" aria-hidden="true"></span>
           </label>
