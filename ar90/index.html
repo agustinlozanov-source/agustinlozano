@@ -381,6 +381,19 @@ p { margin: 0; }
 .mock figcaption { padding: 18px 24px; font-size: 15.5px; color: #b9c6df; border-top: 1px solid rgba(255,255,255,.1); }
 .mock--grande { grid-column: 1 / -1; }
 
+/* ---- El equipo --------------------------------------------------------- */
+/* La foto va completa: nadie se recorta. Por eso la proporción está clavada
+   a la del archivo y no se usa object-fit. */
+
+.equipo-foto {
+  margin: 46px 0 0;
+  border-radius: var(--r1);
+  overflow: hidden;
+  box-shadow: var(--sombra);
+  background: #0a0e1a;
+}
+.equipo-foto img { display: block; width: 100%; height: auto; aspect-ratio: 1774 / 887; }
+
 /* ---- Listas ------------------------------------------------------------ */
 
 .palomas { list-style: none; margin: 26px 0 0; padding: 0; display: grid; gap: 14px; }
@@ -491,6 +504,10 @@ details p { color: var(--gris); margin-top: 14px; font-size: 17px; }
 
 @media (max-width: 520px) {
   body { font-size: 17px; }
+  /* En un teléfono la foto es muy baja y las caras quedan chicas. Sacarla a
+     los bordes recupera los dos márgenes, que es todo lo que hay que ganar
+     sin recortar a nadie. */
+  .equipo-foto { margin-inline: -20px; border-radius: 0; box-shadow: none; }
   .firma { height: 46px; }
   .chip { padding: 9px 16px; font-size: 13.5px; }
   .btn { width: 100%; padding: 18px 26px; }
@@ -796,6 +813,33 @@ details p { color: var(--gris); margin-top: 14px; font-size: 17px; }
           firma esta hora es Tino; lo que la sostiene es un sistema que ya opera.
         </p>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== EL EQUIPO ====================== -->
+<!--
+  Va justo después de Tino y antes de las dudas: quien acaba de leer quién da
+  la hora, lo siguiente que se pregunta es quién la sostiene.
+-->
+<section class="sec sec--tinta" id="equipo">
+  <div class="wrap">
+    <p class="ojillo">Quién está detrás</p>
+    <h2>El equipo que sostiene el sistema.</h2>
+    <p class="entrada" style="color:#c6d1e6">
+      Esa hora la doy yo. Lo que viene después —configurar tu tablero, acompañar los
+      primeros ciclos y contestar cuando algo no cuadra— lo hace este equipo. Son con
+      quienes vas a hablar cuando actives tus treinta días.
+    </p>
+
+    <figure class="equipo-foto">
+      <img src="/imagenes/equipo-ar90.webp" width="1774" height="887" loading="lazy" decoding="async"
+           alt="Tino Lozano al frente de su equipo de seis personas, con íconos de métricas, reloj y curva ascendente al fondo">
+    </figure>
+
+    <div class="acciones">
+      <a class="btn btn--blanco" href="#registro">Regístrate gratis</a>
+      <span class="bajo-btn" style="margin-top:0"><span data-dato="fechaLarga">—</span>, una hora.</span>
     </div>
   </div>
 </section>
